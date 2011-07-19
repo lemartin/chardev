@@ -4,22 +4,29 @@
 	include('../locale/en.php');
 	
 	mysql_query("truncate table chardev_cataclysm_static.chardev_random_suffix");
-	$result = mysql_query("select * from chardev_cataclysm.item_sparse i inner join chardev_cataclysm_static.chardev_item_stats cis on i.id = cis.itemid where donotshow = 0 and RandomSuffixID order by id desc");
+	$result = mysql_query("
+		select * from chardev_cataclysm.item_sparse i 
+			inner join chardev_cataclysm_static.chardev_item_stats cis on i.id = cis.itemid
+		where donotshow = 0 and RandomSuffixID
+		order by id desc
+	");
 	
 	while( $record = mysql_fetch_assoc($result) ) { 
-		$bnet_item = mysql_fetch_assoc(mysql_query("SELECT * FROM chardev_cataclysm_static.chardev_data_bnet_item WHERE ItemID=".$record['ID']));
-		if( !$bnet_item ) {
-			steal_item($record['ID']);
-		}
-		$bnet_item = mysql_fetch_assoc(mysql_query("SELECT * FROM chardev_cataclysm_static.chardev_data_bnet_item WHERE ItemID=".$record['ID']));
-		if( !$bnet_item ) {
-			echo "Item not found: ".$record['ID']."!\n";
-		}
+		//$bnet_item = mysql_fetch_assoc(mysql_query("SELECT * FROM chardev_cataclysm_static.chardev_data_bnet_item WHERE ItemID=".$record['ID']));
+		//if( !$bnet_item ) {
+		//	steal_item($record['ID']);
+		//}
+		//$bnet_item = mysql_fetch_assoc(mysql_query("SELECT * FROM chardev_cataclysm_static.chardev_data_bnet_item WHERE ItemID=".$record['ID']));
+		//if( !$bnet_item ) {
+		//	echo "Item not found: ".$record['ID']."!\n";
+		//}
+		
+		$xml_plain = get_random_property_xml($record['ID']);
 		
 		
 		try {
 			$old = error_reporting(1); 
-			$xml = simplexml_load_string($bnet_item["XML"]);
+			$xml = simplexml_load_string($xml_plain);
 			error_reporting($old);
 			if( !$xml ) {
 				echo "invalid xml\n";
@@ -31,15 +38,22 @@
 				echo mysql_error();
 				continue;
 			}
-			
-			$property_parent = $xml->xpath('//*[@id="location-randomProperties"]');
+			//print_r($xml);
+			$property_parent = $xml->xpath('//*[@id="related-randomProperties"]');
 			$property_parent = $property_parent[0];
-			$trs = $property_parent->div->table->tbody->tr;
+			//print_r($property_parent); die;
+			$trs = $property_parent->div[2]->table->tbody->tr;
 			echo "Item: ".$record['Name']."\n";
 			for( $h=0;$h<count($trs);$h++) {
+			
+				if( $trs[$h]["class"] == "no-results" ) {
+					continue;
+				}
+			
 				mb_regex_encoding('UTF-8');
-				$name = mb_ereg_replace ('…','',preg_replace('/\.\.\./','',$trs[$h]->td[0]));
+				$name = mb_ereg_replace ('…','',preg_replace('/\.\.\./','',$trs[$h]->td[0]->strong[0]));
 				$desc = preg_replace('/\n|\t/','',$trs[$h]->td[1]);
+				
 				//echo $h.":\n";
 				//echo "Name: ".$name."(".$trs[$h]->td[0].")\n";
 				//echo "Description: ".$desc."\n";
@@ -55,7 +69,7 @@
 				preg_match_all("/\D(\d+)\D/",$desc,$matches);
 				
 				if( 0 == count($matches[1])) {
-					echo "Found no vals form ".$name." on ".$record['Name']."(".$record['ID'].")\n";
+					echo "Found no vals for ".$name." on ".$record['Name']."(".$record['ID'].")\n";
 					continue;
 				}
 				
@@ -166,11 +180,28 @@
 		}
 	}
 	
+	function get_random_property_xml($id) {
+		$contents = file_get_contents("http://eu.battle.net/wow/en/item/".$id."/randomProperties");
+		
+		if( !$contents ) {
+			echo "no content\n";
+			return;
+		}
+		
+		$xml = simplexml_load_string($contents);
+		if( !$xml ) {
+			echo "invalid xml\n";
+			return;
+		}
+		
+		return $contents;
+	}
+	
 	function steal_item($id) {
 		$contents = file_get_contents("http://eu.battle.net/wow/en/item/".$id);
 		
 		if( !$contents ) {
-			echo "no conent\n";
+			echo "no content\n";
 			return;
 		}
 		

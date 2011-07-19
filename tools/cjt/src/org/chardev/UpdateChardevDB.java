@@ -10,6 +10,28 @@ public class UpdateChardevDB {
 	
 	private static final int ITEM_SPARSE_SKIP = 0x698E8 - 32;
 	
+	private static final String dbs[] = new String[]{
+		"jdbc:mysql://localhost:3306/chardev_cataclysm?",
+		"jdbc:mysql://localhost:3306/chardev_cataclysm_fr?",
+		"jdbc:mysql://localhost:3306/chardev_cataclysm_de?",
+		"jdbc:mysql://localhost:3306/chardev_cataclysm_es?",
+		"jdbc:mysql://localhost:3306/chardev_cataclysm_ru?"
+	};
+	private static final String basePaths[] = new String[]{
+		"Y:/chardev/cataclysm/DBFilesClient/",
+		"Y:/chardev/cataclysm/fr/DBFilesClient/",
+		"Y:/chardev/cataclysm/de/DBFilesClient/",
+		"Y:/chardev/cataclysm/es/DBFilesClient/",
+		"Y:/chardev/cataclysm/ru/DBFilesClient/"
+	};
+	private static final String locales[] = new String[]{
+		"EN",
+		"FR",
+		"DE",
+		"ES",
+		"RU"
+	};
+	
 	private static Connection databaseConnection;
 	private static boolean connectToDatabase( String url ) {
 		try {
@@ -34,8 +56,6 @@ public class UpdateChardevDB {
 	public static void main(String[] args) {
 		connectToDatabase("jdbc:mysql://localhost:3306/chardev_cataclysm?");
 		
-		cacheUpdate(); System.exit(0);
-		
 		DBCParser siecParser = new DBCParser(
 				databaseConnection, 
 				"Y:/chardev/cataclysm/DBFilesClient/spellitemenchantmentcondition.dbc", 
@@ -44,28 +64,7 @@ public class UpdateChardevDB {
 		siecParser.truncateTargetTable();
 		siecParser.setIgnoreFields(true);
 		siecParser.parse();
-		
-		String dbs[] = new String[]{
-			"jdbc:mysql://localhost:3306/chardev_cataclysm?",
-			"jdbc:mysql://localhost:3306/chardev_cataclysm_fr?",
-			"jdbc:mysql://localhost:3306/chardev_cataclysm_de?",
-			"jdbc:mysql://localhost:3306/chardev_cataclysm_es?",
-			"jdbc:mysql://localhost:3306/chardev_cataclysm_ru?"
-		};
-		String basePaths[] = new String[]{
-			"Y:/chardev/cataclysm/DBFilesClient/",
-			"Y:/chardev/cataclysm/fr/DBFilesClient/",
-			"Y:/chardev/cataclysm/de/DBFilesClient/",
-			"Y:/chardev/cataclysm/es/DBFilesClient/",
-			"Y:/chardev/cataclysm/ru/DBFilesClient/"
-		};
-		String locales[] = new String[]{
-			"EN",
-			"FR",
-			"DE",
-			"ES",
-			"RU"
-		};
+	
 		boolean skipLocale = false;
 		
 		connectToDatabase(dbs[0]);
@@ -242,15 +241,7 @@ public class UpdateChardevDB {
 		//	DBC FILES
 		//
 		for( int i=0; i<files.length; i++ ) {
-			System.out.println("Processing: "+files[i]);
-			DBCParser p = new DBCParser(
-					databaseConnection, 
-					basePath+files[i]+".dbc", 
-					files[i]
-			);
-			p.truncateTargetTable();
-			p.parse();
-			
+			updateTable(files[i], basePath);
 		}
 		//
 		//	SPELL ITEM ENCHANTMENT CONDITION
@@ -286,6 +277,8 @@ public class UpdateChardevDB {
 			"itemsubclass",
 			"itemclass",
 			"itemset",
+			"itemrandomsuffix",
+			"itemrandomproperties",
 			"skillline",
 			"spell",
 			"spelldescriptionvariables",
@@ -297,15 +290,7 @@ public class UpdateChardevDB {
 		//	DBC FILES
 		//	
 		for( int i=0; i<files.length; i++ ) {
-			System.out.println("Processing: "+files[i]);
-			DBCParser p = new DBCParser(
-					databaseConnection, 
-					basePath+files[i]+".dbc", 
-					files[i]
-			);
-			p.truncateTargetTable();
-			p.parse();
-			
+			updateTable(files[i], basePath);
 		}
 		//
 		//	ITEM SPARSE
@@ -321,5 +306,16 @@ public class UpdateChardevDB {
 		p.setLocale(locale);
 		p.addVersion();
 		p.parse();	
+	}
+	
+	private static void updateTable( String name, String basePath ) {
+		System.out.println("Processing: "+name);
+		DBCParser p = new DBCParser(
+				databaseConnection, 
+				basePath+name+".dbc", 
+				name
+		);
+		p.truncateTargetTable();
+		p.parse();
 	}
 }

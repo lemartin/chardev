@@ -159,6 +159,31 @@ $reforgable_stats = array(6,13,14,31,32,36,37,49);
 
 $classToSpellClass = array(	4,	10,	9,	8,	6,	15,	11,	3,	5,	0,	7);
 
+
+$g_slot_to_rnd_pts_grp = array(
+	1=>0,
+	5=>0,
+	20=>0,
+	7=>0,
+	17=>0,
+	3=>1,
+	6=>1,
+	8=>1,
+	10=>1,
+	2=>2,
+	9=>2,
+	11=>2,
+	14=>2,
+	16=>2,
+	23=>2,
+	13=>3,
+	21=>3,
+	22=>3,
+	15=>4,
+	25=>4,
+	26=>4
+);
+
 define( "USE_CACHE", isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST']!="127.0.0.1" && $_SERVER['HTTP_HOST']!="192.168.178.100" ,true );
 define("DAYS_TILL_CACHE_INVALIDATION",1,true);
 
@@ -569,30 +594,6 @@ function get_item( $item_id ) {
 	}
 	return $item;
 }
-
-$g_slot_to_rnd_pts_grp = array(
-	1=>0,
-	5=>0,
-	20=>0,
-	7=>0,
-	17=>0,
-	3=>1,
-	6=>1,
-	8=>1,
-	10=>1,
-	2=>2,
-	9=>2,
-	11=>2,
-	14=>2,
-	16=>2,
-	23=>2,
-	13=>3,
-	21=>3,
-	22=>3,
-	15=>4,
-	25=>4,
-	26=>4
-);
 
 function get_random_suffix( $id, $item_level,$quality,$inventory_slot ) {
 	
