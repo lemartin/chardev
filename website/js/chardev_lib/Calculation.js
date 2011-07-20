@@ -486,9 +486,10 @@ function CCalculation(){
 		rating[33] += m_effect[189][24];
 		
 		rating[21]	+= m_effect[220][1792] / 100 * stat[4];
-		
-		if (chrClassId == 32) {
-			rating[3] += Math.floor(stat[0] / 4);
+		//
+		// Strength to Parry Rating
+		if( chrClassId == PALADIN || chrClassId == WARRIOR || chrClassId == DEATHKNIGHT ) {
+			rating[3] += Math.floor( stat[0] * 0.27 );
 		}
 		
 		//##################################################################
@@ -570,9 +571,15 @@ function CCalculation(){
 			defense -= 25;
 		}
 		//
-		dodge = getDodgePerAgi(stat[1] - baseStat[1] ,chrClassId,level) + rating[2]/this.getRatingCoefficient(2) + (defense - level * 5) * 0.04;
-		dodge = deminishingReturnDodge( dodge , chrClassId );
-		dodge += getDodgePerAgi(baseStat[1],chrClassId,level) + m_effect[49] + getBaseDodge(chrClassId);
+		if( chrClassId == PALADIN || chrClassId == WARRIOR || chrClassId == DEATHKNIGHT ) {
+			dodge = rating[2]/this.getRatingCoefficient(2) + (defense - level * 5) * 0.04;
+			dodge = deminishingReturnDodge( dodge , chrClassId ) + m_effect[49] + 5;
+		}
+		else {
+			dodge = getDodgePerAgi(stat[1] - baseStat[1] ,chrClassId,level) + rating[2]/this.getRatingCoefficient(2) + (defense - level * 5) * 0.04;
+			dodge = deminishingReturnDodge( dodge , chrClassId );
+			dodge += getDodgePerAgi(baseStat[1],chrClassId,level) + m_effect[49] + getBaseDodge(chrClassId);
+		}
 		
 		parry = rating[3]/this.getRatingCoefficient(3) + (defense - level * 5) * 0.04
 		parry = m_effect[47] + deminishingReturnParry( parry , chrClassId );

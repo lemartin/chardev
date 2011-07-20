@@ -2328,7 +2328,6 @@ function get_battlenet_profile( $numRegion, $server, $name, &$error )
 		$reforge = array(-1,-1);
 		$link = $div->div->div->a;
 		parse_str($link['data-item'],$item_data);
-		
 		// 
 		// try to extract is from hrf
 		if( ! isset( $item_data["i"] ) )  {
@@ -2350,9 +2349,9 @@ function get_battlenet_profile( $numRegion, $server, $name, &$error )
 		
 		$char[1][$GLOBALS['convert_battlenet_slot'][(int)$div['data-id']]] = array(
 			get_item( isset($item_data["i"])  ? (int)$item_data["i"]  : 0  ),
-			get_gem( isset($item_data["g0"])  ? (int)$item_data["g0"]  : 0  ),
-			get_gem( isset($item_data["g1"])  ? (int)$item_data["g1"]  : 0  ),
-			get_gem( isset($item_data["g2"])  ? (int)$item_data["g2"]  : 0  ),
+			get_item( isset($item_data["g0"])  ? (int)$item_data["g0"]  : 0  ),
+			get_item( isset($item_data["g1"])  ? (int)$item_data["g1"]  : 0  ),
+			get_item( isset($item_data["g2"])  ? (int)$item_data["g2"]  : 0  ),
 			get_spell_item_enchantment( isset($item_data["e"])  ? (int)$item_data["e"]  : 0  ),
 			$reforge, // chardev reforge
 			isset($item_data["r"])  ? (int)$item_data["r"]  : 0, // random props
