@@ -117,6 +117,7 @@ SocketInterface.prototype.update = function( character, slot, socket ) {
 		
 		for( i=0; i<itm._socketColors.length; i++ ) {
 			Tools.removeChilds(this._socketParent._cells[0][i]);
+			
 			if( itm._socketColors[i] > 0 || bsSocket ) {
 				if( itm._socketColors[i] <= 0 ) {
 					bsSocket = false;

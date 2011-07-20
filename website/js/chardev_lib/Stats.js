@@ -360,6 +360,8 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 	this._armorModPerCent = baseEffects[142][0]/100;
 	
 	for( i = 0; i < INV_ITEMS; i++) {
+		var hasBSSocket = this._character.hasBlacksmithingSocket(i);
+		
 		itm = preview ? inv.get(i) : inv._items[i][0];
 		if( itm == null ) {
 			continue;
@@ -372,6 +374,16 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 		this._getItemStats(itm);
 		for( j=0; j<3; j++ ) {
 			if( itm._gems[j] ) {
+				
+				if( itm._socketColors[j] <= 0 ) {
+					if( ! hasBSSocket ) {
+						continue;
+					}
+					else {
+						hasBSSocket = false;
+					}
+				}
+
 				this._getEnchantStats(itm._gems[j]._gemProperties._enchant);
 			}
 		}
@@ -803,14 +815,25 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 	// class check necessary for diminishing returns;
 	if( hasClass ) {
 		
-		this._dodge = 
-			baseEffects[49] +
-			BASE_DODGE[classId] +
-		 	this._baseAttributes[1] * baseStatsLevel[9] +
-			this.deminishingReturnDodge(
-				this._dodgeRating / COMBAT_RATINGS[2][level-1] + baseStatsLevel[9] * ( this._attributes[1] - this._baseAttributes[1]) ,
-				classId
-		);
+		if( classId == PALADIN || classId == WARRIOR || classId == DEATHKNIGHT ) {
+			this._dodge = 
+				baseEffects[49] +
+				5 +
+				this.deminishingReturnDodge(
+					this._dodgeRating / COMBAT_RATINGS[2][level-1] + baseStatsLevel[9] ,
+					classId
+			);
+		}
+		else {
+			this._dodge = 
+				baseEffects[49] +
+				BASE_DODGE[classId] +
+			 	this._baseAttributes[1] * baseStatsLevel[9] +
+				this.deminishingReturnDodge(
+					this._dodgeRating / COMBAT_RATINGS[2][level-1] + baseStatsLevel[9] * ( this._attributes[1] - this._baseAttributes[1]) ,
+					classId
+			);
+		}
 		
 		if( GameInfo.canParry(classId) ) {
 			this._parryRating = this._ratings[3] + baseEffects[189][3];
@@ -818,7 +841,7 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 			case WARRIOR:
 			case PALADIN:
 			case DEATHKNIGHT:
-				this._parryRating += ((this._attributes[0] - baseAttributesUnmodified[0])>>2);
+				this._parryRating += (this._attributes[0] - baseAttributesUnmodified[0]) * 0.27;
 				break;
 			}
 			this._parry = 5 + baseEffects[47] + this.deminishingReturnParry( 

@@ -1020,7 +1020,13 @@ Character.prototype.getActiveSpells = function()
  */
 Character.prototype.hasBlacksmithingSocket = function(slot)
 {
-	if( ( slot == 7 || slot == 8 ) && this._inventory.get(slot) != null && this._inventory.get(slot)._level >= 60 )
+	var bs = this.getProfessionById(PRIMARY_PROFESSION_BLACKSMITHING);
+	if( 
+		( slot == 7 || slot == 8 ) 
+		&& this._inventory.get(slot) != null 
+		&& this._inventory.get(slot)._level >= 60 
+		&& bs != null
+		&& bs._level >= 400 )
 	{
 		return true;
 	}

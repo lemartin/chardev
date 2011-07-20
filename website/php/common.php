@@ -2234,6 +2234,7 @@ function get_battlenet_profile( $numRegion, $server, $name, &$error )
 		
 		$prm = $itm->tooltipParams;
 		
+		$reforge = null;
 		if( isset($prm->reforge) ) {
 			$reforge_id = (int)$itm->tooltipParams->reforge;
 			

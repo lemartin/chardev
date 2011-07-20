@@ -29,5 +29,20 @@ var Listener = {
 		else if (document.attachEvent) {
 			node.attachEvent("on" + event, scopedHandler);
 		}
+	},
+	/**
+	 * 
+	 * @param node
+	 * @param event
+	 * @param {Handler} handler
+	 * @param args
+	 */
+	addHandler : function( node, event, handler, args ) {
+		if (document.addEventListener)  {
+			node.addEventListener(event, function(){handler.notify(args);}, false);
+		}
+		else if (document.attachEvent) {
+			node.attachEvent("on" + event, function(){handler.notify(args);});
+		}
 	}
 };

@@ -201,7 +201,7 @@ ItemList.prototype._deserialize = function( data ) {
 				Listener.add( a, 'mouseover', Tooltip.showItem, Tooltip, [tmp._id] );
 			}
 			else {
-				Listener.add( a, 'mouseover', Tooltip.showItem, Tooltip, [tmp._id] );
+				Listener.add( a, 'mouseover', Tooltip.showGem, Tooltip, [tmp._id] );
 			}
 
 			if( this._onclickHandler ) {

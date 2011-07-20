@@ -146,6 +146,8 @@ var SLOT_TO_NAME = [
 	"ranged" //18
 ];
 
+var PRIMARY_PROFESSION_BLACKSMITHING = 164;
+
 var ID_TO_PROFESSION = {
 	164:"Blacksmithing",
 	165:"Leatherworking",
