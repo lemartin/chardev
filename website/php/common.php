@@ -2,6 +2,8 @@
 
 include_once 'error.php';
 
+require_once 'cpa_client/cpa_client.php';
+
 define("MAX_RECORDS",20);
 define("MAX_RECORDS_STAT_WEIGHTS",8);
 define("WOWREFORGE_STORAGE_TIMEOUT", 86400);
@@ -182,6 +184,28 @@ $g_slot_to_rnd_pts_grp = array(
 	15=>4,
 	25=>4,
 	26=>4
+);
+
+$g_slot_name_to_chardev_slot_id = array(
+	"head" => 0,
+	"neck" => 1,
+	"shoulder" => 2,
+	"back" => 3,
+	"chest" => 4,
+	"shirt" => 5,
+	"tabard" => 6,
+	"wrist" => 7,
+	"hands" => 8,
+	"waist" => 9,
+	"legs" => 10,
+	"feet" => 11,
+	"finger1" => 12,
+	"finger2" => 13,
+	"trinket1" => 14,
+	"trinket2" => 15,
+	"mainHand" => 16,
+	"offHand" => 17,
+	"ranged" => 18
 );
 
 define( "USE_CACHE", isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST']!="127.0.0.1" && $_SERVER['HTTP_HOST']!="192.168.178.100" ,true );
@@ -2169,176 +2193,50 @@ function get_battlenet_profile( $numRegion, $server, $name, &$error )
 		$error = ARMORY_IMPORT_NO_REGION;
 	}
 	
-	$regionLong = "US";
-	$region = "us";
+	$region = cpa_client::REGION_US;
 	switch($numRegion) {
-		case ARMORY_IMPORT_REGION_EU: $region = "eu";$regionLong="Europe"; break; 
-		case ARMORY_IMPORT_REGION_KR: $region = "kr";$regionLong="Korea"; break;
-		case ARMORY_IMPORT_REGION_TW: $region = "tw";$regionLong="Taiwan"; break;
-		case ARMORY_IMPORT_REGION_CN: $region = "cn";$regionLong="China"; break;
+		case ARMORY_IMPORT_REGION_EU: $region = cpa_client::REGION_EU; break; 
+		case ARMORY_IMPORT_REGION_KR: $region = cpa_client::REGION_KR; break;
+		case ARMORY_IMPORT_REGION_TW: $region = cpa_client::REGION_TW; break;
+		case ARMORY_IMPORT_REGION_CN: $region = cpa_client::REGION_CN; break;
 	}
-	//
-	//	URL
-	//
-	$url = 	'http://'.$region.'.battle.net/wow/'.
-			( $numRegion == ARMORY_IMPORT_REGION_KR ? 'ko':'en').
-			'/character/'.urlencode(mb_strtolower(str_replace(" ","-",$server),"UTF-8")).'/'.urlencode(mb_strtolower($name,"UTF-8"));
-	//
-	//
-	//	READ CHARACTER SHEET
-	//
-	$xml = http_get_xml($url.'/simple',$error);
-	
-	if( $xml == null ) {
-		return null;
-	}
-	//
-	//		race
-	//
-	$race = $xml->xpath('//*[@class="race"]');
-	if( preg_match('/game\/race\/([^\"]+)/i',$race[0]['href'],$race)) {
-		$race = $GLOBALS['race_name_to_id'][$race[1]];
-	}
-	else {
-		$error = ARMORY_IMPORT_UNABLE_TO_READ_XML." (race)";
-		return null;
-	}
-	//
-	//		class
-	//
-	$class = $xml->xpath('//*[@class="class"]');
-	if( preg_match('/game\/class\/([^\"]+)/i',$class[0]['href'],$class)) {
-		$class = $GLOBALS['class_name_to_id'][$class[1]];
-	}
-	else {
-		$error = ARMORY_IMPORT_UNABLE_TO_READ_XML." (class)";
-		return null;
-	}
-	//
-	//		level
-	//
-	$level = $xml->xpath('//*[@class="level"]');
-	if( !$level ) {
-		$error = ARMORY_IMPORT_UNABLE_TO_READ_XML." (level)";
-		return null;
-	}
-	$level = $level[0]->strong;
-	//
-	//		items
-	//
-	$summary_node = $xml->xpath('//*[@id="summary-inventory"]');
-	$summary_node = $summary_node[0];
-	//
-	//	TALENTS
-	//
-	$talent_build = "";
-	$talent_summary_node = $xml->xpath('//*[@id="summary-talents"]');
-	$primary = $talent_summary_node[0]->ul->li->a;
-	//		determine active spec
-	$talent_xml = "";
-	$url2 = $url.'/talent';
-	if( $primary['class'] == 'active' ) {
-		if( preg_match('/primary$/',$primary['href'])) {
-			$url2.='/primary';
-		}
-		else {
-			$url2.='/secondary';
-		}
-	}
-	else {
-		if( preg_match('/primary$/',$primary['href'])) {
-			$url2.='/secondary';
-		}
-		else {
-			$url2.='/primary';
-		}
-	}
-	
-	$old = error_reporting(1); 
-	$talent_content = file_get_contents($url2);
-	error_reporting($old);
-	//		abort if unable to read
-	if( !$talent_content ) {
-		return null;
-	}
-	//		find build within blizzard talent calc
-	preg_match('/build\s*\:\s*"(\d+)"/',$talent_content, $matches);
-	if( $matches ) {
-		$talent_build = $matches[1];
-	}
-	//
-	//	GLYPHS
-	//
-	$glyphs = array();
-	//		find items
-	preg_match_all('/\/wow\/\w\w\/item\/(\d+)\"/',$talent_content, $matches);
-	//		found something, parse glyph ids
-	if( $matches ) {
-		for($i=0;$i<count($matches[1]);$i++) {
-			$glyphs[] = (int)$matches[1][$i];
-		}
-	}
-	//
-	//	PROFESSIONS
-	//
-	$professions = array();
-	$prof = $xml->xpath('//*[@class="summary-professions"]');
-	
-	if( $prof && count($prof) > 0 && isset($prof[0]->ul) && count($prof[0]->ul) > 0 && isset($prof[0]->ul[0]->li)   ) {
-	
-		$prof_lis = $prof[0]->ul[0]->li;
-		
-		for($i=0;$i<count($prof_lis);$i++) {	
-			if( !isset($prof_lis[$i]->div) || count($prof_lis[$i]->div) < 1 ) {
-				continue;
-			}
-			$p_div = $prof_lis[$i]->div[0];
-			if( !isset($p_div->div) || count($p_div->div) < 2 ) {
-				continue;
-			}
-			$b = $p_div->div[1];
-			if( !isset($b->a) || count($b->a) < 1 || !isset($b->a[0]["data-fansite"]) ) {
-				continue;
-			}
-			if( !isset($b->span) || count($b->span) < 1 || !isset($b->span[0]->span) || count($b->span[0]->span) < 3 ) {
-				continue;
-			}
-			$vs = explode("|",$b->a[0]["data-fansite"]);
-			$professions[$i] = array( 
-				(int)$vs[1] ? (int)$vs[1] : 0, 
-				(int)$b->span[0]->span[2] 
-			);
-		}
-	}
-	//
-	//	OUTPUT
-	//
+
+	$client = new cpa_client( null, null );
+
+	$cp_json = $client->get_profile( 
+		$name, 
+		$server, 
+		$region,
+		array(
+			cpa_client::PROFILE_ITEMS, 
+			cpa_client::PROFILE_TALENTS, 
+			cpa_client::PROFILE_PROFESSIONS
+		)
+	);
+
+	$cp = json_decode($cp_json);
+
 	$char = array();
 	$char[0] = array(
-		mb_convert_case ( $name, MB_CASE_TITLE ) ,
-		mb_convert_case ( $server, MB_CASE_TITLE ) ,
-		get_character_race((int)$race),
-		get_character_class((int)$class),
-		(int)$level
+		mb_convert_case ( $cp->name, MB_CASE_TITLE ) ,
+		mb_convert_case ( $cp->realm, MB_CASE_TITLE ) ,
+		get_character_race((int)$cp->race),
+		get_character_class((int)$cp->class),
+		(int)$cp->level
 	);
-	
+
 	$char[1] = array();
-	for( $i=0;$i< count($summary_node->div); $i++ ) {
-		$div = $summary_node->div[$i];
-		$reforge = array(-1,-1);
-		$link = $div->div->div->a;
-		parse_str($link['data-item'],$item_data);
-		// 
-		// try to extract is from hrf
-		if( ! isset( $item_data["i"] ) )  {
-			preg_match("/\d+$/i", $link['href'],$match);
-			
-			$item_data["i"] = $match[0];
+	foreach( $cp->items as $key=>$itm ) {
+		
+		if( ! isset($GLOBALS['g_slot_name_to_chardev_slot_id'][$key]) ) {
+			continue;
 		}
 		
-		if( isset($item_data["re"]) ) {
+		$prm = $itm->tooltipParams;
+		
+		if( isset($prm->reforge) ) {
+			$reforge_id = (int)$itm->tooltipParams->reforge;
 			
-			$reforge_id = (int)$item_data["re"];
 			$reduced_id = floor( ($reforge_id - 113) / 7 );
 			$reduced = $GLOBALS['reforgable_stats'][$reduced_id];
 			$added = $reforge_id - 113 - $reduced_id * 7;
@@ -2347,25 +2245,46 @@ function get_battlenet_profile( $numRegion, $server, $name, &$error )
 			$reforge = array($reduced,$added);
 		}
 		
-		$char[1][$GLOBALS['convert_battlenet_slot'][(int)$div['data-id']]] = array(
-			get_item( isset($item_data["i"])  ? (int)$item_data["i"]  : 0  ),
-			get_item( isset($item_data["g0"])  ? (int)$item_data["g0"]  : 0  ),
-			get_item( isset($item_data["g1"])  ? (int)$item_data["g1"]  : 0  ),
-			get_item( isset($item_data["g2"])  ? (int)$item_data["g2"]  : 0  ),
-			get_spell_item_enchantment( isset($item_data["e"])  ? (int)$item_data["e"]  : 0  ),
+		$char[1][$GLOBALS['g_slot_name_to_chardev_slot_id'][$key]] = array(
+			get_item( isset($itm->id)  ? (int)$itm->id  : 0  ),
+			get_item( isset($prm->gem0)  ? (int)$prm->gem0  : 0  ),
+			get_item( isset($prm->gem1)  ? (int)$prm->gem1  : 0  ),
+			get_item( isset($prm->gem2)  ? (int)$prm->gem2  : 0  ),
+			get_spell_item_enchantment( isset($prm->enchant) ? (int)$prm->enchant : 0 ),
 			$reforge, // chardev reforge
-			isset($item_data["r"])  ? (int)$item_data["r"]  : 0, // random props
-			isset($item_data["ee"]) ? array(get_spell_item_enchantment($item_data["ee"])) : null
+			isset($prm->suffix)  ? (int)$prm->suffix  : 0, // random props
+			isset($prm->tiker) ? array(get_spell_item_enchantment($prm->tinker)) : null
 		);
 	}
-	$char[2] = $talent_build;
+
+	$active_talents = $cp->talents[0]->selected ? $cp->talents[0] : $cp->talents[1];
+
+	$char[2] = $active_talents->build;
 	$char[3] = array();
-	
-	foreach($glyphs as $glyph) {
-		$char[3][] = get_glyph_by_item((int)$glyph);
+
+	$prime_glyphs = $active_talents->glyphs->prime;
+	$major_glyphs = $active_talents->glyphs->major;
+	$minor_glyphs = $active_talents->glyphs->minor;
+
+	for( $i = 0; $i < count($prime_glyphs); $i++ ) {
+		$char[3][] = get_glyph((int)$prime_glyphs[$i]->glyph);
+	}
+	for( $i = 0; $i < count($major_glyphs); $i++ ) {
+		$char[3][] = get_glyph((int)$major_glyphs[$i]->glyph);
+	}
+	for( $i = 0; $i < count($minor_glyphs); $i++ ) {
+		$char[3][] = get_glyph((int)$minor_glyphs[$i]->glyph);
+	}
+
+	$primary_professions = $cp->professions->primary;
+	$char[5] = array();
+	for( $i = 0; $i < count($primary_professions); $i++ ) {
+		$char[5][] = array( 
+			$primary_professions[$i]->id, 
+			$primary_professions[$i]->rank 
+		);
 	}
 	
-	$char[5] = $professions;
 	return $char;
 }
 	
