@@ -63,7 +63,7 @@ public class UpdateCachedItemTables {
 							+ "FROM chardev_cataclysm_static.`item_working` s "
 							+ "INNER JOIN chardev_cataclysm.`item` i ON i.`ID` = s.`ID` "
 							+ "INNER JOIN chardev_cataclysm_static.`item_current` c ON c.`ID`=s.`ID` AND c.`Version` = s.`Version` "
-							+ "WHERE `Locale`='EN' ORDER BY i.`ID` ASC");
+							+ "WHERE `Locale`='EN' AND i.`ID`=71086 ORDER BY i.`ID` ASC");
 			//
 			// Iterate over the result
 			while (result.next()) {
@@ -291,7 +291,7 @@ public class UpdateCachedItemTables {
 							+ "OR Name like '%_PVP%' "
 							+ "OR Name like '%_PVE%' "
 							+ "OR Name like '%Cataclysm C01%' "
-							+ "OR TypeMask & 16 " + "OR Level >= 400 " + ")");
+							+ "OR TypeMask & 16 " + "OR Level > 404 " + ")");
 			filterStatement.close();
 		} catch (SQLException e) {
 			e.printStackTrace();

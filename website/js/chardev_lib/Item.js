@@ -1048,38 +1048,7 @@ Item.prototype._showRating = function( lvl, id, value ) {
 		br = v > 0 ? TextIO.formatFloat2(v) + "%" : "";
 		break;
 	}
-	return "<span class='green'>" + TextIO.sprintf1( locale['imprStats'][rating], value) + ( br ? "<span class='tt_rating_percent'>(" + br + ")<\span>" : "" ) + "</span>";
-	/*
-	if( id >= 12 && id<=37){
-		var tmp = "";
-		if(g_settings.language == "ru"){
-			tmp += locale['equip'] + ": " + TextIO.sprintf1( locale['imprStats'][id - 12], value);
-		}
-		else{
-			tmp += locale['equip']+": "+locale['improve']+" ";
-			if(g_settings.language == "fr"){
-				tmp += TextIO.sprintf1( locale['imprStats'][id - 12], value);
-			}
-			else{
-				tmp += locale['imprStats'][id - 12] + " " + locale['by'] + " " + value;
-			}
-		}
-		value = Math.floor(value / g_getCombatRating(id-11, lvl) * 100) / 100;
-		return "<span class='tooltip_item_rating_stat'>" + 
-			tmp + 
-			( value > 0 ? "<span class='tt_rating_percent'>(" + TextIO.formatFloat2(value) + ( id != 26 ? "%" : "" ) + ( ! g_settings.isPlanner ?  "@" + lvl : "" ) + ")</span>" : "" ) + 
-			"</span>";
-	}
-	else if ( id > 37 ) {
-		if (id == 43 || id == 46 || id == 49  || g_settings.language == "fr" || g_settings.language == "ru") {
-			return "<span class='green'>" + locale['equip'] + ": " + TextIO.sprintf1( locale['imprStats'][id - 12], value) + "</span>";
-		}
-
-		return "<span class='green'>" + locale['equip'] + ": " + locale['increases'] + " " + locale['imprStats'][id - 12] + " " + locale['by'] + " " + value + ".</span>";
-		
-	}
-	return "";
-	*/
+	return "<span class='green'>" + locale['equip'] + ": " + TextIO.sprintf1( locale['imprStats'][rating], value) + ( br ? "<span class='tt_rating_percent'>(" + br + ")<\span>" : "" ) + "</span>";
 };
 
 /**
