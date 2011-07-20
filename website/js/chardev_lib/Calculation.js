@@ -490,6 +490,7 @@ function CCalculation(){
 		// Strength to Parry Rating
 		if( chrClassId == PALADIN || chrClassId == WARRIOR || chrClassId == DEATHKNIGHT ) {
 			rating[3] += Math.floor( stat[0] * 0.27 );
+			echo("Parry rating from strength: "+ Math.floor( stat[0] * 0.27 ));
 		}
 		
 		//##################################################################
@@ -581,10 +582,10 @@ function CCalculation(){
 			dodge += getDodgePerAgi(baseStat[1],chrClassId,level) + m_effect[49] + getBaseDodge(chrClassId);
 		}
 		
-		parry = rating[3]/this.getRatingCoefficient(3) + (defense - level * 5) * 0.04
+		parry = rating[3]/this.getRatingCoefficient(3) + (defense - level * 5) * 0.04;
 		parry = m_effect[47] + deminishingReturnParry( parry , chrClassId );
 		
-		block = (m_effect[51] + rating[4]/this.getRatingCoefficient(4) + (defense - level * 5) * 0.04)
+		block = (m_effect[51] + rating[4]/this.getRatingCoefficient(4) + (defense - level * 5) * 0.04);
 		
 		resilienceRating = rating[24] + Math.min(rating[14],rating[15],rating[16]);
 		resilience = resilienceRating / this.getRatingCoefficient(24);
