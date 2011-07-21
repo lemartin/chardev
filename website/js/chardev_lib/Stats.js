@@ -473,12 +473,7 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 	if( level >= 80 ) {
 		this._masteryRating = this._ratings[38] + baseEffects[189][25];
 		
-		if( classId == MAGE && selectedTree == 2 ) {
-			this._mastery = 2 + this._masteryRating / COMBAT_RATINGS[25][level-1];
-		}
-		else {
-			this._mastery = 8 + this._masteryRating / COMBAT_RATINGS[25][level-1];
-		}
+		this._mastery = 8 + this._masteryRating / COMBAT_RATINGS[25][level-1];
 	}
 	//#########################################################################
 	//
