@@ -172,6 +172,34 @@ Inventory.prototype.set = function(slot,itm)
 		return false;
 	}
 	
+	if( 
+			itm._chrClassMask != 0 && 
+			(itm._chrClassMask&(1535)) != 1535 && 
+			( this._character._chrClass == null || ( itm._chrClassMask&(1<<(this._character._chrClass._id-1))) == 0  ) 
+	) {
+		
+		var n = 0;
+		var c = "";
+		
+		for ( i = 0; i <= 10 ; i++ ) {
+			if( itm._chrClassMask & (1<<i) ) {
+				c = locale['a_class'][i];
+				n++;
+				if( n> 2 ) {
+					break;
+				}
+			}
+		}
+		if( n == 1 ) {
+			Tooltip.showError("Dressing up like a "+c+" still doesn't make you one!");
+			return false;
+		}
+		
+		Tooltip.showError("Your Character does not fit the class requirements to wear "+itm._name+"!");
+		return false;
+	}
+	
+	
 	if(this._testUnique(itm, slot)) {
 	
 		this._testTwoHanders(itm,slot);

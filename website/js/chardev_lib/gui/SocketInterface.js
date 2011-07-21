@@ -225,7 +225,7 @@ var SI_BATCH_OP_REM_ALL_SAME_GEM = 3;
 
 SocketInterface.prototype._onBatchOperation = function( operation ) {
 	if( operation == SI_BATCH_OP_REM_ALL ) {
-		this._character.removeAllGems();
+		this._character.removeAllGems(0);
 	} 
 	else {
 		var itm = this._character._inventory._items[this._slot][0];
@@ -237,7 +237,7 @@ SocketInterface.prototype._onBatchOperation = function( operation ) {
 			this._character.removeGem(gemId);
 			break;
 		case SI_BATCH_OP_SOCK_ALL:
-			this._character.setGems(gemId);
+			this._character.setGems(gemId, 0);
 			break;
 		case SI_BATCH_OP_SOCK_ALL_COL:
 			this._character.setGems(

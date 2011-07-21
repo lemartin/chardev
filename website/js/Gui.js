@@ -50,7 +50,7 @@ function Gui() {
 	
 	this._csFolder = new TabFolder(
 		[this._itemsParent, gemTab, enchantTab, this._reforgeInterface._node, this._setsParent, this._buffsParent],
-		["Items","Gems","Enchants","Reforging","Sets NYI","Buffs"],
+		["Items","Gems","Enchants","Reforging","Sets","Buffs"],
 		"eqf"
 	);
 
@@ -306,6 +306,7 @@ Gui.prototype.update = function( character ) {
 	Tools.setChild(this._sheetParent, character._sheet._node);
 	Tools.setChild(this._itemsParent, character._itemList._node);
 	Tools.setChild(this._gemsParent, character._gemList._node);
+	Tools.setChild(this._setsParent, character._setList._node);
 	Tools.setChild(this._enchantsParent, character._enchantList._node);
 	
 	this.updateTalents( character );

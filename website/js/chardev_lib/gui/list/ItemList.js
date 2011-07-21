@@ -1,13 +1,13 @@
-var IL_ORDER_NAME = 'name';
-var IL_ORDER_ILVL = 'level';
-var IL_ORDER_TYPE = 'itemclass';
-var IL_ORDER_DPS =  'dps';
-var IL_ORDER_SPEED = "delay";
-var IL_ORDER_SLOT = "slot";
-var IL_ORDER_SCORE = "weightedscore";
+/**@const*/var IL_ORDER_NAME = 'name';
+/**@const*/var IL_ORDER_ILVL = 'level';
+/**@const*/var IL_ORDER_TYPE = 'itemclass';
+/**@const*/var IL_ORDER_DPS =  'dps';
+/**@const*/var IL_ORDER_SPEED = "delay";
+/**@const*/var IL_ORDER_SLOT = "slot";
+/**@const*/var IL_ORDER_SCORE = "weightedscore";
 
-var IL_ITEM_LIST = 0;
-var IL_GEM_LIST = 1;
+/**@const*/var IL_ITEM_LIST = 0;
+/**@const*/var IL_GEM_LIST = 1;
 
 /**
  * @extends {List}
@@ -20,17 +20,12 @@ function ItemList( listType ) {
 	//
 	List.call(this,IL_ORDER_ILVL);
 	//
+	// events fired by item list
 	this._eventManager.registerEvents([
-		"stat_weights_change",
-		"stat_caps_change",
-		"level_change",
-		"class_change",
-		"character_load",
-		"selected_tree_change",
-		"calculate_stats",
 		"show_stat_weights_interface"
 	]);
 	//
+	this._listType = listType;
 	this._filter = new ItemFilter(listType);
 	this._filter.setFilterHandler(new Handler(this.filter, this));
 
@@ -40,7 +35,6 @@ function ItemList( listType ) {
 	//	STAT WEIGHTS
 	//
 	//
-	
 	this._showStatWeightBasedScoreCheck = document.createElement("input");
 	this._showStatWeightBasedScoreCheck.type = "checkbox";
 	Listener.add(this._showStatWeightBasedScoreCheck, 'click', this.update, this, null);
@@ -75,6 +69,7 @@ ItemList.prototype._updateHandler = null;
 ItemList.prototype._statWeights = null;
 ItemList.prototype._showStatWeightBasedScoreCheck = null;
 ItemList.prototype._compareItem = null;
+ItemList.prototype._listType = IL_ITEM_LIST;
 
 ItemList.prototype.setStatWeights = function( weights ) {
 	this._statWeights = weights;
@@ -99,18 +94,8 @@ ItemList.prototype.setCompareItem = function( itm ) {
 
 ItemList.prototype.set = function( args, flags, order ) 
 {
-	this._filterCount = 0;	
-	this._page = 1;
-	this._maxPage = 1;
-	this._requestedURL = "";
-	
-	this._filterCollapsable._node.style.display = 'block';
-
-	this._filter.update( args );
-	
+	List.prototype.set.call( this, args, flags, order );
 	this.update();
-	
-	this._pageGrid._node.style.display = "none";
 };
 
 ItemList.prototype.isStatWeightBasedScoreShown = function() {
@@ -126,12 +111,9 @@ ItemList.prototype.update = function() {
 					'p': this._page,
 					'weights': ( this.isStatWeightBasedScoreShown() ? JSON.stringify(this._statWeights) : JSON.stringify(null) ) 
 				});
-	this.show();
 	this._requestedURL = url;
 	Ajax.get(url, this._updateHandler, [url]);
-	this._content.style.display = "block";
 	this._additionalContent.style.display = "block";
-	this._pageGrid._node.style.display = "none";
 	
 	this.showLoading();
 };
@@ -197,7 +179,7 @@ ItemList.prototype._deserialize = function( data ) {
 			a.onmouseout = function(){Tooltip.hidePreview();};
 			a.onmousemove = function(){Tooltip.move();};
 			
-			if( tmp._gemProperties == null ) {
+			if( this._listType == IL_ITEM_LIST ) {
 				Listener.add( a, 'mouseover', Tooltip.showItem, Tooltip, [tmp._id] );
 			}
 			else {

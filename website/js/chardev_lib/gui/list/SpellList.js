@@ -24,7 +24,6 @@ function SpellList( listType ) {
 }
 SpellList.prototype = new List(SL_ORDER_ID);
 SpellList.prototype._type = SL_SPELL_LIST;
-SpellList.prototype._filter = null;
 SpellList.prototype._hiddenArgs = "";
 
 
@@ -37,24 +36,12 @@ SpellList.prototype.setEnchant = function( itm, chrLevel, args ) {
 		"enchantchrlevel.le."+chrLevel+";" +
 		"isenchant.eq.1;";
 	
-	this._set(args);
+	this.set(args);
 };
 
-SpellList.prototype._set = function( args ) 
-{
-	this._filterCount = 0;	
-	this._page = 1;
-	this._maxPage = 1;
-	this._requestedURL = "";
-	
-	this._filterCollapsable._node.style.display = 'block';
-	
-	this._filter.update( args );
-	
-	if( !this._onclickHandler ) {
-		throw "Not yet implemented";
-	}
-	
+SpellList.prototype.set = function( args ) 
+{	
+	List.prototype.set.call( this, args, null, null );
 	this.update();
 };
 

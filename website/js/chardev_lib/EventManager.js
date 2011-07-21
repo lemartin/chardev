@@ -4,6 +4,7 @@
  * @returns {EventManager}
  */
 function EventManager( events ) {
+	this._eventHandler = {};
 	this.registerEvents(events);
 }
 /** @type {Object} */
@@ -34,8 +35,11 @@ EventManager.prototype.fire = function( event, args ) {
  * @param {Array} events
  */
 EventManager.prototype.registerEvents = function( events ) {
-	this._eventHandler = {};
 	for( var i in events ) {
 		this._eventHandler[events[i]] = [];
 	}
+};
+
+EventManager.prototype.clear = function( events ) {
+	this._eventHandler = {};
 };

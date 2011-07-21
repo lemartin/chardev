@@ -77,7 +77,7 @@ List.prototype._onclickHandler = null;
 List.prototype._onUpdate = null;
 
 List.prototype._updateHandler = null;
-
+List.prototype._filter = null;
 
 List.prototype._getSortLink = function( title, order ) {
 	var a = document.createElement("a");
@@ -160,12 +160,40 @@ List.prototype.hide = function() {
 List.prototype.show = function() {
 	this._node.style.display = "block";
 };
+List.prototype.hideContent = function() {
+	this._content.style.display = "none";
+};
+List.prototype.showContent = function() {
+	this._content.style.display = "block";
+};
+List.prototype.hidePages = function() {
+	this._pageGrid._node.style.display = "none";
+};
+List.prototype.set = function( args ) {
+	this._page = 1;
+	this._maxPage = 1;
+	this._requestedURL = "";
+	
+	this._filterCollapsable._node.style.display = 'block';
+	this._filter.update( args );
+	
+	this._pageGrid._node.style.display = "none";
+};
 
 List.prototype.showLoading = function(){
+	this._node.style.display = "block";
 	this._content.style.display = "block";
 	this._content.innerHTML = "<div class='li_loading'>"+locale['L_Loading']+"</div>";
 	this._pageGrid._node.style.display = "none";
 };
 List.prototype.addListener = function(event, handler) {
 	this._eventManager.addListener(event, handler);
+};
+
+List.prototype.getBaseArgumentObject = function() {
+	return {
+		'a': this._filter.buildArgumentString(),
+		'o': this._order+"."+(this._orderDirection==IL_ASC?'asc':'desc')+";",
+		'p': this._page
+	};
 };

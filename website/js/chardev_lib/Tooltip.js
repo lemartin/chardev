@@ -267,6 +267,21 @@ function CTooltip(){
 		}
 	};
 	
+	this.showSetItemByReference = function( itm ) {
+		var cc = null;
+		var slot = g_inventoryToSlot[itm._inventorySlot];
+		
+		if ( g_settings.isPlanner ) 
+		{
+			cc = Engine._currentCharacter;
+			if( cc != null ) {
+				cc.preview(itm, slot, -1);
+			}
+		}
+		showTooltip(itm.getTooltip(cc));
+		this.move();
+	};
+	
 	this.showSpell = function(spellId)
 	{
 		var spell = g_spells.get(spellId);

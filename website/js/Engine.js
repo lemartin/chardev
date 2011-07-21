@@ -151,6 +151,7 @@ Engine.createCharacter = function() {
 	//
 	c._itemList.setOnClickHandler(new Handler(Engine.onItemListClick, Engine));
 	c._itemList.setOnUpdateHandler(Engine.onItemListUpdate, Engine);
+	c._setList.setOnClickHandler(new Handler(Engine.onSetListClick, Engine));
 	c._gemList.setOnClickHandler(new Handler(Engine.onGemClick, Engine));
 	c._gemList.setOnUpdateHandler(Engine.onGemListUpdate, Engine);
 	c._enchantList.setOnClickHandler(new Handler(Engine.onEnchantListClick, Engine));
@@ -160,6 +161,7 @@ Engine.createCharacter = function() {
 	c.addListener( 'stat_caps_change', new Handler(Engine.propagateStatCaps, Engine));
 	
 	c._itemList.addListener( 'show_stat_weights_interface', new Handler(Engine.onShowStatWeightInterface,Engine));
+	c._gemList.addListener( 'show_stat_weights_interface', new Handler(Engine.onShowStatWeightInterface,Engine));
 	
 	//c.addListener( 'calculate_stats', new Handler(Engine.onCalculateStats,Engine));
 	
@@ -495,6 +497,8 @@ Engine.onCharacterSheetFolderChange = function( tab ) {
 	else if( tab == G_TAB_ENCHANTS ) {
 		Engine._updateEnchantTab(slot);
 	}
+	else if( tab == G_TAB_SETS ) {
+	}
 	else if( tab == G_TAB_BUFFS ) {
 		Engine._gui._buffInterface.update(Engine._currentCharacter);
 	}
@@ -524,8 +528,14 @@ Engine.onGemClick = function( gem ) {
  * @param {Item} itm
  */
 Engine.onItemListClick = function( itm ) {
-	var slot = Engine._currentCharacter._sheet._selectedSlot;
-	
+	Engine.addItem( itm, Engine._currentCharacter._sheet._selectedSlot );
+};
+
+Engine.onSetListClick = function( itm ) {
+	Engine.addItem( itm, g_inventoryToSlot[itm._inventorySlot] );
+};
+
+Engine.addItem = function( itm, slot ) {
 	if( slot != -1 ) {
 		Engine._currentCharacter._inventory.set( slot, itm.clone() );
 		if( slot == 16 ) {

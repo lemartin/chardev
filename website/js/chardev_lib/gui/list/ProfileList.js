@@ -18,26 +18,7 @@ function ProfileList() {
 	this._deleteProfileHandler = new Handler(this._onProfileDelete_callback,this);
 }
 ProfileList.prototype = new List(PL_ORDER_TIME);
-
-ProfileList.prototype._base = null;
-ProfileList.prototype._orderDirection = IL_DESC;
-
-ProfileList.prototype._filter = null;
 ProfileList.prototype._deleteProfileHandler = null;
-
-ProfileList.prototype.set = function( args, flags, order ) 
-{
-	this._filterCount = 0;	
-	this._page = 1;
-	this._maxPage = 1;
-	this._requestedURL = "";
-	
-	this._filterCollapsable._node.style.display = 'block';
-	
-	this._filter.update( args );
-	
-	this._pageGrid._node.style.display = "none";
-};
 
 ProfileList.prototype.update = function( ) {
 	var url = "php/interface/profiles/get_profiles.php" + 

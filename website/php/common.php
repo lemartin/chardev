@@ -208,7 +208,7 @@ $g_slot_name_to_chardev_slot_id = array(
 	"ranged" => 18
 );
 
-define( "USE_CACHE", isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST']!="127.0.0.1" && $_SERVER['HTTP_HOST']!="192.168.178.100" ,true );
+define( "USE_CACHE", isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST']!="127.0.0.1" ,true );
 define("DAYS_TILL_CACHE_INVALIDATION",1,true);
 
 function get_redirect() {
@@ -1241,8 +1241,18 @@ function parse_arguments( $arguments, &$matches) {
 	preg_match_all("/(?:^|;)([\w]+)\.(eq|ne|ge|le|lt|gt|ba|bo|bx|bna|bno|bnx|like|nlik|wlike|wnlik|in|nin|btw)\.([^;]+)/",$arguments,$matches,PREG_SET_ORDER);
 }
 
-function parse_order( $order, &$matches ) {
+function parse_order( $order, $map ) {
+	$matches = array();
+	$orderClause = "";
 	preg_match_all("/(?:^|;)([\w]*)\.(?:(asc)|(desc))/",$order,$matches,PREG_SET_ORDER);
+	
+	for( $i=0; $i<count($matches); $i++ ) {
+		if( isset($map[$matches[$i][1]])) {
+			$orderClause .= ($orderClause ? ", " : "") . $map[$matches[$i][1]] . ( $matches[$i][2] ? "ASC" : "DESC" );
+		}
+	}
+	
+	return $orderClause;
 }
 
 function parse_flags( $flags, &$matches ) {
@@ -1306,22 +1316,7 @@ function get_spells( $arguments, $flags, $order, $page ) {
 		}
 	}
 // order
-	parse_order( $order, $matches );
-	foreach ( $matches as $match ) {
-		switch( $match[1] ) {
-			case "id":
-				$orderClause .= ($orderClause?",":"") . "s.`ID` " . ( $match[2] ? "ASC" : "DESC" );
-				break;
-			case "name":
-				$orderClause .= ($orderClause?",":"") . "s.`Name` " . ( $match[2] ? "ASC" : "DESC" );
-				break;
-			case "enchantchrlevel":
-				if( $is_enchant ) {
-					$orderClause .= ($orderClause?",":"") . "sie.`RequiredCharacterLevel` " . ( $match[2] ? "ASC" : "DESC" );
-				}
-				break;
-		}
-	}
+	$orderClause = parse_order( $order, array( "id" => "s.`ID` ", "name" => "s.`Name` ", "enchantchrlevel" => "sie.`RequiredCharacterLevel` " ));
 	
 	if( $is_enchant ) {
 		$orderClause .= ($orderClause?",":"") . "s.`ID` DESC";
@@ -1402,14 +1397,7 @@ function get_profiles( $arguments, $flags, $order, $page ) {
 		}
 	}
 	// order
-	parse_order( $order, $matches );
-	foreach ( $matches as $match ) {
-		switch( $match[1] ) {
-			case "time":
-				$orderClause .= ($orderClause?",":"") . "`Timestamp` " . ( $match[2] ? "ASC" : "DESC" );
-				break;
-		}
-	}
+	$orderClause = parse_order( $order, array( "time" => "`Timestamp`") );
 	
 	$query = "SELECT SQL_CALC_FOUND_ROWS * FROM `chardev_characters` WHERE ".(!$showDeleted?" `Deleted`='0' AND ":"")." `History` = 0 " . ($where?" AND ".$where:"") . ( $orderClause ? " ORDER BY ".$orderClause : "" ) . " LIMIT ".MAX_RECORDS *($page-1).",".MAX_RECORDS;
 //echo htmlspecialchars($arguments);
@@ -1460,6 +1448,95 @@ $stat_to_column_name = array(
 	45=>"SpellPower",
 	49=>"MasteryRating"
 );
+
+function get_sets( $arguments, $flags, $order, $page, $weights ) {
+	
+	parse_arguments( $arguments, $matches );
+	foreach($matches as $match) {
+		$operator = constant($match[2]);
+		switch( $match[1] ) {
+			case "name":
+				parse_string_argument($where,$operator,$match[3],"s.`Name`");
+				break;
+			case "ilvl":
+				parse_numeric_argument($where,$operator,$match[3],"cis.`MinItemLevel`");
+				break;
+			case "reqlvl":
+				parse_numeric_argument($where,$operator,$match[3],"cis.`MinRequiredCharacterLevel`");
+				break;
+		}
+	}
+	
+	$orderClause = parse_order($order, array(
+		"setid"=>"s.`ID`",
+		"ilvl"=>"cis.`MinItemLevel`",
+		"name"=>"s.`Name`",
+		"reqlvl"=>"cis.`MinRequiredCharacterLevel`",
+	));
+
+	$query = "SELECT SQL_CALC_FOUND_ROWS 
+			`ID`,
+			`Name`,
+			cis.`MinItemLevel`,
+			cis.`MaxItemLevel`,
+			cis.`MinRequiredCharacterLevel`,
+			cis.`MaxRequiredCharacterLevel`,
+			cis.`MinQuality`,
+			cis.`MaxQuality`,
+			`ItemID1`, 
+			`ItemID2`, 
+			`ItemID3`, 
+			`ItemID4`, 
+			`ItemID5`, 
+			`ItemID6`, 
+			`ItemID7`, 
+			`ItemID8`, 
+			`ItemID9`, 
+			`ItemID10` ".
+		"FROM `itemset` s INNER join chardev_cataclysm_static.`chardev_itemset_stats` cis ON cis.`ItemSetID` = s.`ID` ".
+		( $where ? " WHERE ". $where : '' ) .
+		($orderClause ? " ORDER BY ".$orderClause : "").
+		" LIMIT ".MAX_RECORDS *($page-1).",".MAX_RECORDS;
+	
+	$result = mysql_db_query(
+		$GLOBALS['g_game_db'],
+		$query,
+		$GLOBALS['g_db_con']
+	);
+	
+	$found = mysql_fetch_assoc(mysql_db_query(
+		$GLOBALS['g_game_db'],
+		"SELECT FOUND_ROWS() AS rows",
+		$GLOBALS['g_db_con']
+	));
+	
+	$n = 0;
+	$sets = array();
+	$sets[$n++] = array((int)$found['rows'], (int)MAX_RECORDS);
+	while( ($record = mysql_fetch_assoc($result)) ) {
+		$sets[$n] = array( 
+			(int)$record['ID'], 
+			$record['Name'], 
+			(int)$record['MinItemLevel'], 
+			(int)$record['MaxItemLevel'], 
+			(int)$record['MinRequiredCharacterLevel'], 
+			(int)$record['MaxRequiredCharacterLevel'], 
+			(int)$record['MinQuality'], 
+			(int)$record['MaxQuality'], 
+			array()
+		);
+		for( $i = 0; $i < 10; $i++ ) {
+			if( (int)$record['ID'] ) {
+				$sets[$n][8][] = get_item($record['ItemID'.($i+1)]);
+			}
+			else {
+				$sets[$n] = null;
+			}
+		}
+		$n++;
+	}
+	return $sets;
+}
 
 function get_items( $arguments, $flags, $order, $page, $weights ) {
 	$page = $page < 1 ? 1 : $page;
@@ -1640,37 +1717,32 @@ function get_items( $arguments, $flags, $order, $page, $weights ) {
 		}
 	}
 	// order
-	parse_order( $order, $matches );
-	foreach ( $matches as $match ) {
-		switch( $match[1] ) {
-			case "level":
-				$orderClause .= ($orderClause?",":"") . "s.`Level` " . ( $match[2] ? "ASC" : "DESC" );
-				break;
-			case "name":
-				$orderClause .= ($orderClause?",":"") . "s.`Name` " . ( $match[2] ? "ASC" : "DESC" );
-				break;
-			case "subclass":
-				$orderClause .= ($orderClause?",":"") . "i.`ItemSubClass` " . ( $match[2] ? "ASC" : "DESC" );
-				break;
-			case "dps":
-				$orderClause .= ($orderClause?",":"") . "cis.`DPS` " . ( $match[2] ? "ASC" : "DESC" );
-				break;
-			case "delay":
-				$orderClause .= ($orderClause?",":"") . "s.`Delay` " . ( $match[2] ? "ASC" : "DESC" );
-				break;
-			case "slot":
-				$orderClause .= ($orderClause?",":"") . "s.`InventorySlot` " . ( $match[2] ? "ASC" : "DESC" );
-				break;
-			case "weightedscore":
-				$orderClause .= ($orderClause?",":"") . "WeightedScore " . ( $match[2] ? "ASC" : "DESC" );
-				break;
-		}
-	}
+	
+	$orderClause .= parse_order (
+		$order,
+		array(
+			"level" => "s.`Level`",
+			"name" => "s.`Name`",
+			"subclass" => "i.`ItemSubClass`",
+			"dps" => "cis.`DPS`",
+			"delay" => "s.`Delay`",
+			"slot" => "s.`InventorySlot`",
+			"weightedscore" => "WeightedScore",
+		)
+	);
 	$where .= ( $where ? ' AND ' : '' )." cis.`DoNotShow` != 1 ";
 	
-	$query = 
-		"SELECT SQL_CALC_FOUND_ROWS s.`ID`, ".$weightedScore." as WeightedScore FROM `item_sparse` s INNER JOIN `item` i on i.`ID` = s.`ID` LEFT JOIN ".$GLOBALS['g_static_db'].".`chardev_item_stats` cis ON cis.`ItemID`=i.`ID` LEFT JOIN `gemproperties` gp ON s.`GemPropertiesID` = gp.`ID` ".($where?" WHERE ".$where:""). ( $orderClause ? " ORDER BY ".$orderClause : "" ) . " LIMIT ".MAX_RECORDS *($page-1).",".MAX_RECORDS;
+	$query = "SELECT SQL_CALC_FOUND_ROWS s.`ID`, ".$weightedScore." as WeightedScore ".
+		"FROM `item_sparse` s ".
+			"INNER JOIN `item` i on i.`ID` = s.`ID` ".
+			"LEFT JOIN ".$GLOBALS['g_static_db'].".`chardev_item_stats` cis ON cis.`ItemID`=i.`ID` ".
+			"LEFT JOIN `gemproperties` gp ON s.`GemPropertiesID` = gp.`ID` ".
+		" WHERE ".( $where ? $where . ' AND ' : '' )." cis.`DoNotShow` != 1 ".
+		($orderClause ? " ORDER BY ".$orderClause : "").
+		" LIMIT ".MAX_RECORDS *($page-1).",".MAX_RECORDS;
 	//echo htmlspecialchars($arguments);
+	
+	//echo $query;
 	
 	$stmt = mysql_db_query(
 		$GLOBALS['g_game_db'],
@@ -3060,14 +3132,7 @@ function get_stat_weights( $arguments, $flags, $order, $page ) {
 		}
 	}
 	// order
-	parse_order( $order, $matches );
-	foreach ( $matches as $match ) {
-		switch( $match[1] ) {
-			case "name":
-				$orderClause .= ($orderClause?",":"") . "sw.`Name` " . ( $match[2] ? "ASC" : "DESC" );
-				break;
-		}
-	}
+	parse_order( $order, array( "name" => "sw.`Name`" ));
 	
 	$query = "SELECT SQL_CALC_FOUND_ROWS sw.*, u.`Name` as UserName FROM `stat_weights` sw INNER JOIN ".$GLOBALS['g_user_db'].".`user` u ON u.`UserID` = sw.`UserID` WHERE " . $where . ( $orderClause ? " ORDER BY ".$orderClause : "" ) . " LIMIT ".MAX_RECORDS_STAT_WEIGHTS *($page-1).",".MAX_RECORDS_STAT_WEIGHTS;
 

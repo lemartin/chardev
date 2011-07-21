@@ -20,6 +20,7 @@ function Character(){
 	this._itemList = new ItemList(IL_ITEM_LIST);
 	this._gemList = new ItemList(IL_GEM_LIST);
 	this._enchantList = new SpellList( SL_ENCHANT_LIST );
+	this._setList = new SetList();
 		
 	this._professions 		= [null,null];
 	
@@ -84,6 +85,8 @@ Character.prototype._enchantList = null;
 Character.prototype._gemList = null;
 /** @type {ItemList} */
 Character.prototype._itemList = null;
+/** @type {SetList} */
+Character.prototype._setList = null;
 
 /** @type {Stats} */
 Character.prototype._stats = null;

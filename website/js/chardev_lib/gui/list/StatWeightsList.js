@@ -18,23 +18,7 @@ StatWeightsList.prototype = new List(PL_ORDER_TIME);
 
 StatWeightsList.prototype._base = null;
 StatWeightsList.prototype._orderDirection = IL_DESC;
-
-StatWeightsList.prototype._filter = null;
 StatWeightsList.prototype._onContextMenuHandler = null;
-
-StatWeightsList.prototype.set = function( args, flags, order ) 
-{
-	this._filterCount = 0;	
-	this._page = 1;
-	this._maxPage = 1;
-	this._requestedURL = "";
-	
-	// this._filterCollapsable._node.style.display = 'block';
-	
-	this._filter.update( args );
-	
-	this._pageGrid._node.style.display = "none";
-};
 
 StatWeightsList.prototype.update = function( ) {
 	var url = "php/interface/user/get_stat_weights.php" + 
