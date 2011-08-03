@@ -15,6 +15,8 @@ function ProfileList() {
 	this.onUpdate = null;
 	this._content.style.display = "none";
 	
+	this._orderDirection = IL_DESC;
+	
 	this._deleteProfileHandler = new Handler(this._onProfileDelete_callback,this);
 }
 ProfileList.prototype = new List(PL_ORDER_TIME);

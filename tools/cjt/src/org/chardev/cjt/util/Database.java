@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+
 public class Database {
 
 	public static final String CHARDEV_CATACLYSM = "jdbc:mysql://localhost:3306/chardev_cataclysm?";
@@ -15,18 +16,17 @@ public class Database {
 
 	public static Connection connectToDatabase(String url) {
 		try {
-			String driverClass = "org.gjt.mm.mysql.Driver";
+			String driverClass = "com.mysql.jdbc.Driver";
 			Class.forName(driverClass).newInstance();
 			return DriverManager.getConnection(url, "root", "");
 		} catch (SQLException sqle) {
-			System.out.println(sqle);
+			sqle.printStackTrace();
 		} catch (InstantiationException ie) {
 			System.out.println(ie);
 		} catch (IllegalAccessException iae) {
 			System.out.println(iae);
 		} catch (ClassNotFoundException cnfe) {
-			System.out.println(cnfe);
-
+			cnfe.printStackTrace();
 		}
 		throw new RuntimeException("Unable to connect to database: " + url);
 	}

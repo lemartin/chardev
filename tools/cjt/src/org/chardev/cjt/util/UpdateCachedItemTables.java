@@ -63,7 +63,7 @@ public class UpdateCachedItemTables {
 							+ "FROM chardev_cataclysm_static.`item_working` s "
 							+ "INNER JOIN chardev_cataclysm.`item` i ON i.`ID` = s.`ID` "
 							+ "INNER JOIN chardev_cataclysm_static.`item_current` c ON c.`ID`=s.`ID` AND c.`Version` = s.`Version` "
-							+ "WHERE `Locale`='EN' AND i.`ID`=71086 ORDER BY i.`ID` ASC");
+							+ "WHERE `Locale`='EN' ORDER BY i.`ID` ASC");
 			//
 			// Iterate over the result
 			while (result.next()) {
@@ -164,7 +164,7 @@ public class UpdateCachedItemTables {
 							final int delay = result.getInt("Delay");
 							final float dmgRange = result
 									.getFloat("DamageRange");
-							dps = dpsResult.getInt(quality + 1);
+							dps = dpsResult.getInt( new Integer(quality).toString());
 							minDmg = dps * delay / 1000 * (1 - dmgRange / 2);
 							maxDmg = dps * delay / 1000 * (1 + dmgRange / 2);
 						}

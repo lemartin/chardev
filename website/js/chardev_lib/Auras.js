@@ -325,6 +325,8 @@ Auras.prototype._addEffects = function( sp, effect, stacks, isBuff, selfBuff )
 		}
 	}
 	
+	var value;
+	
 	for( j=0;j<3;j++)
 	{
 		eff = effs[j];
@@ -332,6 +334,7 @@ Auras.prototype._addEffects = function( sp, effect, stacks, isBuff, selfBuff )
 		{
 			continue;
 		}
+		value = eff._value;
 		//
 		seId = eff._id;
 		//
@@ -374,14 +377,30 @@ Auras.prototype._addEffects = function( sp, effect, stacks, isBuff, selfBuff )
 		//
 		//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 		//
-		//	+ 6% Spell power
+		//	+ 6%, 10% Spell power
 		//
 		//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 		//
+		
+		case 46325: // Demonic Pact (53646)
+		case 68163: // Totemic Wrath (77747)
+			if( ! this._testExclusion([46325,68163])) continue;  
+			//
+			// if one of the less powerful buffs was added
+			// decrease the effect value of the more powerful buff
+			// accordingly
+			if( ! this._testExclusion([44537,68341,68343,90962,90963])) {
+				value -= 6;
+			}
+			break;
 		case 44537: // Flametongue Totem
-			if( this._interpretedSpellEffects[90962] ) continue; break;
 		case 90962: // Arcane Brilliance (79057)
-			if( this._interpretedSpellEffects[44537] ) continue; break;
+		case 90963: // Arcane Brilliance (79058)
+		case 68341: // Dalaram Brilliance (79038)
+		case 68343: // Dalaram Brilliance (79039)
+			if( ! this._testExclusion([44537,68341,68343,90962,90963])) continue;
+			if( ! this._testExclusion([46325,68163])) continue;  
+			break;
 		//
 		//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 		//
@@ -417,7 +436,7 @@ Auras.prototype._addEffects = function( sp, effect, stacks, isBuff, selfBuff )
 		this._addEffect(
 			effect,
 			eff._effect,
-			eff._value * stacks /*+ sp.getAbsoluteLevelEffect(this._character.getLevel(),j)*effcts[j]._secondaryEffect*/,
+			value * stacks /*+ sp.getAbsoluteLevelEffect(this._character.getLevel(),j)*effcts[j]._secondaryEffect*/,
 			eff._secondaryEffect,
 			eff._usedStat,
 			seId
