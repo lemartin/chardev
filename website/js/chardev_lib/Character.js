@@ -577,6 +577,121 @@ Character.prototype.toArray = function() {
 	return s;
 };
 
+Character.prototype.toBattleNetProfile = function() {
+	var i, j, enchant, itemsObj = { 'averageItemLevel': 0, 'averageItemLevelEquipped': 0 },
+		slot, ttParamsObj, itm, talentObj,
+		talents = this._chrClass != null ? this._chrClass._talents : null, glyph,
+		glyphs = [[],[],[]], primaryProfessions= [];
+	
+	for( i=0; i<INV_ITEMS; i++ ) {
+		itm = this._inventory._items[i][0];
+		if( itm == null ) {
+			continue;
+		}
+		
+		slot = SLOT_TO_NAME[i]; 
+		
+		
+		ttParamsObj= {};
+		
+		for( j=0; j<itm._enchants.length; j++ ) {
+			enchant = itm._enchants[j];
+			if( enchant._types[0] == 7 ) {
+				ttParamsObj['tinker'] = enchant._id;
+			}
+			else {
+				ttParamsObj['enchant'] = enchant._id;
+			}
+		}
+		
+		for( j=0; j<3; j++ ) {
+			if( itm._gems[j] ) {
+        		ttParamsObj['gem'+j] = itm._gems[j]._id;
+        	}
+		}
+		
+		if( itm.hasAdditionalSocket() ) {
+			ttParamsObj['extraSocket'] = true;
+		}
+		
+		if( itm._reducedStat != -1 && itm._addedStat != -1 ) {
+			ttParamsObj['reforge'] = STAT_TO_REFORGABLE_STAT[itm._reducedStat] * 7 + 
+				113 + STAT_TO_REFORGABLE_STAT[itm._addedStat] - ( itm._addedStat > itm._reducedStat ? 1 : 0 )
+			;
+		}
+		
+		if( itm._selectedRandomEnchantment ) {
+			ttParamsObj['suffix'] = itm._selectedRandomEnchantment._id;
+		}
+		
+		itemsObj[slot] = {
+			'icon': itm._icon,
+			'id':itm._id,
+			'name':itm._name,
+			'quality': itm._quality,
+			'tooltipParams': ttParamsObj
+		};
+	}
+	
+
+	if( this._chrClass ) {
+		
+		for( i=0; i<this._chrClass._glyphs.length; i++ ) {
+			for( j=0; j<this._chrClass._glyphs[i].length; j++ ) {
+				glyph = this._chrClass._glyphs[i][j];
+				if( glyph ) {
+					glyphs[i].push({
+						'glyph': glyph._id,
+						'item': glyph._itemId,
+						'name': glyph._spell.getName(),
+						'icon': glyph._spell._icon
+					});
+				}
+			}
+		}
+		//TODO add missing values to talent obj
+		talentObj = [{
+			'selected': true,
+			'name':talents._selectedTree != -1 ? talents._treeNames[talents._selectedTree] : "None",
+			'icon': "",
+			'build':talents.getDistribution(true).join(""),
+			'trees': [],
+			'glyphs': {
+				'prime':glyphs[2],
+				'major':glyphs[0],
+				'minor':glyphs[1]
+			}
+		}];
+	}
+	else {
+		talentObj = null;
+	}
+	
+	for( i=0; i<2; i++ ) {
+		var p = this._professions[i];
+		if( p ) {
+			primaryProfessions.push({ 
+				'id': p._id,
+				'name': ID_TO_PROFESSION[p._id], 
+				'rank': p._level
+			});
+		}
+	}
+	
+	return JSON.stringify({
+		'name': this._name,
+		'race': ( this._chrRace != null ? this._chrRace._id : 0 ),
+		'class': ( this._chrClass != null ? this._chrClass._id : 0 ),	
+		'level': this._level,
+		'items': itemsObj,
+		'talents':talentObj,
+		'professions':{
+			'primary': primaryProfessions,
+			'secondary': []
+		}
+	});
+};
+
 Character.prototype.toJSONProfile = function() {
 	
 	var talents = this._chrClass != null ? this._chrClass._talents : null;
@@ -610,7 +725,7 @@ Character.prototype.toJSONProfile = function() {
 			reforging = null;
 		}
 		
-		if( itm.hasAdditionalSocket ) {
+		if( itm.hasAdditionalSocket() ) {
 			switch( i ) {
 			case 7: enchants.push( 3717 ); break;
 			case 8: enchants.push( 3723 ); break;

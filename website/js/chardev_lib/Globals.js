@@ -127,18 +127,18 @@ var ID_TO_CLASS = {
 var SLOT_TO_NAME = [
 	"head", //0 
 	"neck", //1
-	"shoulders", //2
+	"shoulder", //2
 	"back", //3
 	"chest", //4
 	"shirt", //5
 	"tabard", //6
-	"wrists",  //7
+	"wrist",  //7
 	"hands",  //8
 	"waist", //9
 	"legs",  //10
 	"feet",  //11
-	"ring1", //12
-	"ring2", //13
+	"finger1", //12
+	"finger2", //13
 	"trinket1", //14
 	"trinket2", //15
 	"mainHand", //16

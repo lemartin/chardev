@@ -17,7 +17,7 @@ function Talents(id, serialized, isPet){
     this._petId = -1;
     this._isPet = isPet;
     this._trees = (isPet ? 1 : 3);
-    this._rows = (isPet ? 6 : 11);
+    this._rows = (isPet ? 6 : 7);
     this._cols = 4;
     this._minLevel = (isPet ? 20 : 10);
     this._pointsPerTier = (isPet ? 3 : 5);
@@ -279,7 +279,7 @@ Talents.prototype._petId = 0;
 Talents.prototype._id = 0;
 
 Talents.prototype._trees = 3;
-Talents.prototype._rows = 11;
+Talents.prototype._rows = 7;
 Talents.prototype._cols = 4;
 Talents.prototype._minLevel = 10;
 Talents.prototype._pointsPerLevel = 5;

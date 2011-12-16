@@ -93,6 +93,8 @@ Stats.prototype._parry = 0;
 Stats.prototype._block = 0;
 Stats.prototype._itemLevel = 0;
 Stats.prototype._armorModPerCent = 0;
+Stats.prototype._resilienceRating = 0;
+Stats.prototype._resilienceDamageReduction = 0;
 
 Stats.prototype._hitTillMeleeCap = 0;
 Stats.prototype._expTillDodgeCap = 0;
@@ -187,6 +189,8 @@ Stats.prototype._reset = function() {
 	this._parry = 0;
 	this._block = 0;
 	this._armorModPerCent = 0;
+	this._resilienceRating = 0;
+	this._resilienceDamageReduction = 0;
 	
 	this._rangedAttackPower = 0;
 	this._raMinDmg = 0;
@@ -838,7 +842,7 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 			);
 		}
 		
-		if( GameInfo.canParry(classId) ) {
+		if( GameInfo.canParry(classId) || classId == SHAMAN && selectedTree == 1 ) {
 			this._parryRating = this._ratings[3] + baseEffects[189][3];
 			switch(classId) {
 			case WARRIOR:
@@ -856,6 +860,13 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 	else {
 		this._dodge = baseEffects[49] + this._dodgeRating / COMBAT_RATINGS[2][level-1];
 	}	
+	this._resilienceRating = this._ratings[24] + 
+		Math.min(
+			this._ratings[14] + baseEffects[189][14],
+			this._ratings[15] + baseEffects[189][15],
+			this._ratings[16] + baseEffects[189][16]
+		);
+	this._resilienceDamageReduction = (1 - Math.pow( 0.99 , ( this._resilienceRating / COMBAT_RATINGS[15][level-1] )));
 	//
 	//#########################################################################
 	//
@@ -921,13 +932,7 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 	this._defense[2] = this._parry;
 	
 	this._defense[3] = this._block;
-	this._defense[4] = 
-		this._ratings[24] + 
-		Math.min(
-			this._ratings[14] + baseEffects[189][14],
-			this._ratings[15] + baseEffects[189][15],
-			this._ratings[16] + baseEffects[189][16]
-		); //resilience
+	this._defense[4] = this._resilienceRating; //resilience
 	
 	this._resistance[0] = this._resisSchool[6];
 	this._resistance[1] = this._resisSchool[2];

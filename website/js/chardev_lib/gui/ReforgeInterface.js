@@ -170,30 +170,24 @@ function ReforgeInterface() {
 	
 	div = document.createElement("div");
 	div.className = "rf_wowreforge_export_note";
-	div.innerHTML = "Notice: A new browser window will open, showing your current profile at wowreforge.com. Once you're finished, press 'Apply changes to chardev profile'.";
+	//div.innerHTML = "Notice: A new browser window will open, showing your current profile at wowreforge.com. Once you're finished, press 'Apply changes to chardev profile'.";
 	
 	
 	this._wowreforgeExportForm = document.createElement("form");
 	this._wowreforgeExportForm.method = "POST";
-	this._wowreforgeExportForm.action = "http://wowreforge.com/import";
+	this._wowreforgeExportForm.action = "http://wowreforge.com/Profiles/Import";
 	this._wowreforgeExportForm.name = "wowreforge_export";
 	this._wowreforgeExportForm.target = "_blank";
-	
-	inp = document.createElement("input");
-	inp.type = "hidden";
-	inp.value = "chardev";
-	inp.name = "src";
-	this._wowreforgeExportForm.appendChild(inp);
 	
 	this._wowreforgeExportProfileInput = document.createElement("input");
 	this._wowreforgeExportProfileInput.type = "hidden";
 	this._wowreforgeExportProfileInput.name = "profile";
 	this._wowreforgeExportForm.appendChild(this._wowreforgeExportProfileInput);
 	
-	this._wowreforgeExportProfileIdInput = document.createElement("input");
-	this._wowreforgeExportProfileIdInput.type = "hidden";
-	this._wowreforgeExportProfileIdInput.name = "profile-id";
-	this._wowreforgeExportForm.appendChild(this._wowreforgeExportProfileIdInput);
+	this._wowreforgeExportMetaData = document.createElement("input");
+	this._wowreforgeExportMetaData.type = "hidden";
+	this._wowreforgeExportMetaData.name = "metadata";
+	this._wowreforgeExportForm.appendChild(this._wowreforgeExportMetaData);
 	
 	wowreforgeexport = document.createElement("a");
 	wowreforgeexport.innerHTML = "Export to wowreforge.com";
@@ -205,9 +199,7 @@ function ReforgeInterface() {
 	coll._content.appendChild(this._wowreforgeExportForm);
 	coll._content.appendChild(div);
 	
-	if( g_settings.debug ) {
-		this._node.appendChild(coll._node);
-	}
+	this._node.appendChild(coll._node);
 	//
 	//	REFORGE INTERFACE
 	//
@@ -241,7 +233,7 @@ function ReforgeInterface() {
 	this._node.appendChild(a);
 	*/
 }
-ReforgeInterface.prototype._wowreforgeExportProfileIdInput = null;
+ReforgeInterface.prototype._wowreforgeExportMetaData = null;
 ReforgeInterface.prototype._wowreforgeExportProfileInput = null;
 ReforgeInterface.prototype._wowreforgeExportForm = null;
 ReforgeInterface.prototype._node = null;
@@ -298,6 +290,8 @@ ReforgeInterface.prototype._wowReforgeImport = function() {
 	};
 	
 	Engine._currentCharacter.reforgeFromArray(refArr);
+	
+	this.update(this._itmRef);
 };
 
 ReforgeInterface.prototype._onRestoreAll = function () {
@@ -611,29 +605,29 @@ ReforgeInterface.prototype._getStatValue = function(itm,stat) {
 };
 
 ReforgeInterface.prototype._onWoWReforgeExport = function() {
-	var note = document.createElement("div");
-	var xhReq,token;
-	note.innerHTML = 'Preparing temporary profile...';
-	note.className = 'tt_msg_c tt_msg';
-	Tooltip.showDisabled(note);
-	
-	xhReq = Ajax.getRequestObject();
-	xhReq.open("GET", "php/interface/wowreforge/get.php", false);
-	xhReq.send(null);
-	
-	token = eval( "(" + xhReq.responseText + ")");
+//	var note = document.createElement("div");
+//	var xhReq,token;
+//	note.innerHTML = 'Preparing temporary profile...';
+//	note.className = 'tt_msg_c tt_msg';
+//	Tooltip.showDisabled(note);
+//	
+//	xhReq = Ajax.getRequestObject();
+//	xhReq.open("GET", "php/interface/wowreforge/get.php", false);
+//	xhReq.send(null);
+//	
+//	token = eval( "(" + xhReq.responseText + ")");
 
-	this._wowreforgeExportProfileInput.value = Engine._currentCharacter.toJSONProfile();
-	this._wowreforgeExportProfileIdInput.value = token;
+	this._wowreforgeExportProfileInput.value = Engine._currentCharacter.toBattleNetProfile();
+	this._wowreforgeExportMetaData.value = "{\"BasedOn\" : null,\"CanUpdate\" : false,\"Data\" : null,\"Origin\" : \"chardev.org\",\"SourceLink\" : null}";
 	
 	this._wowreforgeExportForm.submit();
-	
-	note = document.createElement("div");
-	note.innerHTML = 'Waiting for wowreforge.com to finish...<br /><span class="tt_close_notice">Abort by hitting escape!</span>';
-	note.className = 'tt_msg_c tt_msg';
-	Tooltip.showDisabled(note);
-	
-	this._waitForWoWReforge(token);
+//	
+//	note = document.createElement("div");
+//	note.innerHTML = 'Waiting for wowreforge.com to finish...<br /><span class="tt_close_notice">Abort by hitting escape!</span>';
+//	note.className = 'tt_msg_c tt_msg';
+//	Tooltip.showDisabled(note);
+//	
+//	this._waitForWoWReforge(token);
 };
 
 ReforgeInterface.prototype._waitForWoWReforge = function( token ) {

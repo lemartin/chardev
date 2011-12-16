@@ -300,10 +300,14 @@ function get_cached( $id, $table, &$cache_fail ) {
 	return $cached;
 }
 
-function set_cache( $id, $table, $value ) {
+function set_cache( $id, $table, $value, $debug = null ) {
+	$add = "";
+	if( $debug ) {
+		$add = ",'".mysql_real_escape_string($debug)."'";
+	}
 	mysql_db_query(
 		$GLOBALS['g_game_db'],
-		"REPLACE INTO `".$table."` VALUES (".(int)$id.",'".mysql_real_escape_string(serialize($value))."',NOW())",
+		"REPLACE INTO `".$table."` VALUES (".(int)$id.",'".mysql_real_escape_string(serialize($value))."',NOW(){$add})",
 		$GLOBALS['g_db_con']
 	);
 }
@@ -467,7 +471,7 @@ function get_item( $item_id ) {
 	}
 	$item = null;
 	$cache_fail = false;
-	$item = get_cached($item_id,"chardev_item_cache",$cache_fail);
+	$cached_item = get_cached($item_id,"chardev_item_cache",$cache_fail);
 
 	if( $cache_fail ) {
 		$stmt = mysql_db_query(
@@ -613,10 +617,17 @@ function get_item( $item_id ) {
 			$item[48] = (float)$record['LimitCategoryMultiple'];
 			$item[49] = (float)$record['ChrRaceMask'];
 		}
-		
+		else {
+			$item = null;
+		}
+		mysql_free_result($stmt);
 		set_cache($item_id,"chardev_item_cache",$item);
+		return $item;
 	}
-	return $item;
+	else {
+		return $cached_item;
+	}
+	
 }
 
 function get_random_suffix( $id, $item_level,$quality,$inventory_slot ) {
@@ -694,7 +705,7 @@ function get_spell( $spell_id, &$spell_list = null ) {
 	$cache_fail = false;
 	$resolve = $spell_list == null;
 	
-	$spell = get_cached($spell_id,"chardev_spell_cache",$cache_fail);
+	$cached_spell = get_cached($spell_id,"chardev_spell_cache",$cache_fail);
 	
 	if( $cache_fail ) {
 		$stmt = mysql_db_query(
@@ -993,10 +1004,16 @@ function get_spell( $spell_id, &$spell_list = null ) {
 			//
 			mysql_free_result($chardev_spellinfo_result);
 		}
+		else {
+			$spell = null;
+		}
 		mysql_free_result($stmt);
-		set_cache($spell_id,"chardev_spell_cache",$spell);
+		set_cache($spell_id,"chardev_spell_cache",$spell,"requested spellid: {$spell_id}, spell list".serialize($spell_list));
+		return $spell;
 	}
-	return $spell;
+	else {
+		return $cached_spell;
+	}
 }
 
 function get_spell_item_enchantment_condition( $id ) 
@@ -2019,7 +2036,15 @@ function get_glyph( $id ) {
 	}
 	$record = mysql_fetch_assoc(mysql_db_query(
 		$GLOBALS['g_game_db'],
-		"SELECT * FROM `glyphproperties` WHERE `ID`=".(int)$id,
+		"SELECT 
+			gp.`ID`, 
+			gp.`Type`, 
+			gp.`SpellID`, 
+			i.`ID` as ItemID 
+		FROM `glyphproperties` gp 
+			LEFT JOIN `spelleffect` se ON gp.`ID` = se.`SecondaryEffect` AND se.`Aura` = '74'
+			LEFT JOIN `item_sparse` i ON i.`SpellID2` = se.`SpellID`
+		WHERE gp.`ID`=".(int)$id,
 		$GLOBALS['g_db_con']
 	));
 		
@@ -2032,7 +2057,8 @@ function read_glyph( $record ) {
 		$glyph = array(
 			(int)$record['ID'],
 			(int)$record['Type'],
-			get_spell((int)$record['SpellID'])
+			get_spell((int)$record['SpellID']),
+			(int)$record['ItemID']
 		);
 	}
 	
@@ -2290,8 +2316,8 @@ function get_battlenet_profile( $numRegion, $server, $name, &$error )
 
 	$char = array();
 	$char[0] = array(
-		mb_convert_case ( $cp->name, MB_CASE_TITLE ) ,
-		mb_convert_case ( $cp->realm, MB_CASE_TITLE ) ,
+		$cp->name ,
+		$cp->realm ,
 		get_character_race((int)$cp->race),
 		get_character_class((int)$cp->class),
 		(int)$cp->level
@@ -2330,7 +2356,7 @@ function get_battlenet_profile( $numRegion, $server, $name, &$error )
 		);
 	}
 
-	$active_talents = $cp->talents[0]->selected ? $cp->talents[0] : $cp->talents[1];
+	$active_talents = isset($cp->talents[0]->selected) && $cp->talents[0]->selected ? $cp->talents[0] : $cp->talents[1];
 
 	$char[2] = $active_talents->build;
 	$char[3] = array();

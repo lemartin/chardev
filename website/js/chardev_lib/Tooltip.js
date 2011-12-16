@@ -852,7 +852,7 @@ function CTooltip(){
 				case 4:
 					html += Tools.addTr1( 
 								TextIO.sprintf1( locale['TT_StatText']['Resilience'],
-									TextIO.formatFloat2(stats._defense[4]/COMBAT_RATINGS[15][character._level-1])
+									TextIO.formatFloat2(stats._resilienceDamageReduction*100)
 								));
 					break;
 				}

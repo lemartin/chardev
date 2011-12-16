@@ -1217,4 +1217,4 @@ Item.prototype.hasAdditionalSocket = function() {
 		}
 	}
 	return g > s;
-}
+};

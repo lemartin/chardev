@@ -15,7 +15,7 @@ var locale;
  */
 function MD5( str ){ return "";};
 
-var JSON = { stringify : function(){} };
+var JSON = { stringify : function(){ return "";} };
 
 /**
  * @param str
