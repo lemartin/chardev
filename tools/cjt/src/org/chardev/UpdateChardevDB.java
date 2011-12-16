@@ -8,7 +8,7 @@ import org.chardev.cjt.DBCParser;
 
 public class UpdateChardevDB {
 	
-	private static final int ITEM_SPARSE_SKIP = 0x698E8 - 32;
+	private static final int ITEM_SPARSE_SKIP = 0x739bc - 32;
 	
 	private static final String dbs[] = new String[]{
 		"jdbc:mysql://localhost:3306/chardev_cataclysm?",
@@ -68,10 +68,10 @@ public class UpdateChardevDB {
 		boolean skipLocale = false;
 		
 		connectToDatabase(dbs[0]);
-		cacheUpdate();
+		//cacheUpdate();
 
-		connectToDatabase(dbs[2]);
-		localeUpdate(basePaths[2],locales[2]);
+//		connectToDatabase(dbs[2]);
+//		localeUpdate(basePaths[2],locales[2]);
 		
 		connectToDatabase(dbs[0]);
 		staticUpdate(basePaths[0]);

@@ -164,7 +164,7 @@ public class UpdateCachedItemTables {
 							final int delay = result.getInt("Delay");
 							final float dmgRange = result
 									.getFloat("DamageRange");
-							dps = dpsResult.getInt( new Integer(quality).toString());
+							dps = dpsResult.getFloat( new Integer(quality).toString());
 							minDmg = dps * delay / 1000 * (1 - dmgRange / 2);
 							maxDmg = dps * delay / 1000 * (1 + dmgRange / 2);
 						}
