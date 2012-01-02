@@ -54,35 +54,35 @@ public class UpdateChardevDB {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		connectToDatabase("jdbc:mysql://localhost:3306/chardev_cataclysm?");
-		
-		DBCParser siecParser = new DBCParser(
-				databaseConnection, 
-				"Y:/chardev/cataclysm/DBFilesClient/spellitemenchantmentcondition.dbc", 
-				"spellitemenchantmentcondition"
-		);
-		siecParser.truncateTargetTable();
-		siecParser.setIgnoreFields(true);
-		siecParser.parse();
+//		connectToDatabase("jdbc:mysql://localhost:3306/chardev_cataclysm?");
+//		
+//		DBCParser siecParser = new DBCParser(
+//				databaseConnection, 
+//				"Y:/chardev/cataclysm/DBFilesClient/spellitemenchantmentcondition.dbc", 
+//				"spellitemenchantmentcondition"
+//		);
+//		siecParser.truncateTargetTable();
+//		siecParser.setIgnoreFields(true);
+//		siecParser.parse();
 	
-		boolean skipLocale = false;
+		boolean skipLocale = true;
 		
 		connectToDatabase(dbs[0]);
-		//cacheUpdate();
+		cacheUpdate();
 
 //		connectToDatabase(dbs[2]);
 //		localeUpdate(basePaths[2],locales[2]);
 		
-		connectToDatabase(dbs[0]);
-		staticUpdate(basePaths[0]);
+//		connectToDatabase(dbs[0]);
+//		staticUpdate(basePaths[0]);
 		
-		for( int i=0; i< dbs.length; i++ ) {
-			connectToDatabase(dbs[i]);
-			localeUpdate(basePaths[i],locales[i]);
-			if( skipLocale ) {
-				break;
-			}
-		}
+//		for( int i=0; i< dbs.length; i++ ) {
+//			connectToDatabase(dbs[i]);
+//			localeUpdate(basePaths[i],locales[i]);
+//			if( skipLocale ) {
+//				break;
+//			}
+//		}
 
 		/*
 		DBCParser p;
@@ -132,19 +132,11 @@ public class UpdateChardevDB {
 	private static void cacheUpdate() {
 		DBCParser p;
 		String itemSparse[] = new String[]{
-			"Y:/chardev/cataclysm/adb/Item-sparse.adb",
-			"Y:/chardev/cataclysm/adb/Item-sparse (2).adb",
-			"Y:/chardev/cataclysm/adb/Item-sparse (3).adb",
-			"Y:/chardev/cataclysm/adb/Item-sparse (5).adb",
-			"Y:/chardev/cataclysm/adb/Item-sparse (4).adb"
+			"Y:/chardev/cataclysm/adb/Item-sparse.adb"
 		};
 		
 		String item[] = new String[]{
-			"Y:/chardev/cataclysm/adb/Item.adb",
-			"Y:/chardev/cataclysm/adb/Item (2).adb",
-			"Y:/chardev/cataclysm/adb/Item (3).adb",
-			"Y:/chardev/cataclysm/adb/Item (4).adb",
-			"Y:/chardev/cataclysm/adb/Item (5).adb"
+			"Y:/chardev/cataclysm/adb/Item.adb"
 		};
 		
 		connectToDatabase("jdbc:mysql://localhost:3306/chardev_cataclysm_static?");
@@ -271,19 +263,19 @@ public class UpdateChardevDB {
 	private static void localeUpdate( String basePath, String locale ) {
 		
 		String[] files = new String[]{
-			"chrclasses",
-			"chrraces",
-			"faction",
-			"itemsubclass",
-			"itemclass",
-			"itemset",
-			"itemrandomsuffix",
-			"itemrandomproperties",
-			"skillline",
-			"spell",
-			"spelldescriptionvariables",
-			"spellitemenchantment",
-			"spellrange",
+//			"chrclasses",
+//			"chrraces",
+//			"faction",
+//			"itemsubclass",
+//			"itemclass",
+//			"itemset",
+//			"itemrandomsuffix",
+//			"itemrandomproperties",
+//			"skillline",
+//			"spell",
+//			"spelldescriptionvariables",
+//			"spellitemenchantment",
+//			"spellrange",
 			"talentTab"
 		};
 		//

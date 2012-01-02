@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="chardev_lib/|evolution/|extern/|chardev_lib/gui/|gui_lib/|chardev_lib/container/" kind="src" path="js"/>
+	<classpathentry excluding="gui/|container/" kind="src" path="js/chardev_lib"/>
+	<classpathentry kind="src" path="js/chardev_lib/container"/>
+	<classpathentry kind="src" path="js/chardev_lib/gui"/>
+	<classpathentry kind="src" path="js/evolution"/>
+	<classpathentry kind="src" path="js/extern"/>
+	<classpathentry kind="src" path="js/gui_lib"/>
+	<classpathentry kind="src" path="php/tools"/>
+	<classpathentry kind="con" path="org.eclipse.wst.jsdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path=""/>
+</classpath>

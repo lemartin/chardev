@@ -55,6 +55,9 @@ public class UpdateCachedItemTables {
 					.prepareStatement("SELECT Name,Description FROM item_working WHERE `Locale`=? AND `ID`=? ORDER BY `Version` DESC");
 			PreparedStatement copyStatement = connectionLocaleDB
 					.prepareStatement("REPLACE INTO chardev_cataclysm.`item_sparse` SELECT * FROM chardev_cataclysm_static.`item_working` WHERE `Locale`=? AND `Version`=? AND `ID`=?");
+//			PreparedStatement prepReplace = connectionStaticDB.prepareStatement(
+//					"REPLACE INTO `chardev_item_stats` values (?,0,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0,0)"
+//				);
 			//
 			// Queries the most up to date items from the db
 			Statement stmt = connectionStaticDB.createStatement();
@@ -285,13 +288,13 @@ public class UpdateCachedItemTables {
 							+ "OR Name like 'Obsolete%' "
 							+ "OR Name like 'Deprecated %' "
 							+ "OR Name like '%(test)' "
-							+ "OR Name like '[PH]%' "
+							+ "OR Name like '[%' "
 							+ "OR Name like 'Fast Test %' "
 							+ "OR Name like 'Art Template%' "
 							+ "OR Name like '%_PVP%' "
 							+ "OR Name like '%_PVE%' "
 							+ "OR Name like '%Cataclysm C01%' "
-							+ "OR TypeMask & 16 " + "OR Level > 404 " + ")");
+							+ "OR TypeMask & 16 " + "OR ( Level > 404 && ItemID < 70000) " + ")");
 			filterStatement.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
