@@ -31,7 +31,7 @@ InputEditable.prototype.setData = function(data) {
 	
 	var v = this.input.getValue();
 	
-	this.div.innerHTML = v ? v : "<span class='ui_data_nothing'>None</span>";
+	this.div.innerHTML = Editable.formatValue(v);
 	DOM.set(this.node, this.div);
 };
 InputEditable.prototype.__edit = function( b ) {

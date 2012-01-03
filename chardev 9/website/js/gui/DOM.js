@@ -108,7 +108,7 @@ var DOM = {
 			n1.innerHTML += n2;
 		}
 		else {
-			while(n1.firstChild) {
+			while(n1.hasChildNodes()) {
 				n1.removeChild(n1.firstChild);
 			}
 			n1.appendChild(n2);

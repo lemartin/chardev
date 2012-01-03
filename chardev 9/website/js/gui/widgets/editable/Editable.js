@@ -26,3 +26,10 @@ Editable.prototype = {
 		this.eventMgr.addObserver(observer);
 	}
 };
+
+/**
+ * @param v
+ */
+Editable.formatValue = function( v ) {
+	return v ? "<a href=\"javascript:;\" title=\"Click to edit\">" + v + "</a>" : "<span class='ui_data_nothing'>None</span>";
+};

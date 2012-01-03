@@ -30,12 +30,14 @@ function UserInformationImpl( userId, data, targetElementId ) {
 		sg.cells[n][1].className = "ui_data_data";
 			
 		if( this.data[k]['editable'] == 'select'  ) {
-			this.editables[n] = new SelectEditable( this.data[k]['options']);
-			this.editables[n].node.className += "ui_data_select";
+			var select = new SelectEditable( this.data[k]['options']);
+			DOM.addClass(select.select.node, "ui_data_select");
+			this.editables[n] = select;
 		}
 		else if( this.data[k]['editable'] == 'input' ){
-			this.editables[n] = new InputEditable();
-			this.editables[n].node.className += "ui_data_input";
+			var input = new InputEditable();
+			DOM.addClass(input.input.node, "ui_data_input");
+			this.editables[n] = input;
 		}
 		else if( this.data[k]['editable'] == 'battlenetprofilemanager' ){
 			this.editables[n] = new BattleNetProfileEditable( this.data[k]['realms'] );

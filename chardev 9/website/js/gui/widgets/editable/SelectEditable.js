@@ -32,7 +32,7 @@ SelectEditable.prototype.setData = function(data) {
 	
 	var v = this.options[data];
 	
-	this.div.innerHTML = v ? v : "<span class='ui_data_nothing'>None</span>";
+	this.div.innerHTML = Editable.formatValue(v);
 	DOM.set(this.node, this.div);
 };
 SelectEditable.prototype.__edit = function( b ) {
