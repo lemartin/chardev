@@ -115,7 +115,9 @@ var Chardev = {
 			Tooltip.showLoading();
 			
 			Ajax.request(
-				"php/interface/user/request_registration.php?u=" + _u + "&pw=" + _p + "&e=" + _e,
+				"php/interface/user/request_registration.php"+TextIO.queryString({
+					"u": _u , "pw": _p, "e": _e
+				}),
 				new Handler(Chardev.__register_callback, Chardev),
 				null
 			);

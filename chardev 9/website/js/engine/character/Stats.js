@@ -92,6 +92,7 @@ Stats.prototype.parry = 0;
 Stats.prototype.block = 0;
 Stats.prototype.itemLevel = 0;
 Stats.prototype.armorModPerCent = 0;
+Stats.prototype.meleeMiss = 0;
 
 Stats.prototype.hitTillMeleeCap = 0;
 Stats.prototype.expTillDodgeCap = 0;
@@ -186,6 +187,7 @@ Stats.prototype.reset = function() {
 	this.parry = 0;
 	this.block = 0;
 	this.armorModPerCent = 0;
+	this.meleeMiss = 0;
 	
 	this.rangedAttackPower = 0;
 	this.raMinDmg = 0;
@@ -517,7 +519,7 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 	//
 	//		Melee
 	//
-	this.additionalAttackPower = baseEffects[99] + this.ratings[27];
+	this.additionalAttackPower = baseEffects[99] + this.ratings[27] + ( baseEffects[285] != 0 ? this.resisSchool[0] / baseEffects[285] : 0 );
 	this.attackPower += this.additionalAttackPower;
 	this.apPerCentModifer += baseEffects[166];
 	//
@@ -864,6 +866,9 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 	);
 	this.resilienceDamageReduction = (1 - Math.pow( 0.99 , ( this.resilienceRating / COMBAT_RATINGS[15][level-1] )));
 	//
+	//	Miss
+	this.meleeMiss = 5 - effects[0][184] - effects[1][184] - effects[2][184] - effects[3][184];
+	//
 	//#########################################################################
 	//
 	// 	Output stats
@@ -929,8 +934,8 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 	
 	this.defense[3] = this.block;
 	this.defense[4] = this.resilienceRating; //resilience
-	this.defense[5] = 5 + this.dodge + this.parry;
-	this.defense[6] = 5 + this.dodge + this.block + this.parry;
+	this.defense[5] = this.meleeMiss + this.dodge + this.parry;
+	this.defense[6] = this.meleeMiss + this.dodge + this.block + this.parry;
 	
 	this.resistance[0] = this.resisSchool[6];
 	this.resistance[1] = this.resisSchool[2];

@@ -114,16 +114,18 @@ class cpa_client {
 			'/api/wow/character/' . 
 				$this->encodeServer($server) . 
 				'/' . 
-				$this->encodeName($name),
+				self::encodeName($name),
 			$fields_str
 		);
 	}
 	
-	private function encodeServer( $server ) {
+	public static function encodeServer( $server ) {
+		$server = mb_ereg_replace("\s\(Português\)", "-portugues", $server, "i");
+		
 		return urlencode(mb_strtolower(mb_ereg_replace("'","",mb_ereg_replace(" ","-",$server)),"UTF-8"));
 	}
 	
-	private function encodeName( $name ) {
+	public static function encodeName( $name ) {
 		return urlencode(mb_strtolower($name,"UTF-8"));
 	}
 	

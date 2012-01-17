@@ -81,8 +81,9 @@ echo '
 <script src="js/common/extern/md5.js" type="text/javascript"></script>
 <script src="js/common/extern/json2.js" type="text/javascript"></script>
 <?php 
+
 	$page = PAGE_HOME;
-	$show_ads = isset($_SESSION['donated']) && $_SESSION['donated'] ? false : true;
+	$show_ads = isset($_SESSION['donated']) && $_SESSION['donated'] || isset($_GET['hideads']) && isset($_SESSION['role']) && $_SESSION['role'] == 10 ? false : true;
 	//&& $_SERVER['HTTP_HOST']!="127.0.0.1" && $_SERVER['HTTP_HOST']!="192.168.178.100" && $_SERVER['HTTP_HOST']!="192.168.178.22";
 	//
 	//	PHP generated JS

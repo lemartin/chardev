@@ -2366,7 +2366,7 @@ function update_realm_database () {
 
 function get_realm_lists () {
 
-	$n = rand( 0, 10000 );
+	$n = rand( 0, 100 );
 
 	if( $n == 0 ) {
 		update_realm_database();

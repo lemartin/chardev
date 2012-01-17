@@ -449,6 +449,14 @@ var StatTooltip = {
 								TextIO.formatFloat2(stats.resilienceDamageReduction * 100)
 							));
 				break;
+			case 5:
+				html += Tools.addTr1( 
+							TextIO.sprintf( locale['TT_StatText']['Avoidance'], [
+								TextIO.formatFloat2(stats.meleeMiss),
+								TextIO.formatFloat2(stats.dodge),
+								TextIO.formatFloat2(stats.parry)
+							]));
+				break;
 			}
 			break;
 		case 6:

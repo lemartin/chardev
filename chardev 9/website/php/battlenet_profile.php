@@ -120,6 +120,9 @@ class UnableToCreateProfileException extends Exception {
 		$this->realm = $realm;
 		$this->region = $region;
 		$this->msg = "Unable to create profile for ({$name}, {$region}-{$realm})";
+		if( $cause ) {
+			$this->msg .= ", Caused by " . $cause;
+		}
 	
 		parent::__construct( $this->msg, 0, $cause );
 	}

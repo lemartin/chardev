@@ -395,7 +395,8 @@
 		"ReduceDodgeParry" => "Reduces chance to be dodged or parried by $",
 		"ExpertiseRating" => "Expertise rating $ (+$ expertise)",
 		"IncreasesRangedDamage" => "Increases damage with ranged weapons by $ damage per second",
-		"MasteryRating" => "Mastery rating $ (+$ mastery)"
+		"MasteryRating" => "Mastery rating $ (+$ mastery)",
+		"Avoidance" => "$% Miss + $% Dodge + $% Parry"
 		//"" => ""
 	);
 	

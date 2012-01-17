@@ -394,13 +394,22 @@ function EngineGuiAdapter( engine, gui ) {
 			new Handler( function( e ) {
 				var cc = this.engine.getCurrentCharacter();
 				if( e.is('add_buff') ) {
-					try {
-						cc.addBuff( e.get('id') );
-					}
-					catch( ex ) {
-						Tooltip.showError(ex);
-					}
-					this.updateGlyphTab();
+					var id = e.get('id');
+					SpellCache.asyncGet( id, new Handler( function( id ) {
+						try {
+							var spell = SpellCache.get(id);
+							
+							if( spell.effects[0] && ( spell.effects[0].effect == 23 || spell.effects[0].effect == 42 ) && spell.effects[0].procSpellId > 0 ) {
+								cc.addBuff( spell.effects[0].procSpellId );
+							}
+							else  {
+								cc.addBuff( id );
+							}
+						}
+						catch( ex ) {
+							Tooltip.showError(ex);
+						}
+					} ,this), [id]);
 				}
 			}, this)
 	));

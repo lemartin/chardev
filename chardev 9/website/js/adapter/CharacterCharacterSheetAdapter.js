@@ -141,7 +141,12 @@ function CharacterCharacterSheetAdapater( character, sheet ) {
 			this.character.setPresence(e.get('presence_id'));
 		}
 		else if( e.is('remove_buff') ) {
-			character.removeBuff(e.get('id'));
+			var id = e.get('id');
+			character.removeBuff(id);
+			// hide tooltip if buff is no longer active
+			if( ! character.isBuffActive(id)) {
+				Tooltip.hide();
+			}
 		}
 		else if( e.is('add_stack') ) {
 			character.addStack(e.get('id'));

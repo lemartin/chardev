@@ -1112,6 +1112,9 @@ Character.prototype = {
 	getActiveBuffs: function() {
 		return this.buffs.buffs;
 	},
+	isBuffActive: function(id) {
+		return this.buffs.isActive(id);
+	},
 	//
 	// TALENT DELEGATES
 	//

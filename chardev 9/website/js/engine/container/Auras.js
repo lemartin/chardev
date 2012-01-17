@@ -304,7 +304,7 @@ Auras.prototype = {
 	__addEffects : function( sp, effect, stacks, isBuff, selfBuff )
 	{
 		var j, eff, effs = sp.effects ;
-		var seId = 0;
+		var seId = 0, value;
 		//  var spco = sp.classOptions;
 		var indirect = false;
 		//
@@ -334,6 +334,7 @@ Auras.prototype = {
 			}
 			//
 			seId = eff.id;
+			value = eff.value;
 			//
 			//	Ignore effects of a buff with indirect aura effects
 			//
@@ -378,10 +379,25 @@ Auras.prototype = {
 			//
 			//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 			//
+			case 46325: // Demonic Pact (53646)
+			case 68163: // Totemic Wrath (77747)
+				if( ! this.__testExclusion([46325,68163])) continue;  
+				//
+				// if one of the less powerful buffs was added
+				// decrease the effect value of the more powerful buff
+				// accordingly
+				if( ! this.__testExclusion([44537,68341,68343,90962,90963])) {
+					value -= 6;
+				}
+				break;
 			case 44537: // Flametongue Totem
-				if( this.interpretedSpellEffects[90962] ) continue; break;
 			case 90962: // Arcane Brilliance (79057)
-				if( this.interpretedSpellEffects[44537] ) continue; break;
+			case 90963: // Arcane Brilliance (79058)
+			case 68341: // Dalaram Brilliance (79038)
+			case 68343: // Dalaram Brilliance (79039)
+				if( ! this.__testExclusion([44537,68341,68343,90962,90963])) continue;
+				if( ! this.__testExclusion([46325,68163])) continue;  
+				break;
 			//
 			//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 			//
@@ -413,11 +429,10 @@ Auras.prototype = {
 			//
 			this.interpretedSpellEffects[seId] = true;
 			//
-			
 			this.__addEffect(
 				effect,
 				eff.effect,
-				eff.value * stacks /*+ sp.getAbsoluteLevelEffect(this.character.getLevel(),j)*effcts[j].secondaryEffect*/,
+				value * stacks /*+ sp.getAbsoluteLevelEffect(this.character.getLevel(),j)*effcts[j].secondaryEffect*/,
 				eff.secondaryEffect,
 				eff.usedStat,
 				seId
