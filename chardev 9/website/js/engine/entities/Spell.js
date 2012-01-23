@@ -61,7 +61,7 @@ function Spell( serialized ) {
 	this.auraOptions = serialized[18] ? new SpellAuraOptions(serialized[18]) : null;
 	this.classOptions = serialized[19] ? new SpellClassOptions(serialized[19]) : null; 
 	this.elixirMask = serialized[20];
-	this.elixirMask = serialized[21] ? new SpellLevels(serialized[21]) : null;
+	this.spellLevels = serialized[21] ? new SpellLevels(serialized[21]) : null;
 	
 	this.setLevel(this.level);
 }
