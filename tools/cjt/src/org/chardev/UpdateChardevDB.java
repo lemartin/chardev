@@ -67,8 +67,8 @@ public class UpdateChardevDB {
 	
 		boolean skipLocale = true;
 		
-		connectToDatabase(dbs[0]);
-		cacheUpdate();
+//		connectToDatabase(dbs[0]);
+//		cacheUpdate();
 
 //		connectToDatabase(dbs[2]);
 //		localeUpdate(basePaths[2],locales[2]);
@@ -76,13 +76,13 @@ public class UpdateChardevDB {
 //		connectToDatabase(dbs[0]);
 //		staticUpdate(basePaths[0]);
 		
-//		for( int i=0; i< dbs.length; i++ ) {
-//			connectToDatabase(dbs[i]);
-//			localeUpdate(basePaths[i],locales[i]);
-//			if( skipLocale ) {
-//				break;
-//			}
-//		}
+		for( int i=0; i< dbs.length; i++ ) {
+			connectToDatabase(dbs[i]);
+			localeUpdate(basePaths[i],locales[i]);
+			if( skipLocale ) {
+				break;
+			}
+		}
 
 		/*
 		DBCParser p;
@@ -271,12 +271,12 @@ public class UpdateChardevDB {
 //			"itemset",
 //			"itemrandomsuffix",
 //			"itemrandomproperties",
-//			"skillline",
+			"skillline",
 //			"spell",
 //			"spelldescriptionvariables",
 //			"spellitemenchantment",
 //			"spellrange",
-			"talentTab"
+//			"talentTab"
 		};
 		//
 		//	DBC FILES
@@ -287,17 +287,17 @@ public class UpdateChardevDB {
 		//
 		//	ITEM SPARSE
 		//
-		System.out.println("Processing: Item-Sparse.db2");
-		connectToDatabase("jdbc:mysql://localhost:3306/chardev_cataclysm_static?");
-		DBCParser p = new DBCParser(
-				databaseConnection, 
-				basePath+"Item-Sparse.db2", 
-				"item_working"
-		);
-		p.additionalSkip = ITEM_SPARSE_SKIP;
-		p.setLocale(locale);
-		p.addVersion();
-		p.parse();	
+//		System.out.println("Processing: Item-Sparse.db2");
+//		connectToDatabase("jdbc:mysql://localhost:3306/chardev_cataclysm_static?");
+//		DBCParser p = new DBCParser(
+//				databaseConnection, 
+//				basePath+"Item-Sparse.db2", 
+//				"item_working"
+//		);
+//		p.additionalSkip = ITEM_SPARSE_SKIP;
+//		p.setLocale(locale);
+//		p.addVersion();
+//		p.parse();	
 	}
 	
 	private static void updateTable( String name, String basePath ) {

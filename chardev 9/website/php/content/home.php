@@ -10,7 +10,7 @@
 	$db = new ThreadDatabase( "mysql:dbname=chardev_user;host=127.0.0.1", "root", "");
 	$forum = new Forum($db, new ForumPermissions(isset($_SESSION['user_id']) ? new user_data((int)$_SESSION['user_id']) : null));
 	
-	$threads = $db->getThreads(4, 5, 0);
+	$threads = $db->getThreads(4, 5, 0, ThreadDatabase::ORDER_CREATED );
 	
 	$g_content = "
 		<table cellpadding=\"0\" cellspacing=\"0\" class=\"ne_table\">

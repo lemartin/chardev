@@ -39,6 +39,7 @@
 		array( "js/engine/entities/spell/", "SpellShapeshift.js"),
 		array( "js/engine/entities/spell/", "SpellAuraOptions.js"),
 		array( "js/engine/entities/spell/", "SpellClassOptions.js"),
+		array( "js/engine/entities/spell/", "SpellLevels.js"),
 		
 		array( "js/engine/entities/item/", "Exceptions.js"),
 		array( "js/engine/entities/item/", "GemProperties.js"),

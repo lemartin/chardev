@@ -240,8 +240,14 @@ Auras.prototype = {
 		}
 		sp.setLevel( this.character.level );
 		
-		if( sp.shapehshift && sp.shapehshift.formId != 0 && (sp.shapehshift.formId & (1<<(this.character.chrClass ? ( this.character.chrClass.shapeform - 1 ) : 0))) == 0 ) { 
-			return;
+		// Power Word: Fortitude Fix
+		// PWF requires Shadowform for some reason
+		if( sp.id == 79104 ) {
+			/* ignore shapeshift */
+		} else {
+			if( sp.shapehshift && sp.shapehshift.formId != 0 && (sp.shapehshift.formId & (1<<(this.character.chrClass ? ( this.character.chrClass.shapeform - 1 ) : 0))) == 0 ) { 
+				return;
+			}
 		}
 		//
 		//	Spell not castable if shape shifted, necessary?
@@ -334,7 +340,7 @@ Auras.prototype = {
 			}
 			//
 			seId = eff.id;
-			value = eff.value;
+			value = eff.value + sp.getLevelBasedValue(this.character.level, j);
 			//
 			//	Ignore effects of a buff with indirect aura effects
 			//

@@ -757,8 +757,8 @@ EngineGuiAdapter.prototype = {
 			for( i=0; i<cc.chrClass.conditionalBuffs.length; i++ ) {
 				conditionalBuff = cc.chrClass.conditionalBuffs[i];
 
-				if( cc.auras.auraMap[conditionalBuff[0]] ) {
-					conditionalSpells.push(conditionalBuff[1]);
+				if( cc.auras.auraMap[conditionalBuff[1]] ) {
+					conditionalSpells.push(AvailableBuff.fromSpell(new Spell(conditionalBuff[0]), cc));
 				}
 			}
 		}

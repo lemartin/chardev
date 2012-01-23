@@ -7,6 +7,9 @@ class ThreadDatabase {
 	const FLAG_LOCKED = 2;
 	const FLAG_THREAD_STICKY = 1024;
 	const FLAG_THREAD_ANNOUNCEMENT = 2048;
+	
+	const ORDER_CREATED = 0;
+	const ORDER_LAST_POST = 1;
 		
 	private $threadStmt;
 	private $postStmt;
@@ -159,19 +162,27 @@ class ThreadDatabase {
 		return $stmt->fetchAll();
 	}
 	
-	public function getAnnouncements( $hookId, $limit, $offset ) {
-		return $this->_getThreads( $hookId, $limit, $offset, ThreadDatabase::FLAG_DELETED, ThreadDatabase::FLAG_THREAD_ANNOUNCEMENT );
+	public function getAnnouncements( $hookId, $limit, $offset, $order = self::ORDER_LAST_POST ) {
+		return $this->_getThreads( $hookId, $limit, $offset, ThreadDatabase::FLAG_DELETED, ThreadDatabase::FLAG_THREAD_ANNOUNCEMENT, $order );
 	}
 	
-	public function getStickies( $hookId, $limit, $offset ) {
-		return $this->_getThreads( $hookId, $limit, $offset, ThreadDatabase::FLAG_DELETED, ThreadDatabase::FLAG_THREAD_STICKY );
+	public function getStickies( $hookId, $limit, $offset, $order = self::ORDER_LAST_POST ) {
+		return $this->_getThreads( $hookId, $limit, $offset, ThreadDatabase::FLAG_DELETED, ThreadDatabase::FLAG_THREAD_STICKY, $order );
 	}
 	
-	public function getThreads( $hookId, $limit, $offset ) {
-		return $this->_getThreads( $hookId, $limit, $offset, ThreadDatabase::FLAG_DELETED | ThreadDatabase::FLAG_THREAD_STICKY | ThreadDatabase::FLAG_THREAD_ANNOUNCEMENT, 0);
+	public function getThreads( $hookId, $limit, $offset, $order = self::ORDER_LAST_POST ) {
+		return $this->_getThreads( $hookId, $limit, $offset, ThreadDatabase::FLAG_DELETED | ThreadDatabase::FLAG_THREAD_STICKY | ThreadDatabase::FLAG_THREAD_ANNOUNCEMENT, 0, $order);
 	}
 	
-	private function _getThreads( $hookId, $limit, $offset, $excludeFlags, $requireFlags ) {
+	private function _getThreads( $hookId, $limit, $offset, $excludeFlags, $requireFlags, $order ) {
+		
+		$orderStr = "ORDER BY p.`ID` desc";
+		switch( $order ) {
+			case self::ORDER_CREATED:
+					$orderStr = "ORDER BY t.`ID` desc ";
+				break;
+		}
+		
 		$excludeFlags = (int)$excludeFlags;
 		$requireFlags = (int)$requireFlags;
 		$excl = $excludeFlags ? "( t.`FLAG` & {$excludeFlags} ) = 0" : "TRUE";
@@ -193,8 +204,8 @@ class ThreadDatabase {
 				LEFT JOIN `post_body` b ON b.`ID` = p.`LatestPostBodyID`
 			WHERE 
 				t.`ThreadHookID`=? AND
-				{$excl} AND {$requ}
-			ORDER BY p.`ID` desc 
+				{$excl} AND {$requ} 
+			$orderStr 
 			LIMIT ".((int)$offset).",".((int)$limit)
 		);
 		$stmt->execute( array((int)$hookId ) );

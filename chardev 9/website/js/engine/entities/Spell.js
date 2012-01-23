@@ -61,6 +61,7 @@ function Spell( serialized ) {
 	this.auraOptions = serialized[18] ? new SpellAuraOptions(serialized[18]) : null;
 	this.classOptions = serialized[19] ? new SpellClassOptions(serialized[19]) : null; 
 	this.elixirMask = serialized[20];
+	this.elixirMask = serialized[21] ? new SpellLevels(serialized[21]) : null;
 	
 	this.setLevel(this.level);
 }
@@ -93,6 +94,8 @@ Spell.prototype = {
 		classOptions : null,
 		type : null,
 		elixirMask : 0,
+		/** @type {SpellLevels} */
+		spellLevels: null,
 		//
 		//	TODO
 		//
@@ -184,6 +187,25 @@ Spell.prototype = {
 				if ( this.effects[i] && this.effects[i].effect == 23 ) {
 					return SpellCache.get(this.effects[i].procSpellId);
 				}
+			}
+		},
+		getLevelBasedValue: function(level,i)
+		{
+			if( !this.spellLevels ) {
+				return 0;
+			}
+			if( level < this.spellLevels.baseLevel ) { 
+				return 0;
+			}
+			else {
+				var l = 0;
+				if( this.spellLevels.maximumLevel > 0 && level > this.spellLevels.maximumLevel ) {
+					l = this.spellLevels.maximumLevel - this.spellLevels.baseLevel;
+				}
+				else {
+					l = level - this.spellLevels.baseLevel;
+				}
+				return l * this.effects[i].levelModifier;
 			}
 		}
 };

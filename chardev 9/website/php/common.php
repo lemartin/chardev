@@ -990,6 +990,25 @@ function get_spell( $spell_id, &$spell_list = null ) {
 			
 			$spell[20] = (int)$chardev_spellinfo['ElixirMask'];
 			
+			$spell[21] = null;
+			
+			if( $record['SpellLevelsID'] ) {
+				$join_result = mysql_db_query(
+					$GLOBALS['g_game_db'],
+					"SELECT * FROM `spelllevels` WHERE `ID`=".(int)$record['SpellLevelsID'],
+					$GLOBALS['g_db_con']
+				);
+				if( ($joinRecord = mysql_fetch_assoc($join_result)) ) {
+					$classoptions = array(
+						(int)$joinRecord['ID'],
+						(int)$joinRecord['BaseLevel'],
+						(int)$joinRecord['MaximumLevel'],
+						(int)$joinRecord['SpellLevel']
+					);
+				}
+				mysql_free_result( $join_result );
+			}
+			
 			//
 			//
 			//
