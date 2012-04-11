@@ -107,8 +107,8 @@ ItemList.prototype.weaponSlot = false;
 ItemList.prototype.slotMask= 0;
 ItemList.prototype.itemClass= 0;
 ItemList.prototype.itemSubClassMask= 0;
-ItemList.prototype.showStaticLinks = function( b ) {
-	this.gui.setProperty( "showStaticLinks", b);
+ItemList.prototype.setStaticLink = function( b ) {
+	this.gui.setProperty( "setStaticLink", b);
 };
 ItemList.prototype.setWeaponSlot = function( b ) {
 	this.weaponSlot = b;

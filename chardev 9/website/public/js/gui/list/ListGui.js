@@ -249,14 +249,14 @@ ListGui.prototype = {
 			this.filterCollapsable.collapse();
 		}
 	},
-	updatePages: function( page, maxPage ) {
+	updatePages: function( page, foundPages ) {
 		
-		if( maxPage == 0 ) {
+		if( page <= 1 && foundPages == 0 ) {
 			this.pageGrid.node.style.dispaly = "none";
 			return;
 		}
 		
-		if( maxPage > page ) {
+		if( foundPages > 1 ) {
 			this.pageNext.innerHTML = locale['next']+" &rsaquo;";
 			this.pageNext.style.display = "";
 		}
@@ -270,7 +270,7 @@ ListGui.prototype = {
 		else {
 			this.pagePrev.style.display = "none";
 		}
-		this.pageCurr.innerHTML = TextIO.sprintf( locale['L_PageOf'] , [ page , maxPage ] );
+		this.pageCurr.innerHTML = 'Page ' + page;
 		this.pageGrid.node.style.display = "table";
 	},
 	show: function( b ) {

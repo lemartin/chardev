@@ -7,14 +7,14 @@ function ProfilesAdapter() {
 	//
 	var plHandler = new Handler(function( e ){
 		if( e.is('update')) {
-			new ListBackEndProxy("php/interface/profiles/get_profiles.php").update(this.profileList);
+			new ListBackEndProxy("api/profiles.php").update(this.profileList);
 		}
 		else if( e.is('delete') ) {
 			
 			if( ! confirm("Do you really want to delete the character profile '"+e.get('desc')+"'?")) {
 				return;
 			}
-			
+			//TODO: Implement delete profile
 			Ajax.request("php/interface/profiles/delete_profile.php"+TextIO.queryString({'id': e.get('profile_id')}), new Handler( function( response ){
 				try {
 					Ajax.getResponseObject(response);

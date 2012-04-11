@@ -10,7 +10,7 @@ function ItemListGui( categories ) {
 	DOM.createAt(this.propagateParent, 'span', {'text': 'Use custom filters for all slots', 'class': 'il_prop_note'});
 }
 ItemListGui.prototype = new ListGui(null);
-ItemListGui.prototype.staticLinks = false;
+ItemListGui.prototype.staticLink = "";
 ItemListGui.prototype.dpsAndDelay = false;
 ItemListGui.prototype.propagateCheckbox = null;
 ItemListGui.prototype.propagateParent = null;
@@ -19,8 +19,8 @@ ItemListGui.prototype.setProperty = function(property, value) {
 	if( property == 'showDpsAndDelay' ) {
 		this.dpsAndDelay = value;
 	}
-	else if( property == 'showStaticLinks' ) {
-		this.staticLinks = value;
+	else if( property == 'setStaticLink' ) {
+		this.staticLink = value;
 	}
 	else {
 		throw new Error("Unknown property "+property+" with value "+value+"!");
@@ -140,13 +140,13 @@ ItemListGui.prototype.deserialize = function( data ) {
 			Listener.add(a, 'mousemove', this.eventMgr.fire, this.eventMgr, ['move_tooltip',{}]);
 			Listener.add(a, 'click', this.eventMgr.fire, this.eventMgr, ['click',{'entity': tmp}]);
 			
-			if( this.staticLinks ) {
-				a.href = '?item='+tmp.id;
+			if( this.staticLink ) {
+				a.href = TextIO.sprintf1(this.staticLink,TextIO.verboseUrl(tmp.id,tmp.name));
 			}
 		
 //		}
 		grid.cells[i][column].className = cellStyle;
-		grid.cells[i][column++].innerHTML = "<div style='background-image:url(images/icons/small/" + tmp.icon + ".png)' class='il_icon' ></div>";
+		grid.cells[i][column++].innerHTML = "<div style='background-image:url(/images/icons/small/" + tmp.icon + ".png)' class='il_icon' ></div>";
 
 		grid.cells[i][column].className = cellStyle;
 		

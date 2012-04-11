@@ -118,16 +118,16 @@ List.getItemSubClassOptions= function() {
 
 List.prototype = {
 	eventMgr: null,
-	page: 1, maxPage: 0, 
+	page: 1, foundPages: 0, 
 	filterMgr: null, 
 	gui: null,
 	order: "", orderDirection: List.ORDER_DESC,
 	addObserver: function( observer ) {
 		this.eventMgr.addObserver( observer);
 	},
-	setMaxPage: function( maxPage ) {
-		this.maxPage = maxPage;
-		this.gui.updatePages( this.page, this.maxPage);
+	setFoundPages: function( foundPages ) {
+		this.foundPages = foundPages;
+		this.gui.updatePages( this.page, this.foundPages);
 	},
 	nextPage: function() {
 		this.__setPage( this.page + 1 );
@@ -138,13 +138,13 @@ List.prototype = {
 		this.__update();
 	},
 	__setPage: function( page ) {
-		if( page < 0 || page > this.maxPage ) {
+		if( page < 0 || this.foundPages <= 1 ) {
 			return;
 		}
 		
 		this.page = page;
 		
-		this.gui.updatePages( this.page, this.maxPage);
+		this.gui.updatePages( this.page, this.foundPages);
 	},
 	update: function() {
 		this.__setPage(1);
@@ -171,7 +171,7 @@ List.prototype = {
 		
 		this.page = page;
 		
-		this.gui.updatePages(this.page, this.maxPage);
+		this.gui.updatePages(this.page, this.foundPages);
 		
 		this.gui.setOrder(this.order, this.orderDirection);
 		
@@ -201,10 +201,10 @@ List.prototype = {
 		
 		if( data.length < 2 ) {
 			this.gui.setContent(null);
-			this.setMaxPage(0);
+			this.setFoundPages(0);
 		}
 		else {
-			this.setMaxPage( Math.ceil( data[0][0]/data[0][1] ) );
+			this.setFoundPages( Math.ceil( data[0][0]/data[0][1] ) );
 			this.gui.deserialize( data );
 		}
 	},

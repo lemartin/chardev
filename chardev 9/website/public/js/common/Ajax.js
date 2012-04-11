@@ -1,4 +1,5 @@
 var Ajax = {
+
 	post: function( url, kvps, handler, args )
 	{
 		var request = Ajax.getRequestObject();
@@ -20,7 +21,7 @@ var Ajax = {
 			url += "&_=" + new Date().getTime();
 		}
 		
-		request.open('POST', url , true);
+		request.open('POST', Tools.getBasePath() + url , true);
 		
 		if ( handler ) {
 			request.onreadystatechange = function() {
@@ -115,7 +116,7 @@ Ajax.__do = function( url , handler , args , callbackOnError)
 		url += "&_=" + new Date().getTime();
 	}
 	
-	request.open('GET', url , true);
+	request.open('GET', Tools.getBasePath() + url , true);
 	
 	if ( handler ) {
 		request.onreadystatechange = function() {
@@ -181,14 +182,14 @@ Ajax.getResponseObject = function( response )  {
 			var obj = eval( '(' + response.responseText + ')' );
 			
 			if( response.getResponseHeader("auto_redirect")) {
-				window.location.href = obj.toString();
+				window.location.href = Tools.getBasePath() + obj.toString();
 			}
 			
 			return obj;
 		}
 		else
 		{
-			throw new GenericAjaxException( response.responseText );
+			throw new GenericAjaxException(eval( '(' + response.responseText + ')' ));
 		}
 	}
 	else
@@ -225,7 +226,7 @@ function XMLHttpException() {
 }
 /**
  * @constructor
- * @param {string} message
+ * @param message
  */
 function GenericAjaxException( message ) {
 	this.message = message;

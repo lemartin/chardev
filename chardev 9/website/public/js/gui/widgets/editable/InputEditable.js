@@ -49,6 +49,6 @@ InputEditable.prototype.__edit = function( b ) {
 };
 InputEditable.prototype.__onChange = function() {
 	this.eventMgr.fire('change', { 'data': this.input.getValue()});
-	DOM.set( this.node, DOM.create('img',{'src': 'images/site/bar_loading.gif', 'class': 'ui_bar_loading'}));
+	DOM.set( this.node, DOM.create('img',{'src': '/images/site/bar_loading.gif', 'class': 'ui_bar_loading'}));
 	this.disabled = true;
 };

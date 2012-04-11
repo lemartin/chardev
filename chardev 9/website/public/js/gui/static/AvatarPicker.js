@@ -15,7 +15,7 @@ AvatarPicker.prototype = {
 	currentAvatar: "",
 	page: 1,
 	pick: function( page ) {
-		Ajax.request("php/interface/get_icons.php"+TextIO.queryString({'page':page}), new Handler(this.__callback, this), []);
+		Ajax.request("api/icons.php"+TextIO.queryString({'page':page}), new Handler(this.__callback, this), []);
 		Tooltip.showLoading();
 	},
 	__callback: function(response){
@@ -38,7 +38,7 @@ AvatarPicker.prototype = {
 			var imgDiv = DOM.createAt(div, 'div',{'class': 'ui_avatar_img_container'});
 			for( var k in srcs ) {
 				var a = DOM.createAt( imgDiv, 'a', {'title': srcs[k], 'href': 'javascript:;'});
-				DOM.createAt(a,'img', {'class': 'ui_avatar_preview_img', 'src': 'images/icons/large/'+srcs[k]+'.png'});
+				DOM.createAt(a,'img', {'class': 'ui_avatar_preview_img', 'src': '/images/icons/large/'+srcs[k]+'.png'});
 				Listener.add(a,'click',this.__select,this,[srcs[k]]);
 			}
 			
@@ -71,7 +71,7 @@ AvatarPicker.prototype = {
 	},
 	__select: function(avatar) {
 		Tooltip.showLoading();
-		Ajax.request("php/interface/user/set_user_setting.php"+TextIO.queryString({'Avatar':avatar}), new Handler(this.__select_callback, this), []);
+		Ajax.request("api/user.php"+TextIO.queryString({'Avatar':avatar}), new Handler(this.__select_callback, this), []);
 	},
 	__select_callback: function(response) {
 		this.currentAvatar = Ajax.getResponseObject(response);
@@ -86,7 +86,7 @@ AvatarPicker.prototype = {
 		Listener.add(a,'click', this.pick, this, [0]);
 		
 		if( this.currentAvatar) {
-			DOM.createAt(a, 'img', {'class': 'ui_avatar_img', 'src': 'images/icons/large/'+this.currentAvatar+'.png'});
+			DOM.createAt(a, 'img', {'class': 'ui_avatar_img', 'src': '/images/icons/large/'+this.currentAvatar+'.png'});
 		}
 		else {
 			DOM.createAt(a, 'span', {'text': 'Select an avatar'});

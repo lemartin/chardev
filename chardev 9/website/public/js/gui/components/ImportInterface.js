@@ -35,8 +35,6 @@ function ImportInterface( onImportHandler ) {
 	
 	Tools.jsCssClassHandler( this.importSubmit, { 'default': "button button_light", 'focus': "button_light_hover", 'hover': "button_light_hover"});
 	
-	
-	
 	div = DOM.createAt(form, 'div', {'class': 'im_sa_r'});
 	DOM.createAt(div, 'div', {'class': 'im_sa_left', 'text': 'Name'});
 	DOM.append(DOM.createAt(div, 'div', {'class': 'im_sa_right'}), this.importName);
@@ -62,6 +60,7 @@ function ImportInterface( onImportHandler ) {
 	
 	DOM.clear(this.node);
 	
+	this.updateStoredImports();
 }
 
 ImportInterface.prototype = {

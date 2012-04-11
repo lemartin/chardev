@@ -198,7 +198,7 @@ TalentsGui.prototype = {
 	        this.treeIcons[i] = document.createElement("img");
 	        this.treeIcons[i].className = 'ts_tree_icon';
 	        if (!talents.isPet) {
-	            this.treeIcons[i].src = "images/icons/small/" + talents.trees[i].iconSrc + ".png";
+	            this.treeIcons[i].src = "/images/icons/small/" + talents.trees[i].iconSrc + ".png";
 	        }
 
 		    this.treeSpentSpan[i] = document.createElement('span');
@@ -251,10 +251,10 @@ TalentsGui.prototype = {
 		        
 		        div = document.createElement("div");
 		        div.className = 'talent_select_icon_div';
-		        div.style.backgroundImage = "url(images/icons/large/" + talents.trees[i].iconSrc + ".png)";
+		        div.style.backgroundImage = "url(/images/icons/large/" + talents.trees[i].iconSrc + ".png)";
 		        circleDiv = document.createElement("div");
 		        circleDiv.className = 'talent_select_circle_div';
-		        circleDiv.style.backgroundImage = "url(images/talents/talent_select_circle_grey.png)";
+		        circleDiv.style.backgroundImage = "url(/images/talents/talent_select_circle_grey.png)";
 		        div.appendChild(circleDiv);
 		        this.selectNodes[i].appendChild(div);
 				//
@@ -288,7 +288,7 @@ TalentsGui.prototype = {
 			        Listener.add(this.primaryNames[i][j],"mouseover",Tooltip.show,Tooltip,[talents.trees[i].primarySpells[j].getTooltip()]);
 		        	
 		        	ld.layers[0].className = 'ts_primary_icon'+(j!=0?'_s':'');
-			        ld.layers[0].style.backgroundImage = 'url(images/icons/'+(j==0?'half':'small')+'/'+talents.trees[i].primarySpells[j].icon+'.png)';
+			        ld.layers[0].style.backgroundImage = 'url(/images/icons/'+(j==0?'half':'small')+'/'+talents.trees[i].primarySpells[j].icon+'.png)';
 			        ld.layers[1].className = 'ts_primary_border'+(j!=0?'_s':'');
 		        	
 			        ld.layers[2].className = 'ts_primary_event'+(j!=0?'_s':'');
@@ -343,13 +343,13 @@ TalentsGui.prototype = {
 	selectTree: function( tree ) {
 		for( var i = 0; i < this.treeCount; i++ ) {
 			this.treeNodes[i].style.borderColor = ( i == tree ? '#FFCC00' : '' );
-			this.glowDivs[i].style.backgroundImage = ( i == tree ? 'url(images/talents/talent_tree_glow.png)' : '');
+			this.glowDivs[i].style.backgroundImage = ( i == tree ? 'url(/images/talents/talent_tree_glow.png)' : '');
 			this.resetTreeLinks[i].style.visibility = ( tree == -1 ? 'hidden' : 'visible');
 			this.treeSpentSpan[i].style.visibility = ( tree == -1 ? 'hidden' : 'visible');
 			//this.selectNodes[i].className = i == tree || tree == -1 ? "talent_select_div" : "talent_select_div_inactive";
 			for( var j=0; j<this.primarySpells[i].length; j++ ) {
-				this.spellDivs[i][j].layers[0].style.backgroundImage = 'url(images/icons/'+(tree==-1||i==tree?"":"g/")+(j==0?'half':'small')+'/'+this.primarySpells[i][j].icon+'.png)';
-				this.spellDivs[i][j].layers[1].style.backgroundImage = 'url(images/icon_border'+(j==0?'_smaller':'_smallest')+(tree==-1||i==tree?"":"_g")+'.png)';
+				this.spellDivs[i][j].layers[0].style.backgroundImage = 'url(/images/icons/'+(tree==-1||i==tree?"":"g/")+(j==0?'half':'small')+'/'+this.primarySpells[i][j].icon+'.png)';
+				this.spellDivs[i][j].layers[1].style.backgroundImage = 'url(/images/icon_border'+(j==0?'_smaller':'_smallest')+(tree==-1||i==tree?"":"_g")+'.png)';
 				this.primaryNames[i][j].className =  'ts_ps_name_p'+( j==0?'_big':'')+' ts_primary_name'+( tree == i || tree == -1 ? "" : "_g");
 			}
 		}
@@ -397,7 +397,7 @@ TalentsGui.prototype = {
 			unavailable = this.selectedTree == -1 || h != this.selectedTree && this.talentsFacade.getPointsSpentIn(this.selectedTree) < 31;
 			//
 			
-			url = 'url(images/talents/bg/'+( unavailable ? 'g/' : 'bg_' )+(1<<(this.id-1))+'_'+h+'.jpg)';
+			url = 'url(/images/talents/bg/'+( unavailable ? 'g/' : 'bg_' )+(1<<(this.id-1))+'_'+h+'.jpg)';
 			if( url != this.lastBgsCache[h] ) {
 				this.lastBgsCache[h] = url;
 				this.treeNodes[h].style.backgroundImage = url;

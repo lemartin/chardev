@@ -1,0 +1,231 @@
+<?php 
+
+use chardev\frontend\Form;
+
+use chardev\FormatHelper;
+
+use chardev\Session;
+
+use chardev\backend\UserDatabase;
+
+use chardev\ChardevHelper;
+
+$args = $this->getArg("validated_args");
+	$user = $args["User"];
+	$category = $this->getArg('user_category');	
+	$loggedInUser = Session::getLoggedInUser();
+	$isYou = $loggedInUser && $loggedInUser->getId() == $user->getId();
+	$step = 1;
+	$deleteException = null;
+	$uiData = null;
+	
+	switch( $category ) {
+		case 'Password':
+			if( !$isYou ) {
+				header("Location: " . ChardevHelper::getUserUrl($user)); die;
+			}
+			break;
+		case 'Profiles':
+			if( !$isYou ) {
+				header("Location: " . ChardevHelper::getUserUrl($user)); die;
+			}
+			break;
+		case 'Delete':
+			if(isset($_GET['Deleted'])) {
+				
+				if( ! $loggedInUser || ($loggedInUser->getRole() < 10 && $loggedInUser->getId() != $user->getId())) {
+					$deleteException = "You are not permitted to delete this user!";
+				}
+				else {
+					if( $loggedInUser->getId() == $user->getId() ) {
+						Session::clearUserData();
+					}
+					UserDatabase::getInstance()->deleteUser($user);
+					header("Location: " . $_SERVER["REQUEST_URI"]);
+					die;
+				}
+				
+				$step = 3;
+			}
+			else if(isset($_GET['Confirm'])) {
+				$step = 2;
+			}
+			break;
+		default:
+			$uiData = array(
+					"ForumSignature" => array(
+							"label" => "Forum Signature",
+							"data" => $user->getForumSignature(),
+							"editable" => "input"
+					),
+					"Region" => array(
+							"label" => "Region",
+							"data" => $user->getRegion(),
+							"editable" => "select",
+							"options" => array(
+									"us"=>"United States",
+									"eu"=>"Europe",
+									"kr"=>"Korea",
+									"cn"=>"China",
+									"tw"=>"Taiwan"
+							)
+					),
+					"Language" => array(
+							"label" => "Preferred Language",
+							"data" => $user->getLanguage(),
+							"editable" => "select",
+							"options" => array(
+									0=>"English",
+									2=>"French",
+									3=>"German",
+									6=>"Spanish",
+									8=>"Russian"
+							)
+					)
+			);
+			
+			if( $isYou ) {
+				$uiData["BattleNetProfiles"] = array(
+						"label" => "Battle.net Profiles",
+						"editable" => "battlenetprofilemanager",
+						"data" => $user->getBattleNetProfiles(),
+						"realms" => \chardev\backend\UserDatabase::getInstance()->getRealmList()
+				);
+			} 
+			break;
+	}
+	
+	if( $user->getAvatar() ) {
+		$avatar = "<img class='ui_avatar_img' src='/images/icons/large/{$user->getAvatar()}.png' />";
+	}
+	else {
+		$avatar = "";
+	}
+	
+	function printUserCategoryLink( \chardev\backend\entities\User $user, $name, $action, $current) {
+		$url = ChardevHelper::getUserUrl($user,$action);
+		
+		echo "<a href='{$url}' class='ui_cat_link".( $current === $action ? "_active" : "" )."'>$name</a>";
+	}
+?>
+
+<div class='ui_wrapper'>
+	<div class='ui_left'><div class='ui_avatar_p' id='ui_avatar_parent'><?php echo $avatar ?></div>
+		<div class='ui_categories'>
+			<?php 
+			
+				printUserCategoryLink($user, 'User Information', 'Index', $category);
+				printUserCategoryLink($user, 'Profiles', 'Profiles', $category);
+				if( $isYou) {
+					printUserCategoryLink($user, 'Change Password', 'Password', $category);
+					printUserCategoryLink($user, 'Account Deletion', 'Delete', $category);
+				}
+			?>
+		</div>
+	</div>
+	<div class='ui_right'>
+		<div class='ui_name'><?php echo $user->getName()?></div>
+		<div class='ui_role'><?php echo
+			$user->isAdmin() ? 
+				"Admin" : (
+					$user->hasDonated() ? "Donor" : "User") ?>
+		</div>
+		<script type="text/javascript">
+		<!--
+			$(function () {
+				Chardev.showUserInformation(
+					<?php echo json_encode($user->getId())?>,
+					<?php echo json_encode($uiData) ?>,
+					<?php echo json_encode($category == 'Profiles') ?>
+				);
+	<?php if($isYou):?>
+				Chardev.createAvatarPicker('ui_avatar_parent','<?php echo $user->getAvatar() ?>');
+	<?php endif;?>
+			});
+		//-->
+		</script>
+		<?php 
+			if( $category == 'Password' ):
+		?>
+			<div class='ui_pc_p' id='ui_pc_p'>
+			<?php 
+				$locale = \chardev\Language::getInstance()->getLocaleArray();
+				
+					$form = new Form("javascript:Chardev.changePassword()");
+					$n = $form->addPassword( $locale['New_Password'], "change_new_password", "alnum,min=4");
+					$form->addSecret( $locale['Repeat'], "", "repeat of {$n}");
+					$form->addHidden("change_user_id", $user->getId());
+					$form->addSubmit("Change Password"); 
+					
+					echo $form->getHtml();
+			?>
+			</div>
+		<?php
+			elseif( $category == 'Profiles' ): 
+		?>
+				<div id='ui_profiles_parent' class='ui_profiles_p'><div class='loading'>Loading...</div></div>
+		<?php 
+			elseif( $category == 'Delete'):
+				switch($step):
+					case 3:
+		?>
+						<div class='ui_da_zb'>You are now deleted, please take your receipt!</div>
+		<?php
+					break;
+					case 2:
+		?>
+			<div class='ui_da_w'>
+				<div class='ui_da_header'>Account deletion is irreversible!</div>
+				<div class='ui_da_note ui_da_sure'>
+					Are you certain, that you want to delete your account permanently?
+				</div>
+				<div class='ui_da_zb'>Enough with the questions.</div>
+				<div class='ui_da_btn_p'>
+					<form method='POST' action='<?php echo ChardevHelper::getUserUrl($user,'Delete') . '?Deleted' ?>'>
+						<input 
+							type='submit' 
+							class='button button_light ui_da_btn'
+							onmouseout='this.className=\"button button_light ui_da_btn\"' 
+							onmouseover='this.className=\"button button_light button_light_hover ui_da_btn\"' 
+							value='Delete my Account!'
+						/>
+						<input type='hidden' name='confirm' />
+					</form>
+				</div>
+			</div>
+		<?php
+					break;
+					case 1:
+		?>
+	<div class='ui_da_w'>
+		<div class='ui_da_header'>Account deletion is irreversible!</div>
+		<div class='ui_da_note'>
+			<div class='ui_da_note_h'>What will be deleted?</div>
+			<div class='ui_da_note_c'>
+				Deleting your account will remove your personal information permanently from chardevs database. 
+				This includes your user name, password, e-mail address and your account settings. Forum posts, comments 
+				and profiles won't be deleted, but will be anonymised.
+			</div>
+		</div>
+		<div class='ui_da_btn_p'>
+			<form method='POST' action='<?php echo ChardevHelper::getUserUrl($user,'Delete') . '?Confirm' ?>'>
+				<input 
+					type='submit' 
+					class='button button_light ui_da_btn'
+					onmouseout='this.className=\"button button_light ui_da_btn\"' 
+					onmouseover='this.className=\"button button_light button_light_hover ui_da_btn\"' 
+					value='Delete my Account'
+				/>
+			</form>
+		</div>
+	</div>
+<?php
+			break;
+		endswitch;
+	else:
+?>
+		<div id='user_information_parent'><div class='loading'>Loading...</div></div>
+<?php endif;?>
+	</div>
+	<div style='clear: both'></div>
+</div>

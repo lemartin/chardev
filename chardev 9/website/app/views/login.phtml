@@ -1,0 +1,48 @@
+<?php 
+$exception = \chardev\Session::getLoginException();
+
+if( $exception ) {
+	if( $exception instanceof \chardev\backend\WrongUserNamePasswordException ) {
+		$loginErrorMsg = "Wrong user name or password!";
+	}
+	else if( $exception instanceof \chardev\backend\RegistrationPendingException ) {
+		$loginErrorMsg = "Your registration is pending!<br/>".
+				"You should have received an activation email, if not, click <a class='std_link' href='?resend_mail&to=".$_POST['login_user_name']."'>here</a> to send the mail again.";
+	}
+	else {
+		$loginErrorMsg = $exception->getMessage();
+	}
+}
+else {
+	$loginErrorMsg = "";
+}
+
+$locale = \chardev\Language::getInstance()->getLocaleArray();
+
+$form = new \chardev\frontend\Form("Login.html");
+$form->addInput('User name', 'login_user_name', 'alnum,min=4');
+$form->addPassword('Password', 'login_password', 'min=4');
+$form->addCheckbox('Stay logged in', 'login_cookie');
+$form->addHidden('redirect_url', chardev\FormatHelper::getRedirectUrl());
+$form->addSubmit('Login');
+?>
+
+<div class="fm_error"></div>
+<div class="content_wrapper">
+	<h1>Login</h1>
+	<?php if(isset($_GET['Recovery'])):?>
+	<div class="fm_note">
+		You have successfully recovered you password and may now log in!
+	</div>
+	<?php elseif(isset($_GET['Registration'])):?>
+	<div class="fm_note">
+		You have successfully registed and activated your account and may now log in!
+	</div>
+	<?php endif; ?>
+	
+	<div class="fm_err"><?php echo $loginErrorMsg ?></div>
+	<?php echo $form->getHtml() ?>
+	<div class='login_rec_p'>
+		<a href='RecoverPassword.html' class='login_rec_link'>Forgot your password? Click here!</a>
+	</div>
+</div>

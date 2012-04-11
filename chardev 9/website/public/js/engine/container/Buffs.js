@@ -58,7 +58,7 @@ function Buffs() {
 
 
 Buffs.getAvailableBuffs = function( handler, characterScope ) {
-	Ajax.request('php/interface/get_buffs.php', new Handler(function( response ) {		
+	Ajax.request('api/buffs.php', new Handler(function( response ) {		
 		try {
 			var obj = Ajax.getResponseObject(response);
 			var r = {};

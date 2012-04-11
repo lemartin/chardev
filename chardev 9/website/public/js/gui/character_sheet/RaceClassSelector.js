@@ -38,11 +38,11 @@ function RaceClassSelector( characterSheet ) {
 	this.selectClass.className = 'rcs_icon_container';
 	this.chrRace = document.createElement("div");
 	this.chrRace.className = "character_race_icon";
-	this.chrRace.style.backgroundImage = "url(images/site/race_class/medium/slot_empty.png)";
+	this.chrRace.style.backgroundImage = "url(/images/site/race_class/medium/slot_empty.png)";
 	
 	this.raceIcon = document.createElement("img");
 	this.raceIcon.className = "rcs_icon_s";
-	this.raceIcon.src = "images/site/race_class/medium/slot_empty.png";
+	this.raceIcon.src = "/images/site/race_class/medium/slot_empty.png";
 	this.chrRace = new LayeredDiv(4);
 	this.chrRace.layers[0].appendChild(this.raceIcon);
 	this.chrRace.layers[0].className = "rcs_icon_l";
@@ -53,7 +53,7 @@ function RaceClassSelector( characterSheet ) {
 	
 	this.classIcon = document.createElement("img");
 	this.classIcon.className = "rcs_icon_s";
-	this.classIcon.src = "images/site/race_class/medium/slot_empty.png";
+	this.classIcon.src = "/images/site/race_class/medium/slot_empty.png";
 	this.chrClass = new LayeredDiv(4);
 	this.chrClass.layers[0].appendChild(this.classIcon);
 	this.chrClass.layers[0].className = "rcs_icon_l";
@@ -75,7 +75,7 @@ function RaceClassSelector( characterSheet ) {
 		for( var i = 0; i<CHR_RACE_ORDER[j].length; i++ ) {
 			var div = document.createElement("div");
 			div.className = "rcs_race_icon";
-			div.style.backgroundImage = "url(images/site/race_class/medium/chr_race_"+CHR_RACE_ORDER[j][i]+".png)";
+			div.style.backgroundImage = "url(/images/site/race_class/medium/chr_race_"+CHR_RACE_ORDER[j][i]+".png)";
 			Listener.add(div,"click",this.__onRaceIconClick,this,[CHR_RACE_ORDER[j][i]]);
 			layoutGrid2.cells[1+i][j].appendChild(div);
 		}
@@ -120,15 +120,15 @@ RaceClassSelector.prototype = {
 		var d1,d2;
 		if( chrRaceId != -1 ) {
 	
-			this.raceIcon.src = "images/site/race_class/resized_chr_race_"+chrRaceId+".png";
+			this.raceIcon.src = "/images/site/race_class/resized_chr_race_"+chrRaceId+".png";
 			
 			if( chrClassId != -1 ) {
-				this.classIcon.src = "images/site/race_class/resized_"+chrClassId+".png";
+				this.classIcon.src = "/images/site/race_class/resized_"+chrClassId+".png";
 				this.chrClass.layers[2].className = 'rcs_class_border';
-				this.chrClass.layers[2].style.backgroundImage = 'url(images/site/race_class/class_border_' + chrClassId + '.png)';
+				this.chrClass.layers[2].style.backgroundImage = 'url(/images/site/race_class/class_border_' + chrClassId + '.png)';
 			}
 			else {
-				this.classIcon.src = "images/site/race_class/medium/slot_empty.png";
+				this.classIcon.src = "/images/site/race_class/medium/slot_empty.png";
 				this.chrClass.layers[2].className = 'rcs_border';
 				this.chrClass.layers[2].style.backgroundImage = '';
 			}
@@ -144,7 +144,7 @@ RaceClassSelector.prototype = {
 				if( (CHR_RACE_CLASS_MASK[chrRaceId]&(1<<i)) != 0 ) {
 					var div = document.createElement("div");
 					div.className = "rcs_icon";
-					div.style.backgroundImage = "url(images/site/race_class/medium/"+(i+1)+".png)";
+					div.style.backgroundImage = "url(/images/site/race_class/medium/"+(i+1)+".png)";
 					Listener.add(div,"click",this.__onClassIconClick,this,[i+1]);
 					this.selectClass.appendChild(div);
 				} 
@@ -154,7 +154,7 @@ RaceClassSelector.prototype = {
 			this.selectClass.appendChild(d1);
 		}
 		else {
-			this.raceIcon.src = "images/site/race_class/medium/slot_empty.png";
+			this.raceIcon.src = "/images/site/race_class/medium/slot_empty.png";
 		}
 	},
 	

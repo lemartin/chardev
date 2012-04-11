@@ -166,8 +166,14 @@ TooltipImpl.prototype = {
 		}
 	},
 	handleKeyDown: function( event ) {
-		if( event.keyCode == 27 && this.disabled ) {
-			this.enable();
+		if( this.disabled ) {
+			if( event.keyCode == 27 ) {
+				this.enable();
+			}
+			else if ( event.keyCode == 13 ) {
+				event.preventDefault();
+				this.enable();
+			}
 		}
 		if( event.keyCode == 17 ) {
 			this.hideTooltip = true;
@@ -224,11 +230,24 @@ TooltipImpl.prototype = {
 		this.disabled = false;
 		this.errorShown = false;
 	},
-	showError: function( str ) {		
+	showError: function( str ) {
+		
+		if((str instanceof Error) || (str instanceof GenericAjaxException)) {
+			str = str.message;
+		}
+
 		var e = "<div class=\"tt_error_msg\">" +
-					"<div class=\"tt_error_msg_title\">Error</div>" +
-					"<div class=\"tt_error_msg_content\">"+str+"</div>" +
-				"</div>";
+					"<div class=\"tt_error_msg_title\">Error:</div>";
+		if(typeof str === 'object') { 
+			for( var k in str ) {
+				e += "<div class=\"tt_error_msg_content\">"+str[k]+"</div>";
+			}
+			e += "</div>";
+		}
+		else {
+			e += "<div class=\"tt_error_msg_content\">"+str+"</div>";
+		}
+		e += "</div>";
 		
 		if( this.errorShown ) {
 			this.errorNode.innerHTML = e + "<br />" + this.errorNode.innerHTML;
@@ -309,3 +328,9 @@ window["__tooltip_init"] = Tooltip.initialise;
 window["g_moveTooltip"] = function(){Tooltip.move.call(Tooltip);};
 window["g_hideTooltip"] = function(){Tooltip.hide.call(Tooltip);};
 //
+if( ! window["Tooltip"]) {
+	window["Tooltip"] = {
+		"showError": Tooltip.showError,
+		"showLoading": Tooltip.showLoading
+	};
+}

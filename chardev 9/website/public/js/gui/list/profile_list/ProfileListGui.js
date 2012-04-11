@@ -62,7 +62,7 @@ ProfileListGui.prototype.deserialize = function( data ) {
 
 		grid.cells[row][0].className = cellStyle + " pl_inline_header";
 		
-		a = DOM.createAt( grid.cells[row][0], 'a', { 'href': '?profile='+data[i][0], 'class': 'pl_link', 'text': name } );
+		a = DOM.createAt( grid.cells[row][0], 'a', { 'href': Tools.getBasePath() + data[i][8], 'class': 'pl_link', 'text': name } );
 		
 		if( data[i][3] ) {
 			a.onmouseout = function(){Tooltip.hide();};
@@ -95,10 +95,10 @@ ProfileListGui.prototype.deserialize = function( data ) {
 		grid.cells[row][column++].innerHTML = data[i][6];
 		
 		grid.cells[row][column].className = cellStyle;
-		grid.cells[row][column++].innerHTML = "<div style='background-image:url(images/site/race_class/small/chr_race_" + data[i][4] + ".png)' class='pl_icon' ></div>";
+		grid.cells[row][column++].innerHTML = "<div style='background-image:url(/images/site/race_class/small/chr_race_" + data[i][4] + ".png)' class='pl_icon' ></div>";
 		
 		grid.cells[row][column].className = cellStyle;
-		grid.cells[row][column++].innerHTML = "<div style='background-image:url(images/site/race_class/small/" + data[i][5] + ".png)' class='pl_icon' ></div>";
+		grid.cells[row][column++].innerHTML = "<div style='background-image:url(/images/site/race_class/small/" + data[i][5] + ".png)' class='pl_icon' ></div>";
 		
 		grid.cells[row][column].className = cellStyle;
 		

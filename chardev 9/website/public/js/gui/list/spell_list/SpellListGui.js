@@ -58,7 +58,7 @@ SpellListGui.prototype.deserialize = function( data ) {
 		
 
 		grid.cells[i][column].className = cellStyle;
-		grid.cells[i][column++].innerHTML = "<div style='background-image:url(images/icons/small/" + tmp.icon + ".png)' class='il_icon' ></div>";
+		grid.cells[i][column++].innerHTML = "<div style='background-image:url(/images/icons/small/" + tmp.icon + ".png)' class='il_icon' ></div>";
 
 		grid.cells[i][column].className = cellStyle;
 		grid.cells[i][column++].appendChild(a);

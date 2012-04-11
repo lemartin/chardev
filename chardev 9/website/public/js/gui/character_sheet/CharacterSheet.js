@@ -121,7 +121,7 @@ function CharacterSheet() {
 			this.stats[i][j] = stat;
 			this.statCollapsables[i].content.appendChild(this.stats[i][j].node);
 		}
-		this.statCollapsables[i].node.className = 'group cs_st_p';
+		this.statCollapsables[i].node.className = 'cs_st_p';
 		this.statCollapsables[i].content.className = 'cs_st_c';
 		
 		div = DOM.createAt( this.statCollapsables[i].header, 'div', {'class': 'stat_title_p'} );

@@ -165,7 +165,7 @@ function EngineGuiAdapter( engine, gui ) {
 			}
 		}
 		else if( e.is('update') ) {
-			new ListBackEndProxy("php/interface/get_items.php").update(this.itemList);
+			new ListBackEndProxy("api/items.php").update(this.itemList);
 			if( this.slot != -1 ) {
 
 				var args = this.itemList.getArgumentString(); 
@@ -237,7 +237,7 @@ function EngineGuiAdapter( engine, gui ) {
 			}
 		}
 		else if( e.is('update') ) {
-			new ListBackEndProxy("php/interface/get_spells.php").update(this.enchantList);
+			new ListBackEndProxy("api/spells.php").update(this.enchantList);
 //			if( this.slot != -1 ) {
 //				this.storedGemFilters[this.slot] = this.gemList.getArgumentString();
 //				//
@@ -295,7 +295,7 @@ function EngineGuiAdapter( engine, gui ) {
 			}
 		}
 		else if( e.is('update') ) {
-			new ListBackEndProxy("php/interface/get_items.php").update(this.gemList);
+			new ListBackEndProxy("api/items.php").update(this.gemList);
 //			if( this.slot != -1 ) {
 //				this.storedGemFilters[this.slot] = this.gemList.getArgumentString();
 //				//
@@ -343,7 +343,8 @@ function EngineGuiAdapter( engine, gui ) {
 				this.updateOverviewTab();
 			}
 			else if( this.guiTab == Gui.TAB_SAVE ) {
-				this.gui.saveInterface.update( this.engine.settings.profileId != 0 && this.engine.settings.profileUserId == this.engine.settings.userId );
+				var profileInfo = this.engine.settings.profile["ProfileInfo"];
+				this.gui.saveInterface.update( profileInfo && profileInfo["ID"] != 0 && profileInfo["UserID"] == this.engine.settings.userId );
 			}
 		}
 		else if( e.is('csfolder_tab_change') ) {
@@ -892,7 +893,7 @@ EngineGuiAdapter.prototype = {
 			cc.setName(name);
 			cc.setDescription(desc);
 			
-			CharacterIO.writeToDatabaseSession(0, cc, new Handler( this.__onSaveCallback, this ));
+			CharacterIO.writeToDatabase(0, cc, new Handler( this.__onSaveCallback, this ));
 
 			Tooltip.showLoading();
 		}
@@ -904,7 +905,7 @@ EngineGuiAdapter.prototype = {
 		try {
 			var cc = Engine.getCurrentCharacter();
 			
-			CharacterIO.writeToDatabaseSession( this.engine.settings.profileId, cc, new Handler( this.__onUpdateCallback, this ));
+			CharacterIO.writeToDatabase( this.engine.settings.profile["ProfileInfo"]["ID"], cc, new Handler( this.__onUpdateCallback, this ));
 
 			Tooltip.showLoading();
 		}
@@ -912,15 +913,15 @@ EngineGuiAdapter.prototype = {
 			Tooltip.showError(e);
 		}
 	},
-	__onSaveCallback: function( id, exception ) {
+	__onSaveCallback: function( href, exception ) {
 		if ( exception != null ) {
 			Tooltip.showError(exception);
 		}
 		else {
-			Tooltip.showHtmlDisabled("Your profile was saved.<br /><a class='tt_profile_link' href='?profile="+id+"' target='_blank'>Click here</a> to view it.");
+			Tooltip.showHtmlDisabled("Your profile was saved.<br /><a class='tt_profile_link' href='"+escape(Tools.getBasePath() + href)+"' target='_blank'>Click here</a> to view it.");
 		}
 	},
-	__onUpdateCallback: function( id, exception ) {
+	__onUpdateCallback: function( href, exception ) {
 		if ( exception != null ) {
 			Tooltip.showError(exception);
 		}

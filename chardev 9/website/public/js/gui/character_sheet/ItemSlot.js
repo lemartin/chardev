@@ -79,7 +79,7 @@ ItemSlot.prototype = {
 		if( this.items[index] ) {
 
 			if( index >= 1 ) {
-				this.icons[index].src = "images/icons/large/"+this.items[index].icon+".png";
+				this.icons[index].src = "/images/icons/large/"+this.items[index].icon+".png";
 				this.icons[index].className = 'cs_is_img_large';
 				
 				DOM.addClass( this.historyItems[index-1].layers[1], 'cs_is_hip_enlarge');
@@ -101,7 +101,7 @@ ItemSlot.prototype = {
 
 		if( index >= 1 ) {
 			if( this.items[index] ) {
-				this.icons[index].src = "images/icons/gem/"+this.items[index].icon+".png";
+				this.icons[index].src = "/images/icons/gem/"+this.items[index].icon+".png";
 			}
 			else {
 				//
@@ -131,15 +131,15 @@ ItemSlot.prototype = {
 		this.node.style.display = (visible?"block":"none");
 	},
 	select: function() {
-		this.itemParent.layers[0].style.backgroundImage = "url(images/site/item_border_hover.png)";
+		this.itemParent.layers[0].style.backgroundImage = "url(/images/site/item_border_hover.png)";
 		this.selected = true;
 	},
 	deselect: function() {
 		if( this.quality > -1 ) {
-			this.itemParent.layers[0].style.backgroundImage = "url(images/site/item_border_q"+this.quality+".png)";
+			this.itemParent.layers[0].style.backgroundImage = "url(/images/site/item_border_q"+this.quality+".png)";
 		}
 		else {
-			this.itemParent.layers[0].style.backgroundImage = "url(images/site/item_border.png)";
+			this.itemParent.layers[0].style.backgroundImage = "url(/images/site/item_border.png)";
 		}
 		this.selected = false;
 	},
@@ -159,8 +159,8 @@ ItemSlot.prototype = {
 					DOM.removeClass(this.historyItems[i-1].layers[0], /^cs_is_quality_\d+$/);
 				}
 				else {
-					this.icons[i].src = "images/charsheet/slots/slot_"+this.slot+".jpg";
-					this.itemParent.layers[0].style.backgroundImage = "url(images/site/item_border.png)";
+					this.icons[i].src = "/images/charsheet/slots/slot_"+this.slot+".jpg";
+					this.itemParent.layers[0].style.backgroundImage = "url(/images/site/item_border.png)";
 				}
 			}
 			else {
@@ -169,29 +169,29 @@ ItemSlot.prototype = {
 					this.icons[i].style.display = "block";
 					DOM.addClass(this.historyItems[i-1].layers[0], 'cs_is_quality_'+itm.quality);
 					//this.historyItems[i-1].style.display = "block";
-					this.icons[i].src = "images/icons/gem/" + itm.icon + ".png";
+					this.icons[i].src = "/images/icons/gem/" + itm.icon + ".png";
 				}
 				else {
 					this.quality = itm.quality;
 					if( this.selected ) {
-						this.itemParent.layers[0].style.backgroundImage = "url(images/site/item_border_hover.png)";
+						this.itemParent.layers[0].style.backgroundImage = "url(/images/site/item_border_hover.png)";
 					}
 					else {
 						if( itm.isInvalid() ) {
-							this.itemParent.layers[0].style.backgroundImage = "url(images/site/item_border_invalid.png)";
+							this.itemParent.layers[0].style.backgroundImage = "url(/images/site/item_border_invalid.png)";
 						}
 						else if( this.quality > -1 ) {
-							this.itemParent.layers[0].style.backgroundImage = "url(images/site/item_border_q"+this.quality+".png)";
+							this.itemParent.layers[0].style.backgroundImage = "url(/images/site/item_border_q"+this.quality+".png)";
 						}
 						else {
-							this.itemParent.layers[0].style.backgroundImage = "url(images/site/item_border.png)";
+							this.itemParent.layers[0].style.backgroundImage = "url(/images/site/item_border.png)";
 						}
 					}
 					if( itm.isInvalid() ) {
-						this.icons[i].src = "images/icons/r/large/" + (itm.icon ? itm.icon : 'Temp')  + ".png";
+						this.icons[i].src = "/images/icons/r/large/" + (itm.icon ? itm.icon : 'Temp')  + ".png";
 					}
 					else {
-						this.icons[i].src = "images/icons/large/" + (itm.icon ? itm.icon : 'Temp') + ".png";
+						this.icons[i].src = "/images/icons/large/" + (itm.icon ? itm.icon : 'Temp') + ".png";
 					}
 				}
 			}

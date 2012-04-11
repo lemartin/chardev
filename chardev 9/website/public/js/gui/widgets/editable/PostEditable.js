@@ -49,6 +49,6 @@ PostEditable.prototype.edit = function( b ) {
 };
 PostEditable.prototype.__onChange = function() {
 	this.eventMgr.fire('change', { 'data': this.textArea.value });
-	DOM.set( this.node, DOM.create('img',{'src': 'images/site/bar_loading.gif', 'class': 'ui_bar_loading'}));
+	DOM.set( this.node, DOM.create('img',{'src': '/images/site/bar_loading.gif', 'class': 'ui_bar_loading'}));
 	this.disabled = true;
 };

@@ -16,12 +16,12 @@ var locale;
  * @param {string} str
  * @return {string}
  */
-function MD5( str ){ return "";};
+function MD5( str ){ return "";}
 
-var JSON = { stringify : function(){ return "";} };
+var JSON = { stringify : function( obj ){ return "";} };
 
 /**
  * @param str
  * @param fun
  */
-Element.prototype.attachEvent = function( str, fun) {};
+Element.prototype.attachEvent = function( str, fun) {return null;};

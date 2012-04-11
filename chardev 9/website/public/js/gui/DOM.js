@@ -9,7 +9,8 @@ var DOM = {
 		if( obj ) {
 			for( var k in obj ) {
 				if( k == 'class' ) { e.className = obj[k]; }
-				else if( k == 'action' ) { e.action = obj[k]; } 
+				else if( k == 'action' ) { e.action = obj[k]; }
+				else if( k == 'method' ) { e.method = obj[k]; } 
 				else if( k == 'clear') {e.style.clear = obj[k];}
 				else if( k == 'display') {e.style.display = obj[k];}
 				else if( k == 'href') {e.href = obj[k];}
@@ -116,6 +117,7 @@ var DOM = {
 	},
 	clear: function( n ) {
 		n.appendChild(DOM.create('div', {'clear': 'both'}));
+		return n;
 	},
 	get: function( id ) {
 		return document.getElementById(id);
@@ -139,9 +141,13 @@ var DOM = {
 		return n1;
 	},
 	truncate: function( n ) {
+		if( typeof n === 'string' ) {
+			n = document.getElementById(n);
+		}
 		while(n.firstChild) {
 			n.removeChild(n.firstChild);
 		}
+		return n;
 	},
 	/**
 	 * @param {Element|string} n
@@ -181,6 +187,9 @@ var ChardevHTML = {
 		return DOM.append(DOM.create(tag, obj), ChardevHTML.getInfo( infoHtml ));
 	},
 	addTooltip: function( node, html ) {
+		if( typeof node === 'string' ) {
+			node = document.getElementById(node);
+		}
 		Listener.add( node, 'mousemove', Tooltip.move, Tooltip, [] );
 		Listener.add( node, 'mouseout', Tooltip.hide, Tooltip, [] );
 		Listener.add( node, 'mouseover', Tooltip.showMovable, Tooltip, [html] );
@@ -195,5 +204,22 @@ var ChardevHTML = {
 			'focus': "button_light_focus", 
 			'hover': "button_light_hover"
 		});
+	},
+	addInfo: function( node, html ) {
+		if( typeof node === 'string' ) {
+			node = document.getElementById(node);
+		}
+		DOM.append( node, ChardevHTML.getInfo(html));
 	}
 };
+
+if( ! window['ChardevHTML'] ) {
+	var c = window['ChardevHTML'] = {};
+	var C = ChardevHTML;
+	c['getInfo'] = C.getInfo;
+	c['createWithInfo'] = C.createWithInfo;
+	c['addTooltip'] = C.addTooltip;
+	c['shadow'] = C.shadow;
+	c['buttonLightStyleFor'] = C.buttonLightStyleFor;
+	c['addInfo'] = C.addInfo;
+}

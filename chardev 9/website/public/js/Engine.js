@@ -37,8 +37,8 @@ EngineImpl.prototype = {
 			this.characterMgr.addCharacter(c);
 			//
 			//
-			if( settings.character ) {
-				c.load( settings.character );
+			if( settings.profile ) {
+				c.load( settings.profile );
 				
 				gui.folder.show(Gui.TAB_OVERVIEW);
 			}

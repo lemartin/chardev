@@ -140,7 +140,7 @@ BattleNetProfileEditable.prototype.setData= function( profiles ) {
 		DOM.createAt(div,'br',{});
 		
 		DOM.createAt(div,'a', {
-			'href': TextIO.queryString({'planner':'','name': profile['Name'], 'realm': profile['Realm'], 'region': profile['Region'] }),
+			'href': Tools.getBasePath() + 'Planner.html' + TextIO.queryString({'name': profile['Name'], 'realm': profile['Realm'], 'region': profile['Region'] }),
 			'text': "Static link to import this character from Battle.net into chardev",
 			'class': "bnpm_static_link"
 		});
@@ -166,7 +166,7 @@ BattleNetProfileEditable.prototype.__onRemove= function( profile, node ) {
 	this.eventMgr.fire('change', { 'data': JSON.stringify({ 
 		'removeBattleNetProfile': profile 
 	})});
-	node.innerHTML = "<img src='images/site/bar_loading.gif' class='bnpm_bar_loading' />";
+	node.innerHTML = "<img src='/images/site/bar_loading.gif' class='bnpm_bar_loading' />";
 };
 BattleNetProfileEditable.prototype.validInputs = function() {
 	var n = this.nameInput.getValue();
@@ -196,7 +196,7 @@ BattleNetProfileEditable.prototype.__onSubmit= function() {
 		}
 	})});
 	
-	this.editParent.innerHTML = "<img src='images/site/bar_loading.gif' class='ui_bar_loading' />";
+	this.editParent.innerHTML = "<img src='/images/site/bar_loading.gif' class='ui_bar_loading' />";
 };
 BattleNetProfileEditable.prototype.__onRegionSelect= function() {
 	this.__setRealms(this.regionSelect.getValue());

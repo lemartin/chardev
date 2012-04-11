@@ -27,7 +27,7 @@ ShapeSelector.prototype = {
 				div = document.createElement("div");
 				div.className = "cs_shape";
 				div.style.backgroundImage = 
-					"url(images/icons/" + 
+					"url(/images/icons/" + 
 					( availableShapeforms[i].id == currentShapeformId ? "" : "g/" )+
 					"small/" + availableShapeforms[i].icon + ".png)";
 				

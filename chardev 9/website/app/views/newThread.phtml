@@ -1,0 +1,49 @@
+<?php 
+use chardev\Session;
+
+use chardev\forum\ForumHelper;
+
+$this->addStyleSheet("forum.css");
+
+$args = $this->getArg("validated_args");
+$hookId = $args["Hook"]->getId();
+$codes = ForumHelper::getAvailableForumCode();
+$permissions = new \chardev\forum\ForumPermissions(Session::getLoggedInUser());
+
+$threadTypeSelectOptions = "";
+if( $permissions->mayCreateStickies($hookId)) {
+	$threadTypeSelectOptions .= "<option value='sticky'>Sticky</option>";
+}
+if( $permissions->mayCreateAnnouncements($hookId)) {
+	$threadTypeSelectOptions .= "<option value='announcement'>Announcement</option>";
+}
+if( $threadTypeSelectOptions ) {
+	$threadTypeSelect = "<select class='single_select fo_nt_select' id='thread_type' name='type'><option value='thread'>Thread</option>{$threadTypeSelectOptions}</select>";
+}
+else {
+	$threadTypeSelect = "";
+}
+?>
+<div class='content_wrapper'>
+	<div class='content_header'>Forum</div>
+	<div class='fo_nt_p'>
+		<div class='fo_header fo_nt_h'>Create a new Topic</div>
+		<div class='fo_nt_inputs'>
+			<form id='topic_form' method='post' action='javascript:Chardev.checkTopic(<?php echo $hookId?>)'>
+				<div>
+					<?php echo $threadTypeSelect ?>
+					<span>Title:</span>
+					<input class='input fo_nt_input' id='topic_title'/>
+				</div>
+				<div class='fo_nt_content_p'>
+					<div>Content:</div>
+					<textarea class='textarea fo_nt_content' id='topic_content'></textarea>
+				</div>
+				<div class='fo_submit_btn_p'>
+					<input class='button button_light' id='topic_submit' type='submit' value='submit' />
+				</div>
+			</form>
+		</div>
+		<div><?php echo $codes ?></div>
+	</div>
+</div>

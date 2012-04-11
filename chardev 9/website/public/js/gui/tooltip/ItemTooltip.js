@@ -254,7 +254,7 @@ var ItemTooltip = {
 		for ( i = 0; i < 3; i++) {
 			if (itm.gems[i] != null) {
 				html += Tools.addTr1(
-					"<div class='tooltip_gem' style='background-image:url(images/icons/gem/" + itm.gems[i].icon + ".png);'>" + 
+					"<div class='tooltip_gem' style='background-image:url(/images/icons/gem/" + itm.gems[i].icon + ".png);'>" + 
 					itm.gems[i].gemProperties.enchant.getTooltip( character ) + 
 					"</div>"
 				);
@@ -263,12 +263,12 @@ var ItemTooltip = {
 				if (itm.socketColors[i]) {
 					if( itm.socketColors[i] == 14 ) {
 						html += Tools.addTr1(
-								"<div class='tooltip_socket_empty' style='background-image:url(images/socket_prismatic.png);'>" +
+								"<div class='tooltip_socket_empty' style='background-image:url(/images/socket_prismatic.png);'>" +
 								locale['PrismaticSocket'] + "</div>");
 					}
 					else {
 						html += Tools.addTr1(
-								"<div class='tooltip_socket_empty' style='background-image:url(images/socket_" + Math.log(itm.socketColors[i])/Math.log(2) + ".png);'>" +
+								"<div class='tooltip_socket_empty' style='background-image:url(/images/socket_" + Math.log(itm.socketColors[i])/Math.log(2) + ".png);'>" +
 								locale['a_socket'][Math.log(itm.socketColors[i])/Math.log(2)] + "</div>");
 					}
 				}

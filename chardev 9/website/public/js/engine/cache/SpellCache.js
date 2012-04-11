@@ -19,7 +19,7 @@ var SpellCache = {
 		}
 		else{
 			Ajax.get(
-				'php/interface/get_spell.php'+TextIO.queryString({ 'spell': id, 'lang': g_settings.language }),
+				'api/spell.php'+TextIO.queryString({ 'id': id, 'lang': g_settings.language }),
 				SpellCache.getHandler,
 				[handler,args]
 			);

@@ -188,7 +188,7 @@ BuffInterface.prototype = {
 	createBuffBase: function( icon, spell, isSelfBuff, name ) {
 		
 		var p = DOM.create('div', {'class': 'bi_buff_p'});
-		DOM.createAt( p, 'img', {'src': 'images/icons/small/'+icon+'.png', 'class': 'bi_buff'});
+		DOM.createAt( p, 'img', {'src': '/images/icons/small/'+icon+'.png', 'class': 'bi_buff'});
 		var a = DOM.createAt( p, 'a', { 
 			'href': 'javascript:', 
 			'text': name.length > BuffInterface.MAX_LENGTH_BUFF_NAME ? name.substr(0,BuffInterface.MAX_LENGTH_BUFF_NAME-3)+"..." : name

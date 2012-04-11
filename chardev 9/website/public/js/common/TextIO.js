@@ -351,15 +351,15 @@ var TextIO = {
 	htmlPrice: function ( price ) {
 		var html = "<span class='tooltip_sell_price'>";
 		if( price > 10000 ) {
-			html += Math.floor( price / 10000 ) + "<img alt='g' class='tooltip_coint' align='center' src='images/tooltip/UI-GoldIcon.png' />";
+			html += Math.floor( price / 10000 ) + "<img alt='g' class='tooltip_coint' align='center' src='/images/tooltip/UI-GoldIcon.png' />";
 			price %= 10000;
 		}
 		if( price > 100 ) {
-			html += Math.floor( price / 100 ) + "<img alt='s' class='tooltip_coint' align='center' src='images/tooltip/UI-SilverIcon.png' />";
+			html += Math.floor( price / 100 ) + "<img alt='s' class='tooltip_coint' align='center' src='/images/tooltip/UI-SilverIcon.png' />";
 			price %= 100;
 		}
 		if( price ) {
-			html += price + "<img alt='c' class='tooltip_coint' align='center' src='images/tooltip/UI-CopperIcon.png' />";
+			html += price + "<img alt='c' class='tooltip_coint' align='center' src='/images/tooltip/UI-CopperIcon.png' />";
 		}
 		
 		return html + "</span>";
@@ -392,5 +392,10 @@ var TextIO = {
 		
 		
 		return d[0];
+	},
+	
+	verboseUrl: function( id, name )  {
+		name = name.replace(/\'|\,|\?|!/g, '').replace(/(?:\s|\\|\:|\/|\&|-|<|>|\.)+/g, '-');
+		return id + "-" + name;
 	}
 };

@@ -157,20 +157,20 @@ SocketInterface.prototype = {
 				}
 				
 				ld = this.sockets[i];
-				ld.layers[1].style.backgroundImage="url(images/socket_interface/socket_"+color+"_large.png)";
+				ld.layers[1].style.backgroundImage="url(/images/socket_interface/socket_"+color+"_large.png)";
 				if( itm.getGem(i) == null ) {
 					ld.layers[3].className = "si_braces";
-					ld.layers[3].style.backgroundImage="url(images/socket_interface/socket_"+color+"_braces_open.png)";
+					ld.layers[3].style.backgroundImage="url(/images/socket_interface/socket_"+color+"_braces_open.png)";
 					Tools.removeChilds(ld.layers[1]);
 				}
 				else {
 					var img = document.createElement("img");
-					img.src = "images/icons/large/"+itm.getGem(i).icon+".png";
+					img.src = "/images/icons/large/"+itm.getGem(i).icon+".png";
 					img.className = "si_gem_icon";
 					DOM.set(ld.layers[1],img);
 					
 					ld.layers[3].className = "si_braces";
-					ld.layers[3].style.backgroundImage="url(images/socket_interface/socket_"+color+"_braces_closed.png)";
+					ld.layers[3].style.backgroundImage="url(/images/socket_interface/socket_"+color+"_braces_closed.png)";
 				}
 				DOM.append( div, ld.layers[0]);
 				n++;
@@ -183,7 +183,7 @@ SocketInterface.prototype = {
 		for( var id in usedGems ) {
 			gem = usedGems[id];
 			
-			a = DOM.createAt( this.usedGemParent, 'a', {'class': 'si_used_gem', 'backgroundImage': 'images/icons/small/'+gem.icon+'.png'});
+			a = DOM.createAt( this.usedGemParent, 'a', {'class': 'si_used_gem', 'backgroundImage': '/images/icons/small/'+gem.icon+'.png'});
 			
 			Listener.add( a,"mouseover",this.onUsedMouseOver, this,[gem]);
 			Listener.add( a,"mouseout",this.onUsedMouseOut, this,[gem]);

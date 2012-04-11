@@ -16,7 +16,7 @@ ItemCache.asyncGet = function(id,handler,args){
 	}
 	else{
 		Ajax.get(	
-			'php/interface/get_item.php'+TextIO.queryString({ 'item': id, 'lang': g_settings.language}),
+			'api/item.php'+TextIO.queryString({ 'id': id, 'lang': g_settings.language}),
 			ItemCache.getHandler,
 			[handler,args]
 		);

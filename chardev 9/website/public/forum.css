@@ -103,7 +103,7 @@
 
 
 
-.fo_table { width: 100%;}
+.fo_table { width: 100%; padding: 0; border-spacing: 0;}
 
 .fo_nt_inputs {
 	width: 600px;

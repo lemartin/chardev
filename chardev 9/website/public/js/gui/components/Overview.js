@@ -89,7 +89,7 @@ Overview.prototype = {
 			statContainer.appendChild(this.statCollapsables[i].node);
 		}
 		
-		if( g_settings.profileId > 0 ) {
+		if( g_settings.profile["ProfileInfo"] && g_settings.profile["ProfileInfo"]["ID"] > 0 ) {
 			this.commentsParent = DOM.createAt( this.node, 'div', {'class': 'ov_comments_p'});
 			DOM.createAt( this.commentsParent, 'div', {'class': 'ov_title', 'text': 'Comments:'});
 			this.commentsContainer = DOM.createAt( this.commentsParent, 'div', {'class':'ov_comments_c'});
@@ -125,7 +125,7 @@ Overview.prototype = {
 	},
 	__refreshComments: function( page ) {
 		this.__showCommentsLoading();
-		Ajax.request('php/interface/character_comments.php?page='+page+'&character='+g_settings.profileId, new Handler(this.__commentsCallback, this), []);
+		Ajax.request('api/comments.php?page='+page+'&profile='+g_settings.profile["ProfileInfo"]["ID"], new Handler(this.__commentsCallback, this), []);
 	},
 	__onComment: function() {
 		var c = DOM.getValue(this.newCommentTextArea);
@@ -141,7 +141,7 @@ Overview.prototype = {
 		this.commentsForm.style.display = 'none';
 		this.commentsFormLoading.style.display = 'block';
 		
-		Ajax.post('php/interface/character_comments.php', {'content': c, 'character': g_settings.profileId}, new Handler(this.__onCommentCallback, this), []);
+		Ajax.post('api/comments.php', {'content': c, 'profile': g_settings.profile["ProfileInfo"]["ID"]}, new Handler(this.__onCommentCallback, this), []);
 	},
 	__onCommentCallback: function( response) {
 		try {
@@ -215,7 +215,7 @@ Overview.prototype = {
 
 			DOM.createAt( node, 'span', {'class': 'ov_slot_name', 'text': locale['Slots'][slot]+":"} );
 			div = DOM.createAt( node, 'div', {'class': 'ov_item_info_p'});
-			DOM.createAt( div, 'img', {'src': 'images/icons/small/'+itm.icon+'.png', 'class': 'ov_item_icon'});
+			DOM.createAt( div, 'img', {'src': '/images/icons/small/'+itm.icon+'.png', 'class': 'ov_item_icon'});
 			a = DOM.createAt( div, 'a', {'href': 'javascript:', 'class': 'ov_item_link item_quality_' + itm.quality, 'text': itm.name});
 			ChardevHTML.addTooltip( a, itm.getTooltip() );
 			
@@ -224,7 +224,7 @@ Overview.prototype = {
 				var gem = itm.getGem(i);
 				if( gem != null ) {
 					gemParent = DOM.createAt( gemsParent, 'div', {'class':'ov_gem_p'} );
-					DOM.createAt( gemParent, 'img', {'src': 'images/icons/gem/'+gem.icon+'.png', 'class': 'ov_gem_icon'});
+					DOM.createAt( gemParent, 'img', {'src': '/images/icons/gem/'+gem.icon+'.png', 'class': 'ov_gem_icon'});
 					a = DOM.createAt( gemParent, 'a', {'href': 'javascript:', 'class': 'ov_gem_link item_quality_' + gem.quality, 'text': gem.name});
 					ChardevHTML.addTooltip( a, gem.getTooltip() );
 				}

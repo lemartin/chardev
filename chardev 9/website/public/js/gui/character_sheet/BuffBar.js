@@ -25,7 +25,7 @@ BuffBar.prototype = {
 	 * @param {ActiveBuff} activeBuff
 	 */
 	__showBuff : function( activeBuff ) {
-		var d = DOM.createAt( this.node, 'div', {'class': 'bb_buff', 'backgroundImage': 'images/icons/small/'+activeBuff.icon+'.png'});
+		var d = DOM.createAt( this.node, 'div', {'class': 'bb_buff', 'backgroundImage': '/images/icons/small/'+activeBuff.icon+'.png'});
 		
 		Listener.add( d, 'contextmenu', this.__onRemove, this, [activeBuff.id] );
 		Listener.add( d, 'click', this.__onClick, this, [activeBuff.id] );

@@ -30,15 +30,15 @@ CharacterIO._readCharacter_callback = function( request, handler )
  */
 CharacterIO._writeCharacter_callback = function( request, handler, character )
 {
-	var id = 0;
+	var href = "";
 	var exception = null;
 	try {
-		id = Ajax.getResponseObject(request);
+		href = Ajax.getResponseObject(request);
 	}
 	catch( e ) {
 		exception = e;
 	}
-	handler.notify([id, exception]);
+	handler.notify([href, exception]);
 };
 /**
  * @param {string} name
@@ -49,7 +49,7 @@ CharacterIO._writeCharacter_callback = function( request, handler, character )
 CharacterIO.readFromArmory = function(name,server,region,handler)
 {
 	Ajax.request(
-		'php/interface/profiles/get_battlenet_profile.php' 
+		'api/battlenet_profile.php' 
 			+ TextIO.queryString({
 				'name': name,
 				'server': server,
@@ -62,40 +62,17 @@ CharacterIO.readFromArmory = function(name,server,region,handler)
 
 /**
  * @param {number} id
- * @param {string} user
- * @param {string} password
  * @param {Character} character
  * @param {Handler} handler
  */
-CharacterIO.writeToDatabaseAuth = function( id , user , password , character, handler )
+CharacterIO.writeToDatabase = function( id , character, handler )
 {
-	Ajax.request(
-		'php/interface/profiles/set_profile.php' 
-			+ TextIO.queryString({
+	Ajax.post(
+		'api/profile.php', {
+				'action': id ? 'update' : 'add',
 				'id': id,
-				'name': user,
-				'password': MD5( password ),
 				'serialized': JSON.stringify(character.toArray())
-		}),
-		new Handler( CharacterIO._writeCharacter_callback, CharacterIO ),
-		[handler, character]
-	);
-};
-
-/**
- * @param {number} id
- * @param {Character} character
- * @param {Handler} handler
- */
-CharacterIO.writeToDatabaseSession = function( id , character, handler )
-{
-	Ajax.request(
-		'php/interface/profiles/set_profile.php' 
-			+ TextIO.queryString({
-				'id': id,
-				'session_id': g_settings.sessionId,
-				'serialized': JSON.stringify(character.toArray())
-		}),
+		},
 		new Handler( CharacterIO._writeCharacter_callback, CharacterIO ),
 		[handler, character]
 	);
@@ -110,7 +87,7 @@ CharacterIO.readFromDatabase = function(id,handler)
 	// TODO: get profile returns { 'character': char, 'user_id': user }, 
 	// callback expect only char
 	Ajax.request(
-		'php/interface/profiles/get_profile.php' + TextIO.queryString({ 'id': id }),
+		'api/profile.php' + TextIO.queryString({ 'id': id }),
 		new Handler( CharacterIO._readCharacter_callback, CharacterIO ),
 		[handler]
 	);
@@ -122,8 +99,11 @@ CharacterIO.readFromDatabase = function(id,handler)
  */
 CharacterIO.deleteFromDatabase = function(id,handler)
 {
-	Ajax.request(
-		'php/interface/profiles/delete_profile.php' + TextIO.queryString({ 'id': id }),
+	Ajax.post(
+		'api/chardev_profile.php', {
+			'action': 'delete',
+			'id': id 
+		},
 		handler,
 		[id]
 	);

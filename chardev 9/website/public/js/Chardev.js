@@ -1,152 +1,4 @@
 var Chardev = {
-		initialise : function () {
-			window['g_validateLogin'] = Chardev.validateLogin;
-			window['g_login'] = Chardev.login;
-			window['g_logout'] = Chardev.logout;
-			window['g_checkTopic'] = Chardev.checkTopic;
-			window['g_checkEdit'] = Chardev.checkEdit;
-			window['g_checkReply'] = Chardev.checkReply;
-			window['g_register'] = Chardev.register;
-			window['g_requestPasswordChange'] = Chardev.requestPasswordChange;
-			window['g_requestPasswordRecovery'] = Chardev.requestPasswordRecovery;
-			window['g_deleteThread'] = Chardev.deleteThread;
-			window['g_lockThread'] = Chardev.lockThread;
-			window['g_unlockThread'] = Chardev.unlockThread;
-			window['g_makePostEditable'] = Chardev.makePostEditable;
-			window['g_showUserInformation'] = Chardev.showUserInformation;
-			window['g_createAvatarPicker'] = Chardev.createAvatarPicker;
-			window['g_staticItemList'] = Chardev.staticItemList;
-			window['g_addItemTooltipTo'] = Chardev.addItemTooltipTo;
-		},
-		makePostEditable: function( arr ) {
-			var e = new PostEditable();
-			new PostEditableObserver(arr['PostID'], arr['Data'], e);
-			DOM.set('p'+arr['PostID']+'_content', e.node);
-			e.edit(true);
-		},
-		requestPasswordChange: function (userId,guid)
-		{
-			try {
-				var password = document.getElementById('password').value;
-				if( password != document.getElementById('password_repeat').value) {
-					Tooltip.showError(locale['Password_and_repeat_differ']);
-					return;
-				}
-				if( password.length < 5) {
-					Tooltip.showError(locale['Password_to_short']);
-					return;
-				}
-				
-				Ajax.request(
-					"php/interface/user/change_password.php"+TextIO.queryString({ 'userId': userId, 'password': MD5(password), 'guid': guid}), 
-					new Handler(Chardev._passwordRecoveryOut, Chardev), 
-					null
-				);
-				Tooltip.showLoading();
-			}
-			catch(e) {
-				Tooltip.showError(e.toString());
-			}
-		},
-
-		requestPasswordRecovery: function()
-		{
-			try {
-				var name = encodeURIComponent(document.getElementById('user_name').value);
-				var mail = encodeURIComponent(document.getElementById('email').value);
-				Ajax.request(
-					"php/interface/user/recover_password.php"+TextIO.queryString({ 'user_name': name, 'email': mail }), 
-					new Handler(Chardev._passwordRecoveryOut, Chardev), 
-					null
-				);
-				Tooltip.showLoading();
-			}
-			catch(e) {
-				Tooltip.showError(e.toString());
-			}
-		},
-		
-		_passwordRecoveryOut : function( request )
-		{
-			if (request.status == 200) 
-			{
-				var response = eval( '(' + request.responseText + ')' );
-				if( typeof response === 'object' ) {
-					if( response[0] == 1 ) {
-						Tooltip.showError(response[1]);
-						return;
-					}
-
-					Tooltip.showHtmlDisabled(response[1]);
-					return;
-					
-				}
-			}
-			Tooltip.enable();
-		},
-		
-		register: function()
-		{
-			var _u = document.getElementById('user_name').value;
-			var _p = MD5(document.getElementById('password').value);
-			var _e = document.getElementById('email').value;
-			
-			if (document.getElementById('password').value != document.getElementById('password_repeat').value) 
-			{
-				Tooltip.showError(locale['Password_and_repeat_differ']);
-				return false;
-			}
-			if (_u.length < 4) 
-			{
-				Tooltip.showError(locale['Username_to_short']);
-				return false;
-			}
-			if (document.getElementById('password').value.length < 5) 
-			{
-				Tooltip.showError(locale['Password_to_short']);
-				return false;
-			}
-			if (document.getElementById('email').value.search("@") == -1) 
-			{
-				Tooltip.showError(locale['Invalid_email']);
-				return false;
-			}
-
-			Tooltip.showLoading();
-			
-			Ajax.request(
-				"php/interface/user/request_registration.php"+TextIO.queryString({
-					"u": _u , "pw": _p, "e": _e
-				}),
-				new Handler(Chardev.__register_callback, Chardev),
-				null
-			);
-			document.getElementById("login").disabled = true;
-			return false;
-		},
-		
-		__register_callback: function( request )
-		{
-			
-			document.getElementById("login").disabled = false;
-			if (request.status == 200) 
-			{
-				if (request.responseText.search("error_username") != -1) 
-				{
-					Tooltip.showError(locale['Username_invalid_characters']);
-				}
-				else if( request.responseText.search("register_success") != -1 )
-				{
-					Tooltip.showHtmlDisabled("An E-Mail has been sent. Before you can use your account you have to confirm your registration by following the link given in the mail.");
-				}
-				else
-				{
-					Tooltip.showError(request.responseText);
-				}
-			}
-				
-		},
-		
 		validateLogin : function() {
 			try {
 				var userName = document.getElementById('login_user_name').value;
@@ -174,15 +26,11 @@ var Chardev = {
 			try {
 				if( Chardev.validateLogin() ) {
 					Tooltip.showLoading();
-					Ajax.request( "php/interface/user/authenticate.php"+
-						TextIO.queryString({
-							'user_name'	: document.getElementById('login_user_name').value,
-							'password'	: document.getElementById('login_password_md5').value,
-							'cookie'	: document.getElementById('login_cookie').checked
-						}),
-						new Handler( Chardev.__login_callback, Chardev ), 
-						null
-					);
+					Ajax.post( "api/user.php", {
+							'UserName'	: document.getElementById('login_user_name').value,
+							'Password'	: document.getElementById('login_password_md5').value,
+							'Cookie'	: document.getElementById('login_cookie').checked
+					}, new Handler( Chardev.__login_callback, Chardev ), null);
 				}
 			}
 			catch(e) {
@@ -255,7 +103,7 @@ var Chardev = {
 			Tooltip.showLoading();
 			
 			Ajax.post(
-				'php/interface/forum/forum.php', {
+				'api/forum.php', {
 					'action': 'new_thread',
 					'hook': _id,
 					'title': title,
@@ -268,10 +116,8 @@ var Chardev = {
 		},
 
 		__checkTopic_callback : function ( request ) {
-			
 			try {
-				var obj = Ajax.getResponseObject(request);
-				window.location.search = '?thread=' + obj;
+				Ajax.getResponseObject(request);
 			}
 			catch( e ) {
 				Tooltip.showError(e);
@@ -283,19 +129,19 @@ var Chardev = {
 			if( confirm("Are you sure you want to delete this thread?") ) {
 				Tooltip.showLoading();
 				Ajax.post(
-					'php/interface/forum/forum.php', {
+					'api/forum.php', {
 						'action': 'delete_thread',
 						'thread': threadId
 					},
-					new Handler(Chardev.__deleteTopic_callback, Chardev),
+					new Handler(Chardev.__deleteThread_callback, Chardev),
 					null
 				);
 			}
 		},
-		__deleteTopic_callback : function ( request ) {		
+		__deleteThread_callback : function ( request ) {		
 			try {
 				var obj = Ajax.getResponseObject(request);
-				window.location.search = '?forum=' + obj;
+				window.location.href = Tools.getBasePath() + obj;
 			}
 			catch( e ) {
 				Tooltip.showError(e);
@@ -304,41 +150,33 @@ var Chardev = {
 		lockThread : function ( threadId ){
 			Tooltip.showLoading();
 			Ajax.post(
-				'php/interface/forum/forum.php', {
+				'api/forum.php', {
 					'action': 'lock_thread',
 					'thread': threadId
 				},
-				new Handler(Chardev.__lockTopic_callback, Chardev),
+				new Handler(Chardev.__lockThread_callback, Chardev),
 				null
 			);
 		},
 		unlockThread : function ( threadId ){
 			Tooltip.showLoading();
 			Ajax.post(
-				'php/interface/forum/forum.php', {
+				'api/forum.php', {
 					'action': 'unlock_thread',
 					'thread': threadId
 				},
-				new Handler(Chardev.__lockTopic_callback, Chardev),
+				new Handler(Chardev.__lockThread_callback, Chardev),
 				null
 			);
 		},
-		__lockTopic_callback : function ( request ) {
+		__lockThread_callback : function ( request ) {
 			try {
-				var obj = Ajax.getResponseObject(request);
-				window.location.search = '?thread=' + obj;
+				Ajax.getResponseObject(request);
+				window.location.reload(true);
 			}
 			catch( e ) {
 				Tooltip.showError(e);
 			}
-		},
-
-		lockTopic : function (_tid){
-			Ajax.request(
-				'php/interface/forum/lockTopic.php?topic='+_tid+'&session_id='+g_settings.sessionId,
-				null,
-				null
-			);
 		},
 
 		checkReply : function (_tid,_posts){
@@ -353,7 +191,7 @@ var Chardev = {
 			Tooltip.showLoading();
 			
 			Ajax.post(
-				'php/interface/forum/forum.php', {
+				'api/forum.php', {
 					'action': 'reply',
 					'thread': _tid,
 					'content': content
@@ -385,7 +223,7 @@ var Chardev = {
 			Tooltip.showLoading();
 			
 			Ajax.post(
-				'php/interface/forum/forum.php', {
+				'api/forum.php', {
 					'action': 'edit',
 					'post': _id,
 					'content': content
@@ -420,12 +258,12 @@ var Chardev = {
 		createAvatarPicker: function( parentId, currentAvatar ) {
 			new AvatarPicker(parentId, currentAvatar);
 		},
-		staticItemList: function( serialized, page, argString, parent ) {
+		staticItemList: function( serialized, page, argString, parent, staticLink ) {
 			if( serialized ) {
 				
 				var il = new ItemList();
-				
-				il.showStaticLinks(true);
+
+				il.setStaticLink(staticLink);
 				
 				il.setData( serialized );
 				
@@ -449,10 +287,11 @@ var Chardev = {
 						Tooltip.hide();
 					}
 					else if( e.is('update') ) {
-						window.location.search = TextIO.queryString({ 
-							'items': il.getArgumentString().replace(/\;/g,"_"), 
-							'p': il.page, 
-							'o': il.order+"."+(il.orderDirection==List.ORDER_ASC?'asc':'desc')+"_" });
+						var form = DOM.create('form', {'method': 'GET', 'action': ''});
+						DOM.createAt(form,'input', {'name': 'a', 'value': il.getArgumentString().replace(/\;/g,"_")});
+						DOM.createAt(form,'input', {'name': 'p', 'value': il.page});
+						DOM.createAt(form,'input', {'name': 'o', 'value': il.order+"."+(il.orderDirection==List.ORDER_ASC?'asc':'desc')+"_" });
+						form.submit();
 					}
 				}, this);
 				
@@ -474,17 +313,51 @@ var Chardev = {
 				var item;
 				item = new Item(serialized);
 				
-				tt.show(ItemTooltip.getHTML(item));
+				tt.show(ItemTooltip.getHTML(item, null));
 				
-				document.getElementById(ttParent).appendChild(tt.div);
+				DOM.set(ttParent,tt.div);
 				
 				tt.div.style.position = "relative";
 				
 				img = document.createElement('img');
 				img.className = 'dbi_icon';
-				img.src = 'images/icons/large/' + item.icon + '.png';
+				img.src = '/images/icons/large/' + item.icon + '.png';
 				iconNode.appendChild(img);
 			}
+		},
+		changePassword: function() {
+			var password = $('[name=change_new_password]').val();
+			var userId = $('[name=change_user_id]').val();
+			Tooltip.showLoading();
+			
+			Ajax2.post( Tools.getBasePath() + 'api/user.php', { "UserId": userId, "Password": password}, function( obj ) {
+				try {
+					obj.get();
+					Tooltip.enable();
+					$('#ui_pc_p').empty().append($("<div />",{ 'class': 'fm_note', 'text': 'Password successfully changed!' }));
+				}
+				catch( e ) {
+					Tooltip.showError(e);
+				}
+			});
 		}
 };
-window["__chardev_init"] = Chardev.initialise;
+
+if( ! window['Chardev'] ) {
+	window['Chardev'] = {
+			'validateLogin': Chardev.validateLogin,
+			'login': Chardev.login,
+			'logout': Chardev.logout,
+			'checkTopic': Chardev.checkTopic,
+			'checkEdit': Chardev.checkEdit,
+			'checkReply': Chardev.checkReply,
+			'deleteThread': Chardev.deleteThread,
+			'lockThread': Chardev.lockThread,
+			'unlockThread': Chardev.unlockThread,
+			'showUserInformation': Chardev.showUserInformation,
+			'createAvatarPicker': Chardev.createAvatarPicker,
+			'staticItemList': Chardev.staticItemList,
+			'addItemTooltipTo': Chardev.addItemTooltipTo,
+			'changePassword': Chardev.changePassword
+	};
+}

@@ -1,0 +1,33 @@
+<?php
+
+$this->addStyleSheets(array("character_sheet.css","talent_sheet.css"));
+
+$profile = $this->getArg('profile');
+$profileUser = null;
+$profileLoadError = null;
+
+if( ! $profile ) {
+
+	if( isset($_GET['name']) && isset($_GET['region']) && isset($_GET['realm'])) 
+	{			
+		try {
+			$bnet = new \chardev\profiles\BattleNetProfile($_GET['name'], $_GET['realm'], $_GET['region']);
+			$profile = $bnet->toChardevProfile();
+		}
+		catch( \Exception $e ) {
+			$profileLoadError = $e->getMessage();
+		}
+	}
+}
+
+?>
+
+<script type="text/javascript">
+<!--
+	g_settings.profile=<?php echo json_encode($profile)?>;
+	g_settings.profileLoadError=<?php echo json_encode($profileLoadError)?>;
+	g_settings.isPlanner=true;
+//-->
+</script>
+
+<div id='planner_parent'></div>

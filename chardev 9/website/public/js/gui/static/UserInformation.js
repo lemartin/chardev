@@ -97,7 +97,7 @@ UserEditableObserver.prototype.__onChange = function( e ) {
 		obj[this.key] = e.get('data');
 		
 		Ajax.request(
-			'php/interface/user/set_user_setting.php' + TextIO.queryString(obj),
+			'api/user.php' + TextIO.queryString(obj),
 			new Handler( this.__saveCallback, this ) ,
 			[]
 		);

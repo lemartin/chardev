@@ -1,309 +1,189 @@
-<?php 
-	$g_content = "";
+<?php
 
-	include_once './php/filter.php'; // has to be first
-	filter_redirect();
-	//
-	include_once './php/db.php';
-	include_once './php/common.php';
-	
-	include_once './php/session.php';
-	include_once './php/language.php';
-	
-	$build_number = "9.0b"; $build = file_get_contents('.build');
-	
-	define("PAGE_HOME",0);
-	define("PAGE_PLANNER",1);
-	define("PAGE_LOGIN",2);
-	define("PAGE_LOGOUT",3);
-	define("PAGE_SPELL",4);
-	define("PAGE_ITEM",5);
-	define("PAGE_SPELLS",6);
-	define("PAGE_ITEMS",7);
-	define("PAGE_TALENTS",8);
-	define("PAGE_FORUM",9);
-	define("PAGE_REGISTER",10);
-	define("PAGE_DONATE",11);
-	define("PAGE_RECOVER_PASSWORD",12);
-	define("PAGE_BASE_STATS",13);
-	define("PAGE_PLANNER_START",14);
-	define("PAGE_USER",15);
-	define("PAGE_CREDITS",16);
-	define("PAGE_PROFILES",17);
-?><?xml version="1.0" encoding="utf-8" ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link rel="icon" href="images/site/favico.png" type="image/png" />
-<title>chardev 9</title>
-<!-- stylesheets -->
-<?php 
-echo '
-<link type="text/css" href="chardev9.css?'.$build.'" rel="stylesheet" />
-<link type="text/css" href="list.css?'.$build.'" rel="stylesheet" />
-<link type="text/css" href="tooltip.css?'.$build.'" rel="stylesheet" />';
-?>
-<!-- optimised js -->
-<script type="text/javascript">
-	var g_settings = {
-		character : null,
-		language : 'en',
-		profileId : 0,
-		profileUserId: 0,
-		sessionId : '',
-		userId : 0,
-		isPlanner : false,
-		userData: null,
-		profileLoadError: null
-	};
-	
-	var g_realmList = {};
-	var locale;
-	var g_onLoad = null;
-	
-	function __onLoad() {
-		__chardev_init();
-		__engine_init(g_settings);
-		__tooltip_init();
-		//__jobmanager_init();
-		
-		if( window['CHARDEV_CORE_BUILD'] ) {
-			document.getElementById('chardev_core_version').innerHTML = window['CHARDEV_CORE_BUILD'];
-		}
-		
-		if( g_onLoad ) {
-			g_onLoad();
-		}
-	};
-</script>
+use chardev\Session;
+use chardev\ChardevHelper;
+use chardev\FormatHelper;
+use chardev\backend\UserDatabase;
 
-<script src="js/common/extern/md5.js" type="text/javascript"></script>
-<script src="js/common/extern/json2.js" type="text/javascript"></script>
-<?php 
+require_once '../app/chardev/Autoloader.php';
 
-	$page = PAGE_HOME;
-	$show_ads = isset($_SESSION['donated']) && $_SESSION['donated'] || isset($_GET['hideads']) && isset($_SESSION['role']) && $_SESSION['role'] == 10 ? false : true;
-	//&& $_SERVER['HTTP_HOST']!="127.0.0.1" && $_SERVER['HTTP_HOST']!="192.168.178.100" && $_SERVER['HTTP_HOST']!="192.168.178.22";
-	//
-	//	PHP generated JS
-	//
-	echo "
-<script type='text/javascript'>
-/* <![CDATA[ */
-	g_settings.sessionId = '".($loggedIn?session_id():-1)."';
-	g_settings.userId = ".($loggedIn?$_SESSION['user_id']:-1).";
-	g_settings.language = '".$g_lang_to_str[$g_language]."';
-	g_settings.debug = ".(isset($_GET['debug'])?"true":"false").";
-	g_settings.userData = ".($loggedIn?json_encode($_SESSION['user_data']):"null").";
-	locale = ".json_encode($locale).";
-	g_realmList = ".json_encode(get_realm_lists()).";
-/* ]]> */
-</script>";
+define('BUILD', (int)file_get_contents("../build/.build"));
 
-if( isset($_GET['debug'])) {
-	include 'php/js_files.php';
-	for( $i = 0; $i<count($js_files); $i++ ) {
-		echo "<script src='".$js_files[$i][0].$js_files[$i][1]."?".$build."' type='text/javascript'></script>\n"; 
-	}
-//	for( $i = 0; $i<count($js_extern_files); $i++ ) {
-//		echo "<script src='".$js_extern_files[$i][0].$js_extern_files[$i][1]."?".$build."' type='text/javascript'></script>\n"; 
-//	}
+Session::startUserSession();
+
+$uri = $_SERVER['REQUEST_URI'];
+$th = new TemplateHelper();
+$th->addStyleSheets(array("chardev9.css","list.css","tooltip.css"));
+
+$th->addScripts(array("js/common/extern/md5.js","js/common/extern/json2.js","js/common/extern/jquery-1.7.2.min.js"));
+
+if( isset($_GET['debug']) ) {
+	include '../build/js_files.php';
+	$th->addScripts($js_files);
 }
 else {
-	echo "<script src='js/all_optimised.js?".$build."' type='text/javascript'></script>"; 
+	$th->addScript("js/all_optimised.js");
 }
+
+$loggedInUser = Session::getLoggedInUser();
+
+try {
+	if( preg_match('/^\/(?:\?.*|$)/',$uri,$matches)) {
+		$th->setTemplate('Index');
+	}
+	else if( preg_match('/^\/(\w+)\.html(?:\?.*|$)/',$uri,$matches)) {
+		if( $matches[1] == 'Login' && $loggedInUser ) {
+			header("Location: " . TemplateHelper::getBasePath() . '/Logout.html');
+			die;
+		}
+		else if( $matches[1] == 'Logout' && ! $loggedInUser ) {
+			header("Location: " . TemplateHelper::getBasePath() . '/Login.html');
+			die;
+		}
+		
+		$th->setTemplate($matches[1]);
+	}
+	else if( preg_match('/^\/profile\/([^\/]+)\.html(?:\?.*|$)/',$uri,$matches)) {
+		
+		$parsed = FormatHelper::parseVerboseUrl($matches[1]);
+			
+		try {
+			$profile = UserDatabase::getInstance()->getProfile($parsed["ID"]);
+			
+			if( $parsed["Name"] != FormatHelper::escapeForUrl($profile[0][0]) ) 
+			{
+				header("Location: " . TemplateHelper::getBasePath() . "profile/" . FormatHelper::verboseUrl( $id, $profile[0][0] . ".html" ));
+				die;
+			}
+		
+			$th->setTemplate("Planner", array(
+					"profile" => $profile
+			));
+		}
+		catch( DoesNotExistException $e ) {
+			$th->setTemplate("Error404");
+		}
+	}
+	else if( preg_match('/^\/item\/([^\/]+)\.html(?:\?.*|$)/',$uri,$matches)) {
+		$parsed = FormatHelper::parseVerboseUrl($matches[1]);
+		
+		if( $parsed == null ) {
+			return;
+		}
+		
+		$itemId = $parsed["ID"];
+		//
+		// Invalid ID
+		if ($itemId <= 0) {
+			$this->_redirectToNamedItem();
+		}
+		//
+		// Retrieve item from db
+		try {
+			$data = chardev\backend\data\ItemData::getInstance()->fromId($itemId);
+			$item = new chardev\backend\entities\Item($data);
+			//
+			// Found item name is not matching the ID -> redirect
+			if ($parsed["Name"] != FormatHelper::escapeForUrl($item->getName())) {
+				header("Location: ".TemplateHelper::getBasePath()."items/".FormatHelper::verboseUrl($item->getId(),$item->getName()).".html");
+			}
+			//
+			$th->setTemplate("Items", array("item" => $item));
+		}
+		//
+		// No item with ID found
+		catch( chardev\backend\DoesNotExistException $e ) {
+			$th->setTemplate("Error404");
+		}
+	}
 	//
-	//	Content includes
+	//	USER
 	//
-	if( isset($_GET['spell']) ) {
-		include './php/content/spell.php';
-		$page = PAGE_SPELL;
+	else if( preg_match('/^\/user\/([^\/]+)(?:\/(Index|Profiles|Delete|Password))?\.html(?:\?.*|$)/',$uri,$matches)) {
+		$parsed = FormatHelper::parseVerboseUrl($matches[1]);
+		
+		try {
+			$user = new \chardev\backend\entities\User($parsed["ID"]);
+				
+			if( $parsed["Name"] != FormatHelper::escapeForUrl($user->getName()) ) {
+				
+				header("Location: " . ChardevHelper::getUserUrl($user));
+				die;
+			}
+			
+			$th->setTemplate("User", array(
+				"user_category" => isset($matches[2]) ? $matches[2] : "Index", 
+				"validated_args" => array(
+					"ID" => $parsed["ID"],
+					"Name" => $parsed["Name"],
+					"User" => $user
+				)
+			));
+		}
+		catch( DoesNotExistException $e ) {
+			$th->setTemplate("Error404");
+		}
 	}
-	else if( isset($_GET['spells']) ) {
-		include './php/content/spells.php';
-		$page = PAGE_SPELLS;
+	//
+	//	THREAD HOOK
+	//
+	else if( preg_match('/^\/forum\/([^\/]+)\.html(?:\?.*|$)/',$uri,$matches)) {	
+		$db = new chardev\forum\ThreadDatabase( "mysql:dbname=chardev_user;host=127.0.0.1", "root", "");
+		try {
+			$th->setTemplate("Hook", array(
+					"forum" => $matches[1], 
+					"db" => $db, 
+					"validated_args" => \chardev\forum\ForumHelper::validateArgs( $db, $matches[1] ))
+			);
+		}
+		catch( \chardev\forum\HookDoesNotExistException $e ) {
+			$th->setTemplate("Error404");
+		}
 	}
-	else if( isset($_GET['item']) ) {
-		include './php/content/item.php';
-		$page = PAGE_ITEM;
+	//
+	//	NEW THREAD
+	//
+	else if( preg_match('/^\/forum\/([^\/]+)\/NewThread\.html(?:\?.*|$)/',$uri,$matches)) {
+		$db = new chardev\forum\ThreadDatabase( "mysql:dbname=chardev_user;host=127.0.0.1", "root", "");
+		try {
+			$th->setTemplate("NewThread", array(
+					"forum" => $matches[1],
+					"db" => $db,
+					"validated_args" => \chardev\forum\ForumHelper::validateArgs( $db, $matches[1] ))
+			);
+		}
+		catch( \chardev\forum\HookDoesNotExistException $e ) {
+			$th->setTemplate("Error404");
+		}
 	}
-	else if( isset($_GET['items']) ) {
-		include './php/content/items.php';
-		$page = PAGE_ITEMS;
-	}
-	else if( isset($_GET['planner']) || isset($_GET['profile']) || isset($_GET['c']) ) {
-		include './php/content/planner.php';
-		$page = PAGE_PLANNER;
-	}
-	else if( isset($_GET['talents']) || isset($_GET['t']) ) {
-		include './php/content/talent_planner.php';
-		$page = PAGE_TALENTS;
-	}
-	else if(isset($_GET['forum']) || isset($_GET['thread'])){
-		include './php/thread_test.php';
-		$page = PAGE_FORUM;
-	}
-	else if(isset($_GET['register'])){
-		include './php/content/register.php';
-		$page = PAGE_REGISTER;
-	}
-	else if(isset($_GET['resend_mail'])){
-		include './php/content/resend_mail.php';
-		$page = PAGE_REGISTER;
-	}
-	else if(isset($_GET['login'])){
-		include './php/content/login.php';
-		$page = PAGE_LOGIN;
-	}
-	else if(isset($_GET['donate'])){
-		include './php/content/donate.php';
-		$page = PAGE_DONATE;
-	}
-	else if(isset($_GET['recover_password'])){
-		include './php/content/recover_password.php';
-		$page = PAGE_RECOVER_PASSWORD;
-	}
-	
-	else if(isset($_GET['base_stats'])){
-		include './php/content/base_stats.php';
-		$page = PAGE_BASE_STATS;
-	}
-	else if(isset($_GET['start'])) {
-		include './php/content/planner_start.php';
-		$page = PAGE_PLANNER_START;
-	}
-	else if(isset($_GET['user'])) {
-		include './php/content/user.php';
-		$page = PAGE_USER;
-	}
-	else if(isset($_GET['credits'])) {
-		include './php/content/credits.php';
-		$page = PAGE_CREDITS;
-	}
-	else if(isset($_GET['profiles'])) {
-		include './php/content/profiles.php';
-		$page = PAGE_PROFILES;
+	//
+	//	THREAD
+	//
+	else if( preg_match('/^\/forum\/([^\/]+)\/([^\/]+)(\/Reply|\/Edit)?\.html(?:\?.*|$)/',$uri,$matches)) {
+		$db = new chardev\forum\ThreadDatabase( "mysql:dbname=chardev_user;host=127.0.0.1", "root", "");
+		try {
+			$th->setTemplate("Thread", array(
+					"forum" => $matches[1], 
+					"thread" => $matches[2], 
+					"reply" => isset($matches[3]) && $matches[3] == '/Reply',
+					"edit" => isset($matches[3]) && $matches[3] == '/Edit',
+					"db" => $db, 
+					"validated_args" => \chardev\forum\ForumHelper::validateArgs( $db, $matches[1], $matches[2] ))
+			);
+		}
+		catch( \chardev\forum\HookDoesNotExistException $e ) {
+			$th->setTemplate("Error404");
+		}
+		catch( \chardev\forum\ThreadDoesNotExistException $e ) {
+			$th->setTemplate("Error404");
+		}
 	}
 	else {
-		include './php/content/home.php';
-		$page = PAGE_HOME;
+		$th->setTemplate("Error404");
 	}
-?>
-</head>
-<body onload="__onLoad();">
+}
+catch( \Exception $e ) {
+	$th->setTemplate("Error404", array( "exception" => $e ));
+}
 
-	<div class="tt_overlay_w" id="tt_overlay_w"><div class="tt_overlay" id="tt_overlay"></div></div>
-
-	<div class="ix_header">
-
-		<div class="ix_center ix_logo">
-			
-			<div class="ix_center ix_main_menu">
-				<div class="ix_mm_entry"><a class="ix_mm_link<?php echo $page==PAGE_HOME? " ix_mm_link_active" : ""; ?>" href="?home">home</a></div>
-				<div class="ix_mm_entry"><a class="ix_mm_link<?php echo $page==PAGE_PLANNER ? " ix_mm_link_active" : ""; ?>" href="?planner">planner</a></div>
-				<div class="ix_mm_entry"><a class="ix_mm_link<?php echo $page==PAGE_FORUM ? " ix_mm_link_active" : ""; ?>" href="?forum">forum</a></div>
-				<div class="ix_mm_entry"><a class="ix_mm_link<?php echo $page==PAGE_DONATE ? " ix_mm_link_active" : ""; ?>" href="?donate">donate</a></div>
-				<div class="ix_mm_entry"><a class="ix_mm_link" href="http://github.com/chardev/chardev">source</a></div>		
-				<div style="<?php echo $loggedIn ? "display:none" : ""; ?>" class="ix_mm_entry"><a class="ix_mm_link<?php echo $page==PAGE_REGISTER ? " ix_mm_link_active" : ""; ?>" href="?register">register</a></div>
-				<div style="clear:both"></div>
-			</div>
-			
-			<?php
-				if( $page != PAGE_LOGIN && $page != PAGE_LOGOUT )
-				{
-					include './php/content/login_small.php';
-				}
-			?>
-			
-			
-			<div style="clear:both"></div>
-		</div>
-	</div>
-
-	<div class="ix_center ix_w">
-		<div class="ix_content_w">
-			<div class="cp_mm_p" id="mtf_p"></div>
-		
-			<div style="position: relative; top: 0px; left: 0px;">
-				
-			<?php 
-						if( $show_ads ) {
-							echo '
-							<div id="ix_ad_v" class="ix_ad_v">
-	<script type="text/javascript"><!--
-	google_ad_client = "ca-pub-7339088166028367";
-	/* 160x600, Erstellt 01.12.10 */
-	google_ad_slot = "9407904006";
-	google_ad_width = 160;
-	google_ad_height = 600;
-	//-->
-	</script>
-	<script type="text/javascript"
-	src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
-	</script>
-	</div>						';
-						}
-					?>
-			</div>
-			<div class="ix_content_p">
-				<div class="ix_content_b">
-						<div class="ix_content" id="content">		
-	
-							<noscript>
-								<div class='ix_noscript'>JavaScript is Disabled!</div>
-							</noscript>
-						
-							<?php if(isset($g_content)) echo $g_content; ?>
-						</div>
-				</div> 
-			</div>
-		</div>
-		<div class="ix_foot">
-	
-				<?php 
-				if( $show_ads) {
-					echo "
-						<div id='ix_ad_h' class='ix_ad_h'>
-							<script type='text/javascript'><!--
-							google_ad_client = 'pub-7339088166028367';
-							google_ad_slot = '8748092503';
-							google_ad_width = 728;
-							google_ad_height = 90;
-							//-->
-							</script>
-							<script type='text/javascript'
-							src='http://pagead2.googlesyndication.com/pagead/show_ads.js'>
-							</script>
-						</div>";
-				}
-				?>
-				
-			<div class="ix_bottom_link_bar">
-				<a class="ix_bottom_link" href='?items'>Items</a>
-				<a class="ix_bottom_link" href='?spells'>Spells</a>
-				<a class="ix_bottom_link" href='?base_stats'>Base Stats</a>
-				<a class="ix_bottom_link" href='?talents'>Talent Planner</a>
-				<a class="ix_bottom_link" href='?members'>Members</a>
-				<a class="ix_bottom_link" href='?credits'>Credits</a>
-				<a class="ix_bottom_link" href='?notice'>Site Notice</a>
-				<a class="ix_bottom_link" href='chardev7/?character'>Pre 4.0.1 chardev</a>
-			</div>
-			<div class="ix_copy">&copy; 2007-2012 chardev.org - Design and Code by Martin Wa&szlig;mann - Build:<?php echo $build_number; ?><span id='chardev_core_version'></span></div>
-			<div class="ix_disclaimer">World of Warcraft and Blizzard Entertainment are trademarks or registered trademarks of Blizzard Entertainment in the U.S. and/or other countries.</div>
-		</div>
-	</div>
-		
-	</div>
-	<!-- Google Analytics -->
-	<script type="text/javascript">
-		var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-		document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-		</script>
-		<script type="text/javascript">
-		var pageTracker = _gat._getTracker("UA-5069604-2");
-		pageTracker._initData();
-		pageTracker._trackPageview();
-	</script>
-</body>
-</html>
+include '../app/layouts/layout.phtml';

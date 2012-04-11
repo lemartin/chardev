@@ -17,7 +17,7 @@ function Gui() {
 	var talentTab = document.createElement('div');
 	var enchantTab = document.createElement('div');
 	this.node = document.createElement("div"); this.node.className = 'gui_p';
-	this.sheetParent = document.createElement("div"); this.sheetParent.className = "cs_sheet_p";
+	this.sheetParent = DOM.create( 'div', { 'class': 'cs_sheet_p'} );
 	this.talentsGui = new TalentsGui();
 	this.overview = new Overview();
 	this.profilesParent = document.createElement("div"); this.profilesParent.style.paddingTop = "20px";
@@ -61,6 +61,8 @@ function Gui() {
 	
 	sheetGrid.cols[0].style.width = "300px";
 	sheetGrid.cols[1].style.width = "660px";
+
+	
 	sheetGrid.cells[0][0].appendChild(this.sheetParent);
 	sheetGrid.cells[0][1].className = 'gui_list_p';
 	sheetGrid.cells[0][1].appendChild(d1);

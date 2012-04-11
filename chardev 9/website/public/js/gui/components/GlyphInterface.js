@@ -56,7 +56,7 @@ GlyphInterface.prototype = {
 			gids[character.glyphs[i].id] = true;
 			
 			var div = DOM.createAt( t, 'div', {'class': 'gi_glyph_c'});
-			DOM.createAt( div, 'img', {'class': 'gi_glyph_icon', 'src': 'images/icons/half/'+character.glyphs[i].getIcon()+".png"});
+			DOM.createAt( div, 'img', {'class': 'gi_glyph_icon', 'src': '/images/icons/half/'+character.glyphs[i].getIcon()+".png"});
 			var a = DOM.createAt( div, 'a', {'class': 'gi_glyph', 'href': 'javascript:', 'text': character.glyphs[i].getName()});
 			a.oncontextmenu = function(){return false;};
 			ChardevHTML.addTooltip(a, character.glyphs[i].getTooltip()+"<div class='gi_note'>Right click to remove</div>");
@@ -210,7 +210,7 @@ GlyphInterface.prototype = {
 //					this._glyphs[h][i].innerHTML = "<div class='gi_glyph gi_unused'>"+locale['GI_Empty']+"</div>";
 //				} 
 //				else {
-//					this._glyphs[h][i].style.backgroundImage = "url(images/icons/half/"+g[h][i]._spell._icon+".png)";
+//					this._glyphs[h][i].style.backgroundImage = "url(/images/icons/half/"+g[h][i]._spell._icon+".png)";
 //					div = document.createElement("a");
 //					div.className= "gi_used";
 //					div.onmousemove = function(){Tooltip.move();};

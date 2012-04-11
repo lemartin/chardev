@@ -7,6 +7,18 @@ var Tools = {
 
         var obj = (window.document.compatMode && window.document.compatMode == "CSS1Compat") ? window.document.documentElement : window.document.body; 
         return [parseInt(obj.clientWidth,10),parseInt(obj.clientHeight,10)];    
+	},
+	_basePath: null,
+	getBasePath: function() {
+		if( Tools._basePath === null ) {
+			var depth = window.location.pathname.replace(/\?.+$/,'').split('/').length - 2;
+			Tools._basePath = "";
+			for( var i = 0; i < depth; i++ ) {
+				Tools._basePath += '../';
+			}
+		}
+		
+		return Tools._basePath;
 	}
 };
 /**
@@ -238,4 +250,8 @@ Tools.removeDots = function( str ) {
 	return str.replace( /\./, " " );
 };
 
-window["g_removeDots"] = Tools.removeDots;
+if( ! window["Tools"] ) {
+	 window["Tools"] = {
+			 'removeDots': Tools.removeDots
+	 };
+}
