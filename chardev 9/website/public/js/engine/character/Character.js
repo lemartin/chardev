@@ -622,8 +622,8 @@ Character.prototype = {
 			case 2: presence = UNHOLY_PRESENCE; break;
 			default: presence = BLOOD_PRESENCE; break;
 			}
-			this.chrClass.setPresence(presence);
 		}
+		this.chrClass.setPresence(presence);
 		
 		if( this.chrClass ) {
 			if( profile[4] === 2 || profile[4] === 1 || profile[4] === 0 ) {
