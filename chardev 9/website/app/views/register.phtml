@@ -1,0 +1,119 @@
+<?php 
+
+	use chardev\backend\entities\User;
+
+use chardev\ChardevHelper;
+
+use chardev\backend\UserDatabase;
+
+	$step = 1;	
+	$error = null;
+	$locale = \chardev\Language::getInstance()->getLocaleArray();
+
+	if( isset($_POST['register_user_name']) && 
+			isset($_POST['register_email']) && 
+			isset($_POST['register_password']) && 
+			isset($_POST['register_language']) && 
+			isset($_POST['register_region']) 
+	) {
+		try {
+			UserDatabase::getInstance()->addUser(
+				$_POST['register_user_name'], 
+				$_POST['register_email'], 
+				$_POST['register_password'], 
+				$_POST['register_language'], 
+				$_POST['register_region']
+			);
+			$step = 2;
+		}
+		catch( \Exception $e ) {
+			$error = $e->getMessage();
+		}
+	} 
+	else if( isset($_GET['ResendEmail'])) {
+		$step = 3;
+		
+		if( isset($_POST['resend_user_name'])) {
+			try{
+				UserDatabase::getInstance()->resendActivationMail($_POST['resend_user_name']);
+				
+				$step = 4;	
+			}
+			catch( \Exception $e ) {
+				$error = $e->getMessage();
+			}
+		}
+	}
+	else if( isset($_GET['Token'])) {
+		$step = 5;
+		try {
+			$id = UserDatabase::getInstance()->activateUser($_GET['Token']);
+			header("Location: " . self::getBasePath() . "Login.html?Registration");
+			die;
+		}
+		catch( \Exception $e ) {
+			$error = $e->getMessage();
+		}
+	}
+		
+	if( $step == 3 ) {
+		$form = new \chardev\frontend\Form("Register.html?ResendEmail");
+		
+		if( $error ) {
+			$form->addError($error);
+			$error = null;
+		}
+		
+		$form->addInput( $locale['User_name'], "resend_user_name", "alnum,min=4");
+		$form->addSubmit("Resend");
+	}
+	
+	if( $step == 1 ) {
+	
+		$form = new \chardev\frontend\Form("Register.html");
+		
+		if( $error ) {
+			$form->addError($error);
+			$error = null;
+		}
+		
+		$form->addInput( $locale['User_name'], "register_user_name", "alnum,min=4");
+		$form->addInput( "E-Mail", "register_email","email");
+		
+		$n = $form->addPassword( $locale['Password'], "register_password", "alnum,min=4");
+		$form->addSecret( $locale['Repeat'], "", "repeat of {$n}");
+		
+		$langs = array();
+		for( $i=0; $i<count($locale['a_lang']); $i++ ) {
+			if($locale['a_lang'][$i]) {
+				$langs[] = $locale['a_lang'][$i];
+			}
+		}
+		
+		$form->addSelect( "Preferred Language", "register_language", $langs);
+		$form->addSelect( "Preferred Region", "register_region", $locale['Regions']);
+		
+		$form->addSubmit("Register");
+	}
+?>
+
+<div class="content_wrapper">
+	<h1>Register at chardev</h1>
+	<div class="fm_err"><?php echo $error ?></div>
+	<?php 
+		if($step == 1):
+			echo $form->getHtml();
+		elseif($step == 2):
+	?>
+			<div class='fm_note'>An e-mail was sent, follow the link to activate your account.</div>
+	<?php 
+		elseif($step == 3):
+			echo $form->getHtml();  
+		elseif($step == 4):
+	?>
+			<div class='fm_note'>Another activation e-mail was sent, if you keep having problems write an e-mail to <a href="mailto:bug@chardev.org">bug@chardev.org</a></div>
+	<?php endif;?>
+		<div class='login_rec_p'>
+		<a href='Register.html?ResendEmail' class='login_rec_link'>Haven't received the activation e-mail? Click here!</a>
+	</div>
+</div>

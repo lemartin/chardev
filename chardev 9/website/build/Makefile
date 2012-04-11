@@ -1,0 +1,4 @@
+
+full:
+	php compile.php
+	

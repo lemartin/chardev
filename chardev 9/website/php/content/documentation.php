@@ -1,1 +1,0 @@
-<?php$g_content = '<div class="content_wrapper">	<div class="content_header">Documentation</div>	</div>';?>
