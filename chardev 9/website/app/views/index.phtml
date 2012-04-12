@@ -1,5 +1,7 @@
 <?php
-	use chardev\FormatHelper;
+	use chardev\forum\facades\HookFacade;
+
+use chardev\FormatHelper;
 
 use chardev\forum\facades\UserFacade;
 
@@ -63,8 +65,9 @@ use chardev\forum\facades\ThreadFacade;
 		$roleCss = ForumHelper::roleToCssClass($author);
 		$thread = $db->getThread($post['ThreadID']);
 		$hook = $db->getHook($thread['ThreadHookID']);
+		$url = ForumHelper::getHookUrl(new HookFacade($hook));
 		
-		$forumName = "<a class=\"fo_header_subforum_link\" href=\"?forum={$hook['ID']}\">".chardev\FormatHelper::shorten($hook['Name'], 20)."</a>";
+		$forumName = "<a class=\"fo_header_subforum_link\" href=\"{$url}\">".chardev\FormatHelper::shorten($hook['Name'], 20)."</a>";
 		$link = ForumHelper::getThreadLastPostLink(new ThreadFacade($hook, $thread),45);
 ?>
 				<div class="fo_recent <?php ( $n == (count($recentPosts)-1) ? '_last' : '' ) . ( $n % 2 == 0 ? " fo_cell_bg1" : " fo_cell_bg2" ) ?>">

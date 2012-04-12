@@ -15,15 +15,15 @@ function ProfilesAdapter() {
 				return;
 			}
 			//TODO: Implement delete profile
-			Ajax.request("php/interface/profiles/delete_profile.php"+TextIO.queryString({'id': e.get('profile_id')}), new Handler( function( response ){
+			Ajax2.post("api/profile.php", {'action': 'delete', 'id': e.get('profile_id')}, function( obj ) {
 				try {
-					Ajax.getResponseObject(response);
+					obj.get();
 					this.profileList.update();
 				}
 				catch( e ) {
 					Tooltip.showError(e);
 				}
-			}, this), []);
+			}, this);
 		}
 	}, this);
 	//

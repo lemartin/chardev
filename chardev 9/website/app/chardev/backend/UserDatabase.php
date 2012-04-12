@@ -250,7 +250,7 @@ class UserDatabase {
 					$realm = $realms[$i];
 					
 					$stmt = $this->db->prepare("REPLACE INTO chardev_user.`realm` VALUES (?,?,?,?)");
-					$stmt->execute(array($realm->name, $val, (int)$typeStrToMask[$realm->type]), $realm->slug);
+					$stmt->execute(array($realm->name, $val, (int)$typeStrToMask[$realm->type], $realm->slug));
 					DatabaseHelper::testStatement($stmt);
 					
 					$cached[] = $realm->name;
@@ -321,6 +321,37 @@ class UserDatabase {
 	}
 	
 	public function deleteProfile( $id ) {
+		
+		$loggedInUser = Session::getLoggedInUser();
+		
+		if( ! $loggedInUser ) {
+			throw new \Exception("You need to be logged in to delete profiles!");
+		}
+		
+		$record = DatabaseHelper::fetchOne(
+				Database::getConnection(), 
+				"SELECT `UserID` FROM chardev_user.`chardev_characters` WHERE `ID`=? LIMIT 0,1", 
+				array($id)
+		);
+		
+		if( ! $record ) {
+			throw new \Exception("This profile does not exist!");
+		}
+		
+		if( $record['UserID'] != $loggedInUser->getId()) {
+			throw new \Exception("You are not allowed to delete this profile!");
+		} 
+		
+		$db = Database::getConnection();
+		DatabaseHelper::execute($db, "LOCK TABLES chardev_user.`chardev_characters` WRITE");
+		
+		DatabaseHelper::execute(
+				$db, 
+				"UPDATE chardev_user.`chardev_characters` SET `Deleted`='1' WHERE `ID`=?",
+				array($id)
+		);
+		
+		DatabaseHelper::unlock($db);
 	}
 	
 	public function getProfile($id) {

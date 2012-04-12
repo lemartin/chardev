@@ -1,6 +1,10 @@
 <?php
 namespace chardev\backend\data;
 
+use chardev\backend\Database;
+
+use chardev\backend\DatabaseHelper;
+
 use chardev\FormatHelper;
 
 use chardev\backend\Constants;
@@ -28,6 +32,7 @@ class ProfileListData extends \chardev\backend\data\ListData {
 		$orderClause = "";
 		$profiles = array();
 		$values = array(); 
+		$showDeleted = false;
 		// arguments
 		$this->parseArguments( $arguments, $matches );
 		foreach($matches as $match) {
@@ -52,8 +57,8 @@ class ProfileListData extends \chardev\backend\data\ListData {
 						throw new \Exception("Operator ".$match[2]." is not supported");
 					}
 					else {
-						if( (int)$match[3] == 0 ) {
-							$where .= ( $where ? " AND " : "" ) . "`Deleted`='0'";
+						if( (int)$match[3] == 1 ) {
+							$showDeleted = true;
 						}
 					}
 					break;
@@ -65,19 +70,24 @@ class ProfileListData extends \chardev\backend\data\ListData {
 					break;
 			}
 		}
+		if( $showDeleted ) {
+			$where .= ( $where ? " AND " : "" ) . "`Deleted`='1'";
+		}
+		else {
+			$where .= ( $where ? " AND " : "" ) . "`Deleted`='0'";
+		}
 		// order
 		$orderClause = $this->parseOrder( $order, array( "time" => "`Timestamp`", "id" => "`ID`") );
 		
 		$query = "SELECT * FROM chardev_user.`chardev_characters` WHERE `History` = 0 " . ($where?" AND ".$where:"") . ( $orderClause ? " ORDER BY ".$orderClause : "" ) . " LIMIT ".Constants::PROFILES_PER_PAGE *($page-1).",".(Constants::PROFILES_PER_PAGE+1);
 		
-		$db = \chardev\backend\Database::getConnection();
-		$stmt = \chardev\backend\DatabaseHelper::query($db,$query,$values);
-		$found = \chardev\backend\DatabaseHelper::fetchOne($db, "SELECT FOUND_ROWS() AS rows");
+		$records = DatabaseHelper::fetchMany(Database::getConnection(), $query,$values);
 		
-		$profiles[0] = array($found['rows'], Constants::PROFILES_PER_PAGE);
-		$id = ItemData::getInstance();
-		while( false !== ($record = $stmt->fetch()) ) {
-			$profiles[] = array(
+		$profiles[0] = array(count($records), Constants::PROFILES_PER_PAGE);
+		
+		for( $i=0; $i<Constants::PROFILES_PER_PAGE; $i++ ) {
+			$record = $records[$i];
+			$profiles[$i+1] = array(
 				(int)$record['ID'],
 				(int)$record['UserID'],
 				(string)$record['Name'],
@@ -89,7 +99,6 @@ class ProfileListData extends \chardev\backend\data\ListData {
 				\chardev\FormatHelper::getProfileLink($record['ID'], $record['Name'])
 			);
 		}
-		$stmt->closeCursor();
 		return $profiles;
 	}
 }

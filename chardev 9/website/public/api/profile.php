@@ -23,7 +23,7 @@ try {
 				break;
 			case 'delete':
 				$id = $_POST['id'] ? json_decode($_POST['id']) : 0;
-				echo json_encode(UserDatabase::getInstance()->deleteProfile($id));
+				UserDatabase::getInstance()->deleteProfile($id);
 				break;
 		}
 	}

@@ -98,7 +98,7 @@
 					</div>
 				</td>
 				<td valign='top' class='fo_content_p'>
-					<div id='p<?php $post->getId()?>_content' class='forum_content {$roleColorCssClass}'>
+					<div id='p<?php $post->getId()?>_content' class='forum_content <?php echo ForumHelper::roleToCssClass($post->getAuthor())?>'>
 						<?php 
 							if( $edit && isset($_GET["Post"]) && $post->getId() == $_GET["Post"] ) :
 						?>

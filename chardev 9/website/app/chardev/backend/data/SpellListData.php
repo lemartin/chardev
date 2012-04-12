@@ -114,14 +114,14 @@ class SpellListData extends ListData {
 						( $orderClause ? " ORDER BY ".$orderClause : "" ).
 						" LIMIT ".Constants::SPELLS_PER_PAGE *($page-1).",".(Constants::SPELLS_PER_PAGE+1);
 		
+		$records = DatabaseHelper::fetchMany(Database::getConnection(), $query, $values); 
 		
-		$stmt = DatabaseHelper::query(Database::getConnection(),$query,$values);
-		$found = DatabaseHelper::fetchOne(Database::getConnection(), "SELECT FOUND_ROWS() AS rows");
+		$spells[0] = array( count($records), Constants::SPELLS_PER_PAGE);
 		
-		$spells[0] = array((int)$found['rows'], Constants::SPELLS_PER_PAGE);
 		$sp = SpellData::getInstance();
-		while( false !== ($record = $stmt->fetch()) ) {
-			$spells[] = $sp->fromId($record['ID']);
+		
+		for( $i=0; $i<Constants::SPELLS_PER_PAGE; $i++ ) {
+			$spells[$i+1] = $sp->fromId($records[$i]['ID']);
 		}
 		
 		return $spells;

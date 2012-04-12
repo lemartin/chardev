@@ -43,6 +43,9 @@ try {
 		
 		$th->setTemplate($matches[1]);
 	}
+	else if( preg_match('/^\/baseStats\/([^\/]+)\.html(?:\?.*|$)/',$uri,$matches)) {
+		$th->setTemplate('BaseStats',array( 'id-name' => $matches[1]));
+	}
 	else if( preg_match('/^\/profile\/([^\/]+)\.html(?:\?.*|$)/',$uri,$matches)) {
 		
 		$parsed = FormatHelper::parseVerboseUrl($matches[1]);

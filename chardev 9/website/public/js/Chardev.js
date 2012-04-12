@@ -339,7 +339,7 @@ var Chardev = {
 				catch( e ) {
 					Tooltip.showError(e);
 				}
-			});
+			}, null);
 		}
 };
 

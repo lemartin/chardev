@@ -1,7 +1,16 @@
 var Ajax2 = {
-	post: function( url, map, callback ) {
+	post: function( url, map, callback, scope ) {
 		$.post(url,map,function( data, status, jqXhr) {
-			callback(new ResponseObject(data, jqXhr));
+			
+			var obj = new ResponseObject(data, jqXhr);
+			
+			if(scope) {
+				callback.call(scope, obj);
+			}
+			else {
+				callback(obj);
+			}
+			
 		}, 'json');
 	}
 };
