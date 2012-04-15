@@ -1,0 +1,88 @@
+<?php 
+	use chardev\backend\Constants;
+	use chardev\backend\data\TalentsData;
+	use chardev\Language;
+	use chardev\FormatHelper;
+	
+	function compressedToInt($c)
+	{
+		return (ord($c)>=65?(ord($c)>=97?ord($c)-97+10:ord($c)-65+36):ord($c)-48);
+	}
+
+	$this->addStyleSheet("talent_sheet.css");
+	$locale = Language::getInstance()->getLocaleArray();
+	
+	$parsed = FormatHelper::parseVerboseUrl($this->getArg('id-name'));
+	
+	$distribution = "";
+	$id = 0;
+	
+	if( ! $parsed["ID"] ) {
+		if( isset($_GET['t']) && strlen($_GET['t']) >= 2 ) {
+			
+			$codeToId = array('wa'=>1, 'pa'=>2, 'hu'=>3, 'ro'=>4, 'pr'=>5, 'dk'=>6, 'sh'=>7, 'ma'=>8, 'wl'=>9, 'dr'=>11);
+			
+			if( isset($codeToId[substr($_GET['t'], 0, 2 )]) ) {	
+				$id = $codeToId[substr($_GET['t'], 0, 2 )];
+				
+				$d = substr($_GET['t'],2);
+				
+				for($i=0;$i<strlen($d);$i++) {
+					if($d[$i] == ',') {
+					$i++;
+						for($j=0;$j<compressedToInt($d[$i]);$j++)
+							$distribution.='00';
+					}
+					else {
+						$distribution.= floor(compressedToInt($d[$i])/6) . compressedToInt($d[$i])%6;
+					}
+				}
+			}
+		}
+	} else {
+		$id = $parsed["ID"];
+	}
+?>
+<div class='content_wrapper'>
+	<h1>Talent Planner</h1>
+	
+	<div class='bs_class_ll'>
+		<?php
+			for($i=0;$i<count($locale['a_class']);$i++) :
+				if(!$locale['a_class'][$i]) {
+					continue;
+				} 
+				$active = false;
+				
+				$url = TemplateHelper::getBasePath() . 'talents/' . FormatHelper::verboseUrl($i+1, $locale['a_class'][$i]) . '.html';
+				
+				if( $i + 1 == $id ) {
+					$class = $i + 1;
+					$active = true;
+					
+					if( $parsed['Name'] && $parsed['Name'] != $locale['a_class'][$i] ) {
+						header("Location: ".$url);
+						die;
+					}
+				}
+		?>
+			<a class='button button_light link_button <?php echo $active ? 'button_light_active' : '' ?>' href='<?php echo $url ?>'><?php echo $locale['a_class'][$i]?></a>
+		<?php 
+			endfor;
+		?>
+	</div>
+<?php if($id) :?>
+	<script type="text/javascript">
+		$(function(){
+			var serialized = <?php echo json_encode(TalentsData::getInstance()->fromId($id)) ?>;
+			
+			if(serialized) {
+				Chardev.showTalents( serialized, 'talent_parent', <?php echo json_encode($distribution) ?>);
+			}
+		});
+	</script>
+	<div id='talent_parent'>
+		<div class='loading'>Loading...</div>
+	</div>
+<?php endif;?>
+</div>

@@ -138,8 +138,16 @@ List.prototype = {
 		this.__update();
 	},
 	__setPage: function( page ) {
-		if( page < 0 || this.foundPages <= 1 ) {
+		if( page < 0 ) {
 			return;
+		}
+		if( this.page < page ) {
+			if( this.foundPages <= 1 ) {
+				return
+			}
+		}
+		else if( this.page > page ){
+			this.foundPages++;
 		}
 		
 		this.page = page;
