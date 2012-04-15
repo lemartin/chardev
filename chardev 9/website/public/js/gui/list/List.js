@@ -182,8 +182,13 @@ List.prototype = {
 			this.filterMgr.getCustomFilters(), 
 			this.filterMgr.getCustomFilterOptions() 
 		);
-
-//		this.gui.updateFilter( this.filterMgr );
+	},
+	updateFilter: function() {
+		this.gui.updateFilter( 
+			this.filterMgr.getStaticFilters(), 
+			this.filterMgr.getCustomFilters(), 
+			this.filterMgr.getCustomFilterOptions() 
+		);
 	},
 	/**
 	 * @param variable
@@ -210,7 +215,7 @@ List.prototype = {
 	},
 	replaceArgument: function( variable, replace ) {
 		var tmp = this.filterMgr.getArgumentString(); 
-		tmp = tmp.replace(new RegExp("\b"+variable+"\\.\\w+\\.[^;]+;"),"") + replace ;
+		tmp = tmp.replace(new RegExp("\\b"+variable+"\\.\\w+\\.[^;]+;"),"") + replace ;
 		this.filterMgr.setArgumentString(tmp);
 	}
 };

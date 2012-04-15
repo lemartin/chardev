@@ -17,7 +17,7 @@ function CharacterClass( serialized ) {
 	this.glyphs = [[null,null,null],[null,null,null],[null,null,null]];
 	this.id = serialized[0];
 	this.name = serialized[1];
-	this.talents = new Talents(serialized[0],serialized[2],false);
+	this.talents = new Talents(serialized[2],false);
 	this.baseStats = serialized[3]; // str, agi, ... , hp, mp, melee crit per agi
 	this.shapesRef = {};
 	
@@ -300,7 +300,7 @@ CharacterClass.prototype = {
 	addGlyph: function( glyph ) {
 		var i, n = -1;
 		if( this.availableGlyphSlots == 0  ) {
-			throw new GlyphAddException(GlyphAddException.CAUSE_CHARACTER_LEVEL, glyph);
+			throw new Error("Unable to add Glyph, there are no empty slots available!"); 
 		}
 		for( i=0; i<this.availableGlyphSlots; i++ ) {
 			if( this.glyphs[glyph.type][i] == null ) {
@@ -308,11 +308,11 @@ CharacterClass.prototype = {
 				continue;
 			}
 			if( this.glyphs[glyph.type][i].id == glyph.id ) {
-				throw new GlyphAddException(GlyphAddException.CAUSE_DUPLICATE, glyph);
+				throw new Error("Unable to add Glyph, this Glyph is already in use!");
 			}
 		}
 		if( n==-1 ) {
-			throw new GlyphAddException(GlyphAddException.CAUSE_NO_SLOTS_LEFT, glyph);
+			throw new Error("Unable to add Glyph, there are no empty slots available!");
 		}
 		
 		this.glyphs[glyph.type][n] = glyph;
@@ -327,29 +327,3 @@ CharacterClass.prototype = {
 		this.eventMgr.fire( 'glyph_removed', null );
 	}
 };
-/**
- * @constructor
- * @param {number} cause
- * @param {Glyph} glyph
- */
-function GlyphAddException( cause, glyph ) {
-	this.cause = cause;
-}
-GlyphAddException.prototype = {
-	cause: 0,
-	toString: function()  {
-		switch( this.cause ) {
-		case GlyphAddException.CAUSE_CHARACTER_LEVEL: 
-			return "Unable to add Glyph, there are no empty slots available!";
-		case GlyphAddException.CAUSE_DUPLICATE: 
-			return "Unable to add Glyph, this Glyph is already in use!";
-		case GlyphAddException.CAUSE_NO_SLOTS_LEFT:
-			return "Unable to add Glyph, there are no empty slots available!";
-		default: 
-			return "Unable to add Glyph, due to unknown reasons!";
-		}
-	}
-};
-GlyphAddException.CAUSE_CHARACTER_LEVEL = 0;
-GlyphAddException.CAUSE_DUPLICATE = 1;
-GlyphAddException.CAUSE_NO_SLOTS_LEFT = 2;

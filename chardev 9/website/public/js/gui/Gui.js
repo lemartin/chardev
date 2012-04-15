@@ -152,13 +152,13 @@ Gui.prototype = {
 	/**
 	 * @param {ItemListGui} itemListGui
 	 */
-	initLists: function( itemListGui, enchantListGui, profileListGui ) {
+	initLists: function( itemListGui, enchantListGui, profileListGui, setList ) {
 
 //		DOM.set(this.sheetParent, character._sheet._node);
 		DOM.set(this.itemsParent, itemListGui.node);
 		DOM.set(this.enchantsParent, enchantListGui.node);
 		DOM.set(this.profilesParent, profileListGui.node);
-//		DOM.set(this.setsParent, character._setList._node);
+		DOM.set(this.setsParent, setList.node);
 //		DOM.set(this.enchantsParent, character._enchantList._node);
 	}
 };

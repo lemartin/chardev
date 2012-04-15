@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+import java.util.Arrays;
 
 public class DBCParser extends DBCReader {
 	protected static String SQLInsert = "REPLACE";
@@ -58,9 +59,13 @@ public class DBCParser extends DBCReader {
 			bis.close();
 			
 			// prepare record statement
-			prepareRecordStatement();
+			if( addVersion && version <= 0 ) {
+				throw new RuntimeException("Unable to add version, version is "+version);
+			}
+			recordStatement = prepareRecordStatement(databaseConnection, targetTable,fields,addVersion ? version : 0,locale);
 			// get data types
-			getTypes();
+			int[] dbTypes = getTypes(databaseConnection,targetTable);
+			types = Arrays.copyOf(dbTypes, types.length);
 			
 			// read records
 			bis = new BufferedInputStream(new FileInputStream(pathToFile));
@@ -100,87 +105,10 @@ public class DBCParser extends DBCReader {
 			throw new RuntimeException();
 		}
 	}
-	
-	private void prepareRecordStatement() throws SQLException {
-		
-		StringBuffer query = new StringBuffer(SQLInsert + " INTO " + targetTable + " VALUES(");
-		
-		if( addVersion && version == 0 ) {
-			throw new RuntimeException("Unable to add version! Version is 0.");
-		}
-		
-		for(int i=0; i<fields; i++){
-			query.append("?");
-			if (i != (fields - 1)) {
-				query.append(",");
-			} else {
-				if( addVersion ) {
-					query.append(",'");
-					query.append(version);
-					query.append("'");
-				}
-				if( locale != "" ) {
-					query.append(",'");
-					query.append(locale);
-					query.append("'");
-				}
-				query.append(");");
-			}
-		}
-		//System.out.println(query);
-		recordStatement = databaseConnection.prepareStatement(query.toString());
-	}
 
 	private void readRecord() {
 		try{
-			for ( int i = 0; i < fields; i++) {
-				try {
-					switch (types[i]) {
-					case Types.TINYINT:
-						recordStatement.setByte(i+1, readByte(bis));
-						break;
-					case Types.INTEGER:
-						recordStatement.setInt(i+1, readInteger(bis) );
-						break;
-					case Types.REAL:
-					case Types.FLOAT:
-						recordStatement.setFloat(i+1, readFloat(bis));
-						break;
-					case Types.LONGVARCHAR:
-					case Types.LONGNVARCHAR:
-					case Types.NVARCHAR:
-					case Types.VARCHAR:
-						int offset = readInteger(bis);
-						String string = "";
-						if( offset < 0 ) {
-							recordStatement.setNull(i+1, Types.NVARCHAR);
-						}
-						else if( offset < stringBlock.length ) {
-							int n = offset;
-							while (stringBlock[n] != 0 && n < stringBlock.length) {
-								n++;
-							}
-							if( n > offset ) {
-								string = new String( stringBlock, offset, n - offset, "UTF-8");
-							}
-						}
-						if (string.equals("")){
-							recordStatement.setNull(i+1, Types.NVARCHAR);
-						}
-						else{
-							recordStatement.setString(i+1, string);
-						}
-						break;
-					default:
-						System.out.println("No java data type is associated with the mysql type (" + types[i] + ")");
-						break;
-					}
-				} catch (IOException ioe) {
-					System.out.println(ioe);
-					throw new RuntimeException();
-				}
-			}
-			//System.out.println(recordStatement.toString());
+			populateQuery(recordStatement, bis, Arrays.copyOf(types, fields), stringBlock);
 			recordStatement.execute();
 		}
 		catch (SQLException e) {
@@ -257,21 +185,5 @@ public class DBCParser extends DBCReader {
 			throw new RuntimeException();
 		}
 		return cc;
-	}
-	
-	private void getTypes() {
-		try {
-			Statement stmt = databaseConnection.createStatement();
-			ResultSet result = stmt.executeQuery("select * from " + targetTable + " limit 1");
-			
-			for( int i = 0 ; i < targetTableColumnCount ; i++ ) {
-				types[i] = result.getMetaData().getColumnType( i + 1 );
-			}
-			
-			stmt.close();
-		} catch (SQLException e) {
-			System.out.println(e);
-			throw new RuntimeException();
-		}
 	}
 }

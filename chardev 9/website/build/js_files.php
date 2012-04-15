@@ -145,6 +145,7 @@
 		
 		 "js/gui/list/List.js",
 		 "js/gui/list/ListGui.js",
+		 "js/gui/list/CustomFilter.js",
 		 "js/gui/list/ListBackEndProxy.js",
 		
 		 "js/gui/list/item_list/ItemList.js",
@@ -153,6 +154,8 @@
 		 "js/gui/list/spell_list/SpellListGui.js",
 		 "js/gui/list/profile_list/ProfileList.js",
 		 "js/gui/list/profile_list/ProfileListGui.js",
+		 "js/gui/list/set_list/SetList.js",
+		 "js/gui/list/set_list/SetListGui.js",
 		
 		
 		 "js/gui/talents/TalentsGui.js",

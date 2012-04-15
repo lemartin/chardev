@@ -262,7 +262,7 @@ class CommunityPlatformClient
 			throw new \InvalidArgumentException ( 'Invalid ItemID: ' . $itemId );
 		}
 		
-		return $this->request ( $this->protocol . '://eu.battle.net', '/api/wow/data/item/' . ( int ) $itemId, '' );
+		return $this->request ( $this->protocol . '://eu.battle.net', '/api/wow/item/' . ( int ) $itemId, '' );
 	}
 	
 	/**
@@ -452,6 +452,7 @@ class CommunityPlatformClient
 		$opts = array ('http' => array ('method' => "GET", 'header' => "Date: " . $dateString . "\r\n" . "Authorization: BNET " . $this->publicKey . ":" . $signature . " \r\n" ) );
 		
 		$context = stream_context_create ( $opts );
+		
 		return @file_get_contents ( $host . $url . $query, false, $context );
 	}
 }

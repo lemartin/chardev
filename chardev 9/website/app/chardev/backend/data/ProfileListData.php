@@ -85,7 +85,8 @@ class ProfileListData extends \chardev\backend\data\ListData {
 		
 		$profiles[0] = array(count($records), Constants::PROFILES_PER_PAGE);
 		
-		for( $i=0; $i<Constants::PROFILES_PER_PAGE; $i++ ) {
+		$n = min(count($records),Constants::PROFILES_PER_PAGE);
+		for( $i=0; $i<$n; $i++ ) {
 			$record = $records[$i];
 			$profiles[$i+1] = array(
 				(int)$record['ID'],

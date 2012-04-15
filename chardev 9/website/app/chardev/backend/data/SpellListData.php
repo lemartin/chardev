@@ -120,7 +120,8 @@ class SpellListData extends ListData {
 		
 		$sp = SpellData::getInstance();
 		
-		for( $i=0; $i<Constants::SPELLS_PER_PAGE; $i++ ) {
+		$n = min(count($records),Constants::SPELLS_PER_PAGE);
+		for( $i=0; $i<$n; $i++ ) {
 			$spells[$i+1] = $sp->fromId($records[$i]['ID']);
 		}
 		

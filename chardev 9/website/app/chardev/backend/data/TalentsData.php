@@ -14,6 +14,10 @@ use chardev\backend\JSONSerializable;
 class TalentsData extends Data
 {
 	protected static $instance = null;
+	
+	/**
+	 * @return TalentsData		
+	 */
 	public static function getInstance() 
 	{
 		if( self::$instance == null ) {
@@ -29,8 +33,9 @@ class TalentsData extends Data
 		$stmt = DatabaseHelper::query( $db, "SELECT * FROM `talenttab` WHERE `ClassMask`=? ORDER BY `Index` asc", array(1 << ((int)$id - 1)));
 		
 		$talents = array();
-		$treeIndex = 0;
+		$treeIndex = 1;
 		while( false !== ( $record = $stmt->fetch())) {
+			$talents[0] = $id;
 			$talents[$treeIndex] = array();
 			$talents[$treeIndex][0] = $record['Name'];
 			$talents[$treeIndex][1] = $record['Description'];

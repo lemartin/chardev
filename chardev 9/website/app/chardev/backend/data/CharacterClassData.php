@@ -59,21 +59,23 @@ class CharacterClassData extends Data
 			);
 		}		
 		
-		$glyphStmt = $db->prepare("SELECT gp.`ID` as `ID`, gp.`Type` as `Type`, s.`ID` as `SpellID` ".
-				" FROM `glyphproperties` gp INNER JOIN `spell` s on gp.`SpellID` = s.`ID` INNER JOIN `spellclassoptions` sco ON sco.id = s.spellclassoptionsid".
-				" WHERE sco.`SpellClassID`='?' ORDER BY gp.`Type` DESC");
-		$glyphStmt->execute(array(Constants::$classIdToSpellClass[$id]));
-		DatabaseHelper::testStatement($glyphStmt);
-			
+		$glyphRecords = DatabaseHelper::fetchMany(
+				$db, 
+				"SELECT gp.`ID` as `ID` ".
+					" FROM `glyphproperties` gp INNER JOIN `spell` s on gp.`SpellID` = s.`ID` INNER JOIN `spellclassoptions` sco ON sco.id = s.spellclassoptionsid".
+					" WHERE sco.`SpellClassID`=? ORDER BY gp.`Type` DESC",
+				array(Constants::$classIdToSpellClass[$id])
+		);
+		
 		$glyphs = array(array(),array(),array());
 		
-		$sd = SpellData::getInstance();
-		while( false !== ($glyphRecord = $glyphStmt->fetch())) {
-			$glyphs[(int)$glyphRecord['Type']][] = array(
-				(int)$glyphRecord['ID'],
-				(int)$glyphRecord['Type'],
-				$sd->fromId($glyphRecord['SpellID'])
-			);
+		$gd = GlyphData::getInstance();
+		for( $i=0; $i<count($glyphRecords); $i++ ) {
+			$data = $gd->fromId($glyphRecords[$i]['ID']);
+			if( ! $data ) {
+				continue;
+			}
+			$glyphs[(int)$data[2]][] = $data;
 		}
 
 		$presences = null;
@@ -82,6 +84,7 @@ class CharacterClassData extends Data
 		//	Shapeforms
 		//	Id, Shapeform Buff, Passive Spells, Additional Buffs
 		//	Self only buffs
+		$sd = SpellData::getInstance();
 		switch((int)$record['ID']) {
 			case Constants::WARRIOR:
 				$shapeforms = array(
@@ -144,7 +147,7 @@ class CharacterClassData extends Data
 		
 		$classials = SkillLineAbilityData::getInstance()->fromSkillLineId(self::$classIdToSkillLineId[$id]);
 		$talents = TalentsData::getInstance()->fromId($id);
-
+		
 		return array ( (int)$record["ID"],
 			$record["Name"],
 			$talents,

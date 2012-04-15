@@ -523,7 +523,7 @@ Item.prototype = {
 					&& (this.gems[socketIndex] == null || this.gems[socketIndex].id != gem.id)
 			) {
 				if( ! this.characterScope.testGemUnique( gem.id ) ) {
-					throw new InvalidGemException( gem, this, InvalidGemException.CAUSE_UNIQUE );
+					throw new InvalidGemException("Gem is unique and already in use!", gem);
 				}
 			}
 			
@@ -534,7 +534,7 @@ Item.prototype = {
 			}
 			if( gem.gemProperties && gem.gemProperties.reqItemLevel > this.level ) {
 				if( ! force ) {
-					throw new InvalidGemException( gem, this, InvalidGemException.CAUSE_ITEM_LEVEL );
+					throw new InvalidGemException("Your character doesn't match the gems level requirements!", gem);
 				}
 				return;
 			}

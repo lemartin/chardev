@@ -8,37 +8,41 @@ var DOM = {
 		var e = document.createElement(tag);
 		if( obj ) {
 			for( var k in obj ) {
-				if( k == 'class' ) { e.className = obj[k]; }
-				else if( k == 'action' ) { e.action = obj[k]; }
-				else if( k == 'method' ) { e.method = obj[k]; } 
-				else if( k == 'clear') {e.style.clear = obj[k];}
-				else if( k == 'display') {e.style.display = obj[k];}
-				else if( k == 'href') {e.href = obj[k];}
-				else if( k == 'src') {e.src = obj[k];}
-				else if( k == 'target') {e.target = obj[k];}
-				else if( k == 'name') {e.name = obj[k];}
-				else if( k == 'id') {e.id = obj[k];}
-				else if( k == 'backgroundImage') {
+				switch(k) {
+				case 'class': e.className = obj[k]; break;
+				case 'action': e.action = obj[k]; break;
+				case 'method': e.method = obj[k]; break; 
+				case 'clear':e.style.clear = obj[k]; break;
+				case 'display':e.style.display = obj[k]; break;
+				case 'href':e.href = obj[k]; break;
+				case 'src':e.src = obj[k]; break;
+				case 'target':e.target = obj[k]; break;
+				case 'name':e.name = obj[k]; break;
+				case 'id':e.id = obj[k]; break;
+				case 'backgroundImage':
 					if( obj[k].toLowerCase() === 'none' || obj[k].toLowerCase() === 'inherit' ) {
 						e.style.backgroundImage = obj[k];
 					}
 					else {
 						e.style.backgroundImage = 'url(' + obj[k] + ')';
 					}
-				}
-				else if( k == 'text') {
+					break;
+				case 'text':
 					if( tag === 'input' ) {
 						e.value = obj[k];
 					}
 					else {
 						e.innerHTML = obj[k];
 					}
+					break;
+				case 'type':e.type = obj[k]; break;
+				case 'value':e.value = obj[k]; break;
+				case 'title':e.title = obj[k]; break;
+				case 'checked':e.checked = obj[k]; break;
+				case 'color':e.style.color = obj[k]; break;
+				default: 
+					throw new Error("Unknown parameter "+k+" with value "+obj[k]);
 				}
-				else if( k == 'type') {e.type = obj[k];}
-				else if( k == 'value') {e.value = obj[k];}
-				else if( k == 'title') {e.title = obj[k];}
-				else if( k == 'checked') {e.checked = obj[k];}
-				else throw Error("Unknown parameter "+k+" with value "+obj[k]);
 			}
 		}
 		return e;

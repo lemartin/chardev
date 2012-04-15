@@ -13,7 +13,6 @@ function TalentsFacade( talents, characterScope ) {
 	this.minLevel = talents.minLevel;
 	this.pointsPerTier = talents.pointsPerTier;
 	this.levelsPerPoint = talents.levelsPerPoint;
-	this.classId = characterScope.chrClass.id;
 	
 	this.trees = [];
 	for( var i=0; i<talents.trees; i++ ) {

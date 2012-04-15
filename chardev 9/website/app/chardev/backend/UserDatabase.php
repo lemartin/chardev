@@ -580,8 +580,8 @@ class UserDatabase {
 	}
 	
 	protected function sendActivationMail( $name, $email, $token ) {
-		include __DIR__ . '/../../resources/activationMail.inc';
 		$url = "http://chardev.org/Register.html?Token=" . rawurlencode($token); 
+		include __DIR__ . '/../../resources/activationMail.inc';
 		@mail($email,"Confirm your registration at chardev",$content,$headers);
 	}
 	

@@ -39,7 +39,7 @@ class GlyphData extends Data {
 		);
 		
 		if( $record ) {
-			$glyph = array(
+			return array(
 					(int)$record['ID'],
 					(int)$record['Type'],
 					SpellData::getInstance()->fromId((int)$record['SpellID']),

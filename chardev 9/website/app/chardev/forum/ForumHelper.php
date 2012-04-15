@@ -153,7 +153,7 @@ class ForumHelper {
 			
 			if ($data) {
 				$item = new Item ( $data );
-				return "<a class='fo_item_link item_quality_{$item->getQuality()}' href='?item={$match[1]}' onmousemove='g_moveTooltip()' onmouseover='g_showItemTooltip({$match[1]})' onmouseout = 'g_hideItemTooltip();'>{$item->getName()}</a>";
+				return "<a class='fo_item_link item_quality_{$item->getQuality()}' href='" . \TemplateHelper::getBasePath() . "item/{$match[1]}.html' onmousemove='g_moveTooltip()' onmouseover='g_showItemTooltip({$match[1]})' onmouseout = 'g_hideItemTooltip();'>{$item->getName()}</a>";
 			} else {
 				return "<font class='grey'>Item not found (id " . $match [1] . ")!</font>";
 			}

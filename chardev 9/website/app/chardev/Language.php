@@ -31,20 +31,22 @@ class Language {
 					case 'ru': $language = self::RUSSIAN; break;
 				}
 			}
-			else if(strpos($_SERVER['HTTP_HOST'],"en.")!==false){
-				$language = self::ENGLISH;
-			}
-			else if(strpos($_SERVER['HTTP_HOST'],"fr.")!==false){
-				$language = self::FRENCH;
-			}
-			else if(strpos($_SERVER['HTTP_HOST'],"de.")!==false){
-				$language = self::GERMAN;
-			}
-			else if(strpos($_SERVER['HTTP_HOST'],"es.")!==false){
-				$language = self::SPANISH;
-			}
-			else if(strpos($_SERVER['HTTP_HOST'],"ru.")!==false){
-				$language = self::RUSSIAN;
+			else if( isset($_SERVER['HTTP_HOST']) ) {
+				if(strpos($_SERVER['HTTP_HOST'],"en.")!==false){
+					$language = self::ENGLISH;
+				}
+				else if(strpos($_SERVER['HTTP_HOST'],"fr.")!==false){
+					$language = self::FRENCH;
+				}
+				else if(strpos($_SERVER['HTTP_HOST'],"de.")!==false){
+					$language = self::GERMAN;
+				}
+				else if(strpos($_SERVER['HTTP_HOST'],"es.")!==false){
+					$language = self::SPANISH;
+				}
+				else if(strpos($_SERVER['HTTP_HOST'],"ru.")!==false){
+					$language = self::RUSSIAN;
+				}
 			}
 			else if( isset($_SESSION['language']) ){
 				$language = $_SESSION['language'];

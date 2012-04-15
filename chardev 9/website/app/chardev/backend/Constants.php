@@ -20,6 +20,7 @@ class Constants
 	const ITEMS_PER_PAGE = 20;
 	const SPELLS_PER_PAGE = 20;
 	const PROFILES_PER_PAGE = 20;
+	const SETS_PER_PAGE = 20;
 	
 	public static $classIdToSpellClass = array(1=>4, 2=>10, 3=>9, 4=>8, 5=>6, 6=>15, 7=>11, 8=>3, 9=>5, 11=>7);
 	public static $slotToRandomPointsGroup = array(1=>0, 5=>0, 20=>0, 7=>0, 17=>0, 3=>1, 6=>1, 8=>1, 10=>1, 2=>2, 9=>2, 11=>2, 14=>2, 16=>2, 23=>2, 13=>3, 21=>3, 22=>3, 15=>4, 25=>4, 26=>4);

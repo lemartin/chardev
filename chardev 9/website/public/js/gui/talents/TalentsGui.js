@@ -498,9 +498,9 @@ TalentsGui.prototype = {
 //	    	url = "?p=" + this.classLink[Math.log(this.id) / Math.LN2] + this.compressedDistribution + "&pid=" + this.petId;
 //	    }
 //	    else {
-	        url = "?t=" + this.classLink[this.talentsFacade.classId-1] + this.talentsFacade.getCompressedDistribution();	
+	        url = "?t=" + this.classLink[this.talentsFacade.id-1] + this.talentsFacade.getCompressedDistribution();	
 //	    }
-	    this.distributionDiv.innerHTML = "<a class='talent_link' target='_blank' href='" + url + "'>http://chardev.org/" + url + "</a><br/>";
+	    this.distributionDiv.innerHTML = "<a class='talent_link' target='_blank' href='" + Tools.getBasePath() + url + "'>http://chardev.org/" + url + "</a><br/>";
 //	    url = "http://www.wowarmory.com/talent-calc.xml?" + (this.isPet ? "pid=" + this.petId : "cid=" + (Math.log(this.id) / Math.LN2 + 1)) + "&tal=" + this.condensedDistribution.join('');
 	    
 	    url = "http://www.wowarmory.com/talent-calc.xml?cid=" + 

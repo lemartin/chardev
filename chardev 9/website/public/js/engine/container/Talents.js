@@ -1,10 +1,9 @@
 /**
  * @constructor
- * @param {number} id
  * @param {Object} serialized
  * @param {boolean} isPet
  */
-function Talents( id, serialized, isPet) {
+function Talents( serialized, isPet) {
 	this.eventMgr = new GenericSubject();
 	this.eventMgr.registerEvent('talents_reset', []);
 	this.eventMgr.registerEvent('talent_tree_reset', ['tree']);
@@ -14,7 +13,7 @@ function Talents( id, serialized, isPet) {
 	this.eventMgr.registerEvent('talent_distribution_set', ['distribution']);
 	this.eventMgr.registerEvent('talents_init', []);
 	
-	this.id = id;
+	this.id = serialized[0];
     this.petId = 0;
     this.isPet = isPet;
     this.trees = (isPet ? 1 : 3);
@@ -41,19 +40,19 @@ function Talents( id, serialized, isPet) {
     for( h = 0 ; h < this.trees; h++ ) {
     	
 
-        this.treeNames[h] = serialized[h][0];
-        this.treeIconSources[h] = serialized[h][2];
-        this.treeDescriptions[h] = serialized[h][1];
+        this.treeNames[h] = serialized[h+1][0];
+        this.treeIconSources[h] = serialized[h+1][2];
+        this.treeDescriptions[h] = serialized[h+1][1];
     	
     	this.talents[h] = new Array(this.rows);
     	for( i = 0; i < this.rows; i++ ){
             this.talents[h][i] = new Array(this.cols);
     	}
 		//
-    	for (i = 0; i < serialized[h][3].length; i++) {
+    	for (i = 0; i < serialized[h+1][3].length; i++) {
     		//
     		// create talent
-    		talent = new Talent( h, serialized[h][3][i]);
+    		talent = new Talent( h, serialized[h+1][3][i]);
     		//
     		// skip if not available
     	    if (this.isPet && !talent.isAvailableForPet(this.petId, this.id)) {
@@ -82,12 +81,12 @@ function Talents( id, serialized, isPet) {
     	    }
         }
     	this.masterySpells[h] = [];
-    	for( i=0; i<serialized[h][4].length;i++ ) {
-    		this.masterySpells[h][i] = serialized[h][4][i] != null ? new Spell(serialized[h][4][i]) : null;
+    	for( i=0; i<serialized[h+1][4].length;i++ ) {
+    		this.masterySpells[h][i] = serialized[h+1][4][i] != null ? new Spell(serialized[h+1][4][i]) : null;
     	}
     	this.primarySpells[h] = [];
-    	for( i=0; i<serialized[h][5].length;i++ ) {
-    		this.primarySpells[h][i] = new Spell(serialized[h][5][i]);
+    	for( i=0; i<serialized[h+1][5].length;i++ ) {
+    		this.primarySpells[h][i] = new Spell(serialized[h+1][5][i]);
     	}
     }
 	
@@ -412,7 +411,8 @@ Talents.prototype = {
 	            for ( j = 0; j < this.cols; j++) {
 	                if (this.talents[h][i][j] != null) {
 	                	v = parseInt(distribution[n], 10);
-	                    this.talents[h][i][j].spent = isNaN(v) ? 0 : v;
+	                	v = isNaN(v) ? 0 : v;
+	                    this.talents[h][i][j].spent = v;
 	                    //
 	                    // add to spent points
 	                    this.treeSpents[h] += v;

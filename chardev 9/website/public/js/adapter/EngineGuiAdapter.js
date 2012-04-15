@@ -201,6 +201,50 @@ function EngineGuiAdapter( engine, gui ) {
 	//
 	//#########################################################################
 	//
+	//	Set LIST
+	//
+	//#########################################################################
+	//
+	this.setList = new SetList();
+	this.setList.filterMgr.hideFilter('usablebyclass', true);
+	this.setList.gui.showFilter(true);
+	this.setList.updateFilter();
+	//
+	this.setList.addObserver(new GenericObserver([ 'show_tooltip', 'move_tooltip', 'hide_tooltip', 'update', 'click', 'itemset_click'], new Handler( function( e ){
+			var cc;
+			if( e.is('show_tooltip') ) {
+				cc = this.engine.getCurrentCharacter();
+				Tooltip.showMovable( ItemTooltip.getHTML(e.get('entity'), cc) );
+				cc.setItemPreview( this.slot, e.get('entity') );
+			}
+			else if( e.is('move_tooltip') ) {
+				Tooltip.move();
+			}
+			else if( e.is('hide_tooltip') ) {
+				Tooltip.hide();
+				this.engine.getCurrentCharacter().removeItemPreview();
+			}
+			else if( e.is('click') ) {
+				cc = this.engine.getCurrentCharacter();
+				if( cc ) {
+					this.equipSetItem(e.get('entity'));
+				}
+			}
+			else if( e.is('itemset_click')) {
+				var items = e.get('items');
+				for( var i=0; i<items.length; i++) {
+					this.equipSetItem(items[i]);
+				}
+			}
+			else if( e.is('update') ) {
+				new ListBackEndProxy("api/sets.php").update(this.setList);
+			}
+		}, this)
+	));
+	//
+	//
+	//#########################################################################
+	//
 	//	PROFILE LIST 
 	//
 	//#########################################################################
@@ -451,7 +495,7 @@ function EngineGuiAdapter( engine, gui ) {
 			this.updateReforgeTab();
 		}
 		else if( e.is('wowreforge_export') ) {
-			var profile = this.engine.getCurrentCharacter().toBattleNetProfile();;
+			var profile = this.engine.getCurrentCharacter().toBattleNetProfile();
 			var metaData = "{\"BasedOn\" : null,\"CanUpdate\" : false,\"Data\" : null,\"Origin\" : \"chardev.org\",\"SourceLink\" : null}";
 			var form = document.createElement("form");
 			form.method = "POST";
@@ -560,7 +604,7 @@ function EngineGuiAdapter( engine, gui ) {
 	//
 	this.profileList.set("ismine.eq.1;", null, null, 1);
 	//
-	gui.initLists( this.itemList.gui, this.enchantList.gui, this.profileList.gui );
+	gui.initLists( this.itemList.gui, this.enchantList.gui, this.profileList.gui, this.setList.gui );
 	gui.socketInterface.setListGui(this.gemList.gui.node); this.gemList.gui.show(true);
 	
 	this.engine.addObserver( new GenericObserver(['character_change','logged_in','logged_out'], new Handler(function(e){
@@ -578,7 +622,7 @@ function EngineGuiAdapter( engine, gui ) {
 
 EngineGuiAdapter.prototype = {
 	gui: null, engine: null,
-	itemList: null,  gemList: null, enchantList: null, profileList: null,
+	itemList: null,  gemList: null, enchantList: null, profileList: null, setList: null,
 	slot: -1,
 	socket: -1,
 	adapter: null,
@@ -607,6 +651,8 @@ EngineGuiAdapter.prototype = {
 	__updateClass: function( newClass ) {
 		var newArg = (newClass != null ? "usablebyclass.eq."+(1<<(newClass.id-1))+";" : "usablebyclass.eq.0;");
 		this.itemList.replaceArgument('usablebyclass', newArg);
+		this.setList.replaceArgument('usablebyclass', newArg);
+		this.setList.updateFilter();
 		
 		this.__replaceArgumentInStoredFilter('usablebyclass', newArg);
 		
@@ -652,14 +698,7 @@ EngineGuiAdapter.prototype = {
 	updateOverviewTab: function() {
 		this.gui.overview.update(new CharacterFacade(this.engine.getCurrentCharacter()));
 	},
-	updateCharacterSheetTab: function() {
-		
-//		if( this.slot == -1 || this.guiTab != Gui.TAB_CHARACTER_SHEET ) {
-//			return;
-//		}
-//		
-//		this.gui.characterSheet.selectSlot(this.slot);
-		
+	updateCharacterSheetTab: function() {		
 		switch( this.csTab ) {
 		case Gui.TAB_ITEMS:
 			if( this.slot == -1 ) {
@@ -684,6 +723,9 @@ EngineGuiAdapter.prototype = {
 				return;
 			}
 			this.updateReforgeTab();
+			break;
+		case Gui.TAB_SETS:
+				this.setList.update();
 			break;
 		case Gui.TAB_BUFFS:
 				this.updateBuffsTab();
@@ -964,5 +1006,31 @@ EngineGuiAdapter.prototype = {
 			}
 		}
 		return used;
+	},
+	equipSetItem: function( itm ) {
+		var cc = this.engine.getCurrentCharacter(); 
+		try {
+			var tmp = itm.clone();
+			var slot = g_inventoryToSlot[tmp.inventorySlot];
+			if( ! slot && slot !== 0 ) {
+				throw new Error("Unable to add " + tmp.name);
+			}
+			else if( slot == 12 && cc.inventory.get(12) != null && cc.inventory.get(13) == null ) { 
+				slot = 13;
+			}
+			else if( slot == 14 && cc.inventory.get(14) != null && cc.inventory.get(15) == null ) { 
+				slot = 15;
+			}
+			
+			cc.addItem( slot, tmp );
+		}
+		catch( ex ) {
+			if( ex instanceof InvalidItemException ) {
+				Tooltip.showError(ex);
+			}
+			else {
+				Tools.rethrow(ex);
+			}
+		}
 	}
 };

@@ -340,6 +340,19 @@ var Chardev = {
 					Tooltip.showError(e);
 				}
 			}, null);
+		},
+		showTalents: function( serialized, nodeId, distribution ) {
+			var talents = new Talents(serialized,false);
+			var talentsGui = new TalentsGui();
+			var character = new Character();
+			
+			new TalentsAdapter( talents, talentsGui, character );
+			
+			if( distribution ) {
+				talents.setDistribution(distribution, true);
+			}
+			
+			$('#' + nodeId).empty().append(talentsGui.node);
 		}
 };
 
@@ -358,6 +371,7 @@ if( ! window['Chardev'] ) {
 			'createAvatarPicker': Chardev.createAvatarPicker,
 			'staticItemList': Chardev.staticItemList,
 			'addItemTooltipTo': Chardev.addItemTooltipTo,
-			'changePassword': Chardev.changePassword
+			'changePassword': Chardev.changePassword,
+			'showTalents': Chardev.showTalents
 	};
 }

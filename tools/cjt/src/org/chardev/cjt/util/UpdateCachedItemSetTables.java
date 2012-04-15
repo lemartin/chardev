@@ -47,7 +47,14 @@ public class UpdateCachedItemSetTables {
 			//
 			
 			while (result.next()) {
-				int minItemLevel = Integer.MAX_VALUE, maxItemLevel = 0, minReqLevel = 85, maxReqLevel = 0, items = 0, minQuality = Integer.MAX_VALUE, maxQuality = 0;
+				int minItemLevel = Integer.MAX_VALUE;
+				int maxItemLevel = 0; 
+				int minReqLevel = 85; 
+				int maxReqLevel = 0; 
+				int items = 0; 
+				int minQuality = Integer.MAX_VALUE;
+				int maxQuality = 0;
+				int chrClassMask = -1;
 				
 				System.out.println(result.getString("Name"));
 				for( int i=1; i<= 10; i++  ) {
@@ -63,6 +70,11 @@ public class UpdateCachedItemSetTables {
 						int ilvl = itemResult.getInt("Level");
 						int clvl = itemResult.getInt("RequiredCharacterLevel");
 						int qua = itemResult.getInt("Quality");
+						int cla = itemResult.getInt("ChrClassMask");
+						
+						if( cla != 0 ) {
+							chrClassMask &= cla;
+						}
 						
 						if( ilvl < minItemLevel ) {
 							minItemLevel = ilvl;
@@ -97,6 +109,7 @@ public class UpdateCachedItemSetTables {
 							", "+maxReqLevel+
 							", "+minQuality+
 							", "+maxQuality+
+							", "+chrClassMask+
 							")"
 					);
 					insert.close();

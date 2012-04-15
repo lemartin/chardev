@@ -733,8 +733,10 @@ Character.prototype = {
 		//
 		//
 		//
-		this.chrClass.setShapeform(0);
-		this.chrClass.setPresence(0);
+		if( this.chrClass ) {
+			this.chrClass.setShapeform(0);
+			this.chrClass.setPresence(0);
+		}
 		//
 		s[0] = [
 		        this.name,
@@ -799,8 +801,10 @@ Character.prototype = {
 		//
 		//
 		//
-		this.chrClass.setShapeform(shapeform);
-		this.chrClass.setPresence(presence);
+		if( this.chrClass ) {
+			this.chrClass.setShapeform(shapeform);
+			this.chrClass.setPresence(presence);
+		}
 		//
 		return s;
 	},

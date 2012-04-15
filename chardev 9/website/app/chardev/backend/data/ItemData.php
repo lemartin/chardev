@@ -192,7 +192,7 @@ class ItemData extends Data
 			{
 				//
 				// Suffix
-				$suffixRecord = DatabaseHelper::fetchOne ( $db, "SELECT * FROM itemrandomsuffix WHERE ID = ?", array ($id ) );
+				$suffixRecord = DatabaseHelper::fetchOne ( $db, "SELECT * FROM chardev_cataclysm.`itemrandomsuffix` WHERE ID = ?", array ($csfRecord ['ItemRandomSuffixID'] ) );
 				//
 				// Points
 				$ptsRecord = DatabaseHelper::fetchOne ( $db, 
@@ -200,13 +200,13 @@ class ItemData extends Data
 					array ($record ['Level'] ) );
 				//
 				// Write to array [id,name,[points, enchant]...]
-				$arr = array ($id, $suffixRecord ['Name'] );
+				$arr = array ($csfRecord ['ItemRandomSuffixID'], $suffixRecord ['Name'] );
 				for($i = 1; $i <= 5; $i ++)
 				{
-					if ($suffixRecord ['SpellItemEnchantmentID' . $i] > 0)
+					$data = null;
+					if ($suffixRecord ['SpellItemEnchantmentID' . $i] > 0 && null != ($data = SpellItemEnchantmentData::getInstance ()->fromId( ( int ) $suffixRecord ['SpellItemEnchantmentID' . $i])))
 					{
-						$arr [$i + 1] = array (floor ( ( int ) $ptsRecord ['Points'] * ( int ) $suffixRecord ['Coefficient' . $i] / 10000 ), 
-							SpellItemEnchantmentData::getInstance ()->fromId( ( int ) $suffixRecord ['SpellItemEnchantmentID' . $i] ) );
+						$arr [$i + 1] = array (floor ( ( int ) $ptsRecord ['Points'] * ( int ) $suffixRecord ['Coefficient' . $i] / 10000 ), $data);
 					} else
 					{
 						$arr [$i + 1] = null;

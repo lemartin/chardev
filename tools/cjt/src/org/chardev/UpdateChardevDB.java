@@ -8,7 +8,7 @@ import org.chardev.cjt.DBCParser;
 
 public class UpdateChardevDB {
 	
-	private static final int ITEM_SPARSE_SKIP = 0x739bc - 32;
+	private static final int ITEM_SPARSE_SKIP = 0x74d72 - 32;
 	
 	private static final String dbs[] = new String[]{
 		"jdbc:mysql://localhost:3306/chardev_cataclysm?",
@@ -53,28 +53,11 @@ public class UpdateChardevDB {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
-//		connectToDatabase("jdbc:mysql://localhost:3306/chardev_cataclysm?");
-//		
-//		DBCParser siecParser = new DBCParser(
-//				databaseConnection, 
-//				"Y:/chardev/cataclysm/DBFilesClient/spellitemenchantmentcondition.dbc", 
-//				"spellitemenchantmentcondition"
-//		);
-//		siecParser.truncateTargetTable();
-//		siecParser.setIgnoreFields(true);
-//		siecParser.parse();
-	
-		boolean skipLocale = true;
+	public static void main(String[] args) {	
+		boolean skipLocale = false;
 		
-//		connectToDatabase(dbs[0]);
-//		cacheUpdate();
-
-//		connectToDatabase(dbs[2]);
-//		localeUpdate(basePaths[2],locales[2]);
-		
-//		connectToDatabase(dbs[0]);
-//		staticUpdate(basePaths[0]);
+		connectToDatabase(dbs[0]);
+		staticUpdate(basePaths[0]);
 		
 		for( int i=0; i< dbs.length; i++ ) {
 			connectToDatabase(dbs[i]);
@@ -83,60 +66,20 @@ public class UpdateChardevDB {
 				break;
 			}
 		}
-
-		/*
-		DBCParser p;
-		DBCParser fr = new DBCParser(
-				databaseConnection, 
-				"Y:/chardev/cataclysm/DBFilesClient/", 
-				"randproppoints"
-		);
-		fr.truncateTargetTable();
-		fr.parse();
-		if( true ) return;
-		
-		
-		p = new DBCParser(
-				databaseConnection, 
-				"Y:/chardev/cataclysm/DBFilesClient/ScalingStatValues.dbc", 
-				"scalingstatvalues"
-		);
-		p.truncateTargetTable();
-		p.parse();
-		if( true ) return;
-		System.out.println("Processing: Item.db2");
-		DBCParser ip = new DBCParser(
-				databaseConnection, 
-				"Y:/chardev/cataclysm/DBFilesClient/Item.db2", 
-				"item"
-		);
-		ip.additionalSkip = 0x10;
-		ip.truncateTargetTable();
-		ip.parse();
-		
-		System.out.println("Processing: Item-Sparse.db2");
-		ip = new DBCParser(
-				databaseConnection, 
-				"Y:/chardev/cataclysm/DBFilesClient/Item-Sparse.db2", 
-				"item_sparse"
-		);
-		ip.additionalSkip = ITEM_SPARSE_SKIP;
-		ip.parse();
-*/	
 		//
 		//	CACHE
 		//
-		
+		cacheUpdate();
 	}
 	
 	private static void cacheUpdate() {
 		DBCParser p;
 		String itemSparse[] = new String[]{
-			"Y:/chardev/cataclysm/adb/Item-sparse.adb"
+//			"Y:/chardev/cataclysm/adb/Item-sparse.adb"
 		};
 		
 		String item[] = new String[]{
-			"Y:/chardev/cataclysm/adb/Item.adb"
+//			"Y:/chardev/cataclysm/adb/Item.adb"
 		};
 		
 		connectToDatabase("jdbc:mysql://localhost:3306/chardev_cataclysm_static?");
@@ -263,20 +206,20 @@ public class UpdateChardevDB {
 	private static void localeUpdate( String basePath, String locale ) {
 		
 		String[] files = new String[]{
-//			"chrclasses",
-//			"chrraces",
-//			"faction",
-//			"itemsubclass",
-//			"itemclass",
-//			"itemset",
-//			"itemrandomsuffix",
-//			"itemrandomproperties",
+			"chrclasses",
+			"chrraces",
+			"faction",
+			"itemsubclass",
+			"itemclass",
+			"itemset",
+			"itemrandomsuffix",
+			"itemrandomproperties",
 			"skillline",
-//			"spell",
-//			"spelldescriptionvariables",
-//			"spellitemenchantment",
-//			"spellrange",
-//			"talentTab"
+			"spell",
+			"spelldescriptionvariables",
+			"spellitemenchantment",
+			"spellrange",
+			"talentTab"
 		};
 		//
 		//	DBC FILES
@@ -287,17 +230,17 @@ public class UpdateChardevDB {
 		//
 		//	ITEM SPARSE
 		//
-//		System.out.println("Processing: Item-Sparse.db2");
-//		connectToDatabase("jdbc:mysql://localhost:3306/chardev_cataclysm_static?");
-//		DBCParser p = new DBCParser(
-//				databaseConnection, 
-//				basePath+"Item-Sparse.db2", 
-//				"item_working"
-//		);
-//		p.additionalSkip = ITEM_SPARSE_SKIP;
-//		p.setLocale(locale);
-//		p.addVersion();
-//		p.parse();	
+		System.out.println("Processing: Item-Sparse.db2");
+		connectToDatabase("jdbc:mysql://localhost:3306/chardev_cataclysm_static?");
+		DBCParser p = new DBCParser(
+				databaseConnection, 
+				basePath+"Item-Sparse.db2", 
+				"item_working"
+		);
+		p.additionalSkip = ITEM_SPARSE_SKIP;
+		p.setLocale(locale);
+		p.addVersion();
+		p.parse();	
 	}
 	
 	private static void updateTable( String name, String basePath ) {
