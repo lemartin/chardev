@@ -1,0 +1,117 @@
+<?php 
+
+	use chardev\backend\cache\Cache;
+	use chardev\FormatHelper;
+	use chardev\backend\Database;
+	use chardev\backend\DatabaseHelper;
+	use chardev\Language;
+
+	$class = 0;
+	
+	$locale = Language::getInstance()->getLocaleArray();
+	
+	$parsed = FormatHelper::parseVerboseUrl($this->getArg('id-name'));
+	
+?>
+<div class="content_wrapper">
+<h1>Base stats</h1>
+<div class='bs_class_ll'>
+<?php
+	for($i=0;$i<count($locale['a_class']);$i++) :
+		if(!$locale['a_class'][$i]) {
+			continue;
+		} 
+		$active = false;
+		
+		$url = TemplateHelper::getBasePath() . 'baseStats/' . FormatHelper::verboseUrl($i+1, $locale['a_class'][$i]) . '.html';
+		
+		if( $i + 1 == $parsed['ID'] ) {
+			$class = $i + 1;
+			$active = true;
+			
+			if( $parsed['Name'] != $locale['a_class'][$i] ) {
+				header("Location: ".$url);
+			}
+		}
+?>
+<a class='button button_light link_button <?php echo $active ? 'button_light_active' : '' ?>' href='<?php echo $url ?>'><?php echo $locale['a_class'][$i]?></a>
+<?php 
+	endfor;
+?>
+</div>
+<?php
+	if( $class ) :
+	
+// 		$records = null;
+// 		$key = 'static_base_stats_'.$class;
+// 		try {
+// 			$records = unserialize(Cache::getInstance()->get($key));
+// 		}
+// 		catch( CacheException $e ) {
+			$records = DatabaseHelper::fetchMany(
+					Database::getConnection(),
+					"SELECT * FROM chardev_cataclysm_static.chardev_base_stats_class_level WHERE class = ? ORDER BY level ASC LIMIT 0,85 ",
+					array($class)
+			);
+// 			Cache::getInstance()->set($key, serialize($records));
+// 		}
+	
+		
+?>
+
+<div class='bs_table_bg'>
+	<div class='bs_row_f'>
+		<table class='bs_table'>
+			<colgroup>
+				<col width='40px'/>
+				<col width='40px'/>
+				<col width='40px'/>
+				<col width='40px'/>
+				<col width='40px'/>
+				<col width='40px'/>
+				<col width='50px'/>
+				<col width='50px'/>
+				<col width='50px'/>
+				<col width='150px'/>
+				<col width='150px'/>
+				<col width='150px'/>
+			</colgroup>
+			<tr class='bs_header'>
+				<td class='bs_th'>Lvl</td>
+				<td class='bs_th'>Str</td>
+				<td class='bs_th'>Agi</td>
+				<td class='bs_th'>Sta</td>
+				<td class='bs_th'>Int</td>
+				<td class='bs_th'>Spi</td>
+				<td class='bs_th'>Hp</td>
+				<td class='bs_th'>Mp</td>
+				<td class='bs_th'>Mp5/Sp5</td>
+				<td class='bs_th'>Melee Crit per Agi</td>
+				<td class='bs_th'>Spell Crit per Int</td>
+				<td class='bs_th'>Dodge per Agi</td>
+			</tr>
+			<?php 
+				for( $i=0; $i<count($records); $i++ ):
+					$record = $records[$i];
+					$css = 'bs_td row_bg' . (($i%2)+1);
+			?>
+				<tr>	
+					<td class='<?php echo $css?> bs_td0 <?php echo $i == 0 ? 'bs_td00' : '' ?>'><?php echo $record['level']?></td>
+					<td class='<?php echo $css?> bs_td1'><?php echo $record['str']?></td>
+					<td class='<?php echo $css?>'><?php echo $record['agi']?></td>
+					<td class='<?php echo $css?>'><?php echo $record['sta']?></td>
+					<td class='<?php echo $css?>'><?php echo $record['int']?></td>
+					<td class='<?php echo $css?>'><?php echo $record['spi']?></td>
+					<td class='<?php echo $css?>'><?php echo $record['hp']?></td>
+					<td class='<?php echo $css?>'><?php echo $record['mp']?></td>
+					<td class='<?php echo $css?>'><?php echo $record['mana_regen']?></td>
+					<td class='<?php echo $css?>'><?php echo sprintf("%01.8f", $record['melee_crit_per_agi'])?></td>
+					<td class='<?php echo $css?>'><?php echo sprintf("%01.8f", $record['spell_crit_per_int'])?></td>
+					<td class='<?php echo $css?>'><?php echo sprintf("%01.8f", $record['dodge_per_agi'])?></td>
+				</tr>
+			<?php endfor;?>
+		</table>
+	</div>
+</div>
+<?php endif; ?>
+</div>

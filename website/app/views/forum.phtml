@@ -1,0 +1,74 @@
+<?php 
+	use chardev\forum\facades\ThreadFacade;
+
+	use chardev\forum\ForumHelper;
+	use chardev\FormatHelper;
+
+	$this->addStyleSheet("forum.css");
+	
+	$hookIds = array(1,2,3,4,5);
+	
+	$hooks = array();
+	
+	$db = new \chardev\forum\ThreadDatabase( "mysql:dbname=chardev_user;host=127.0.0.1", "root", "");
+	
+	$latestPosts = array();
+	
+	foreach( $hookIds as $id ) {
+		$hook = $db->getHook($id);
+		$hooks[] = new \chardev\forum\facades\HookFacade($hook);
+		
+		$latestPosts[$id] = ForumHelper::getLatestThreadPost($db,$hook);
+	}
+?>
+
+<div class="content_wrapper">
+	<div class="content_header">Forum</div>
+	<table class="fo_table">
+		<colgroup>
+			<col width="54%" />
+			<col width="8%" />
+			<col width="8%" />
+			<col width="30%" />
+		</colgroup>
+		<tr>
+			<td class="fo_header fo_header_first">Forum</td>
+			<td class="fo_header">Topics</td>
+			<td class="fo_header">Posts</td>
+			<td class="fo_header">Latest Post</td>
+		</tr>
+		
+		<?php 
+			$i = 0;
+			foreach( $hooks as $hook ):
+				$style = ($i++) % 2 == 0 ? "fo_cell_bg1" : "fo_cell_bg2";
+				$href = ForumHelper::getHookUrl($hook);
+		?>
+			
+			<tr class="fo_row">
+				<td class="fo_cell_l <?php echo $style ?>">
+					<div class="fo_subforum">
+						<a class="fo_link fo_forum_link" href="<?php echo $href ?>"><?php echo $hook->getName() ?></a>
+					</div>
+				</td>
+				<td class="fo_cell_m <?php echo $style ?>"><?php echo $hook->getThreadCount() ?></td>
+				<td class="fo_cell_m <?php echo $style ?>"><?php echo $hook->getPostCount() ?></td>
+				<td class="fo_cell_r <?php echo $style ?>">
+					<div class="forum_last_post">
+					<?php 
+						if( isset($latestPosts[$hook->getId()])):
+							$latestPost = $latestPosts[$hook->getId()];
+					?>
+						<span class="forum_time">Posted <?php echo $latestPost["Date"] ?>
+							by <span class=" <?php echo $latestPost["RoleCSS"] ?>"> <?php echo $latestPost["User"]->getName() ?></span>
+						</span>
+						<div> <?php echo $latestPost["Link"] ?></div>
+			
+					<?php endif;?>
+			
+					</div>
+				</td>
+			</tr>
+		<?php endforeach;?>
+	</table>
+</div>

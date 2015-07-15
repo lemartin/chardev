@@ -1,0 +1,142 @@
+<?php
+	use chardev\forum\ForumHelper;
+	use chardev\forum\facades\HookFacade;
+	use chardev\forum\facades\ThreadFacade;
+
+	$th = $this;
+	$th->addStyleSheet("forum.css");
+	
+	$db = $th->getArg("db");
+	$validatedArgs = $th->getArg("validated_args");
+	
+	$page = $validatedArgs["Page"];
+	$pages = $validatedArgs["Pages"];
+	$hook = $validatedArgs["Hook"];
+	
+	$announcementFacades = array();
+	$stickyFacades = array();
+	$threadFacades = array();
+	
+	$announcements = $db->getAnnouncements($hook->getId(), ForumHelper::THREADS_PER_PAGE, ($page > 0 ? $page - 1 : 0) * ForumHelper::THREADS_PER_PAGE);
+	foreach( $announcements as $announcement ) {
+		$announcementFacades[] = new ThreadFacade($hook->getData(),$announcement);
+	}
+	
+	$stickies = $db->getStickies($hook->getId(), ForumHelper::THREADS_PER_PAGE, ($page > 0 ? $page - 1 : 0) * ForumHelper::THREADS_PER_PAGE);
+	foreach( $stickies as $sticky ) {
+		$stickyFacades[] = new ThreadFacade($hook->getData(),$sticky);
+	}
+	
+	$threads = $db->getThreads($hook->getId(), ForumHelper::THREADS_PER_PAGE, ($page > 0 ? $page - 1 : 0) * ForumHelper::THREADS_PER_PAGE);
+	foreach( $threads as $thread ) {
+		$threadFacades[] = new ThreadFacade($hook->getData(),$thread);
+	}
+	$page = $page;
+	$pages = $pages;
+	
+	$permissions = new \chardev\forum\ForumPermissions(\chardev\Session::getLoggedInUser());
+	
+	$action = "";
+	
+	if( $permissions->mayCreateThreads($hook->getId())) {
+		$action .= ForumHelper::getThreadCreateLink($hook);
+	}
+?>
+
+<div class="content_wrapper">
+	<div class="content_header">Forum</div>	
+	<div class='fo_ll'>
+		<div class='fo_ll_left'>
+			<a class='fo_link' href='<?php echo ForumHelper::getForumUrl() ?>'>Forum</a>
+			 &raquo; <span class='fo_ll_active'><?php echo $hook->getName() ?></span>
+		</div>
+		<div class='fo_ll_right'><?php echo $action?></div>
+	</div>
+	<div class='clear_both'></div>
+	<table class='fo_table'>
+		<colgroup>
+			<col width='650px' />
+			<col width='75px' />
+			<col width='225px' />
+		</colgroup>
+		<tr>
+			<td class='fo_header fo_header_first'>Topic</td>
+			<td class='fo_header'>Posts</td>
+			<td class='fo_header'>Latest Post</td>
+		</tr>
+		<?php 
+			$threads = null;
+			$hdr = "";
+			for($i=0;$i<3;$i++):
+				switch ($i) {
+					case 0:
+						$threads = $announcementFacades;
+						$hdr = "<tr><td colspan='3'><div class='fo_thread_cat'>Announcements</div></td></tr>";
+						break;
+					case 1:
+						$hdr = "<tr><td colspan='3'><div class='fo_thread_cat'>Stickies</div></td></tr>";
+						$threads = $stickyFacades;
+						break;
+					case 2:
+						$hdr = "<tr><td colspan='3'><div class='fo_thread_cat'>Threads</div></td></tr>";
+						$threads = $threadFacades;
+						break;
+				}
+				if( count($threads) == 0 ) {
+					continue;
+				}
+				echo $hdr;
+				$j = 1;
+				foreach( $threads as $thread ): 
+					$style = ($j++) % 2 == 0 ? "fo_cell_bg1" : "fo_cell_bg2";
+				?>
+					<tr class='fo_row'>
+						<td class='fo_cell_l <?php echo $style ?>'>
+							<div class='fo_topic'>
+								<div class='forum_additional_info'>
+									<?php echo ForumHelper::getUserLink($thread->getAuthor())?>, <?php echo ForumHelper::timestampToString($thread->getCreated()) ?></div>
+								<div>
+									<?php echo ForumHelper::getThreadLink($thread)?>
+								</div>
+							</div>
+						</td>
+						<td class='fo_cell_m <?php echo $style ?>'><?php echo $thread->getPostCount() ?></td>
+						<td class='fo_cell_r <?php echo $style ?>'>
+							<div class='forum_last_post'>
+								<span class='forum_time'><?php  echo ForumHelper::timestampToString($thread->getLastPostCreated()) ?>
+								<br />by </span><?php echo ForumHelper::getUserLink($thread->getLastPostAuthor())?>
+								<a class='forum_goto_link' href='<?php 
+									echo ForumHelper::getThreadUrl(
+										$thread,
+										ForumHelper::getMaxPagesThread($thread)
+									) . '#' . $thread->getPostCount()
+								?>'>&raquo;</a>
+							</div>	
+						</td>
+					</tr>
+			<?php 
+				endforeach;
+			endfor;?>
+	</table>
+	<table class="fo_page"><colgroup><col width="50%"/><col width="0%"/><col width="50%"/></colgroup>
+	<tr>
+	<td class="fo_pl_l">
+		<?php if($page>1):?>
+			<a class="button button_light link_button" href="<?php echo ForumHelper::getHookUrl($hook,$page-1) ?>">&lsaquo; Previous</a>
+			<?php if($page>2):?>
+				<a class="button button_light link_button" href="<?php echo ForumHelper::getHookUrl($hook) ?>">&laquo; First</a>
+			<?php endif;?>
+		<?php endif;?>
+	</td>
+	<td class="fo_pl_c"><?php echo $page?>&nbsp;of&nbsp;<?php echo $pages?></td>
+	<td class="fo_pl_r">
+		<?php if($page<$pages):?>
+			<?php if($page<$pages-1):?>
+				<a class="button button_light link_button" href="<?php echo ForumHelper::getHookUrl($hook,$pages) ?>">Last &raquo;</a>
+			<?php endif;?>
+			<a class="button button_light link_button" href="<?php echo ForumHelper::getHookUrl($hook,$page+1) ?>">Next &rsaquo;</a>
+		<?php endif;?>
+	</td>
+	</tr>
+	</table>
+</div>

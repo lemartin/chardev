@@ -1,0 +1,187 @@
+<?php 
+	use chardev\forum\ForumHelper;
+	use chardev\forum\facades\HookFacade;
+	use chardev\forum\facades\ThreadFacade;
+	use chardev\forum\facades\PostFacade;
+	
+	$th = $this;
+	$th->addStyleSheet("forum.css");
+	
+	$db = $th->getArg("db");
+	$validatedArgs = $th->getArg("validated_args");
+	
+	$page = $validatedArgs["Page"];
+	$pages = $validatedArgs["Pages"];
+	$hook = $validatedArgs["Hook"];
+	$thread = $validatedArgs["Thread"];
+	
+	$reply = $this->getArg("reply");
+	$edit =$this->getArg("edit");
+	
+	
+	if( $reply ) {
+		$posts = $db->getPosts($thread->getId(), ForumHelper::POSTS_PER_PAGE, max(0,$thread->getPostCount() - ForumHelper::POSTS_PER_PAGE));
+	}
+	else {
+		$posts = $db->getPosts($thread->getId(), ForumHelper::POSTS_PER_PAGE, ($page > 0 ? $page - 1 : 0) * ForumHelper::POSTS_PER_PAGE);	
+	}
+	
+	$postFacades = array();
+	foreach( $posts as $post ) {
+		$postFacades[] = new PostFacade($hook->getData(),$thread->getData(),$post);
+	}
+	
+	$permissions = new \chardev\forum\ForumPermissions(\chardev\Session::getLoggedInUser());
+	
+	$action = "";
+	
+	if( $permissions->mayReplyTo($thread)) {
+		$action .= ForumHelper::getReplyLink($thread);
+	}
+	
+	if( $permissions->mayDeleteThread($thread) ) {
+		$action .= ForumHelper::getDeleteThreadLink($thread);
+	}
+	
+	if( $permissions->mayLockThread($thread) ) {
+		$action .= ForumHelper::getLockThreadLink($thread);
+	}
+?>
+
+<div class="content_wrapper">
+	<div class="content_header">Forum</div>
+	<div class="fo_ll">
+		<div class="fo_ll_left">
+			<a class="fo_link" href="<?php echo ForumHelper::getForumUrl(); ?>">Forum</a> &raquo; 
+			<a class="fo_link" href="<?php echo ForumHelper::getHookUrl($hook) ?>"><?php echo $hook->getName()?></a> &raquo; 
+			<span class="fo_ll_active"><?php echo ForumHelper::getThreadLink($thread) ?></span>
+		</div>
+		<div class="fo_ll_right"><?php echo $action ?></div>
+	</div>
+	<table class="fo_table">
+		<colgroup>
+			<col width="200px" />
+			<col width="750px" />
+		</colgroup>
+		
+		<?php 
+		$j=0;
+		foreach($postFacades as $post ):
+			$threadPostIndex = ForumHelper::getThreadPostIndex($page,$j);
+			$postAction = "";
+			if( $permissions->mayEditPost($post)) {
+				$postAction .= ForumHelper::getEditPostLink($post);
+			}
+		?>
+		
+			<tr class='fo_post_header'>
+				<td class='fo_post_header_first'>
+					<?php echo ForumHelper::getPostAnchor($post, $page, $j)?>
+				</td>
+				<td class='fo_post_header_last'>
+					<span class='forum_post_time'>
+						Posted <?php echo ForumHelper::timestampToString($post->getCreated())?>
+					</span>
+					<?php echo $postAction ?>
+				</td>
+			</tr>
+			<tr>
+				<td rowspan='2' class='forum_user_info' valign='top'>
+					<div class='fo_user_name'>
+						<?php echo ForumHelper::getUserLink($post->getAuthor())?>
+					</div>
+					<div><?php echo ForumHelper::getAvatar($post->getAuthor())?>
+					</div>
+					<div class='fo_user_add_info'>
+						joined <?php echo date("M jS Y",$post->getAuthor()->getJoined())?><br>
+						Posts: <?php echo $db->getPostCountFor($post->getAuthor()->getId())?>
+					</div>
+				</td>
+				<td valign='top' class='fo_content_p'>
+					<div id='p<?php $post->getId()?>_content' class='forum_content <?php echo ForumHelper::roleToCssClass($post->getAuthor())?>'>
+						<?php 
+							if( $edit && isset($_GET["Post"]) && $post->getId() == $_GET["Post"] ) :
+						?>
+								<form method='post' id='edit_form' action='javascript:Chardev.checkEdit(<?php echo $post->getId()?>)'>
+									<textarea id='edit_content' class='textarea fo_edit' rows='10' cols='60'><?php echo $post->getContent()?></textarea>
+									<div class='fo_submit_btn_p'>
+										<input class='button button_light' id='edit_submit' type='submit' value='submit' />
+									</div>
+								</form>
+						<?php
+							else:
+								echo ForumHelper::replaceCode($post->getContent());
+							
+								if( $post->getModCount() > 0 ) {
+									$times = $post->getModCount() > 1 ? $post->getModCount().' times, last ' : 'once, ' . ForumHelper::timestampToString($post->getLastCreated());
+								
+									echo "<div class='fo_post_mods'>Modified {$times}</div>";
+								}
+							endif;
+						?>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td class='fo_signature_p' valign='bottom'>
+					<?php 
+					
+					$signature = $post->getAuthor()->getForumSignature();
+					if( $signature ) {
+						echo "<div class='fo_sig_spacer'></div><div class='fo_signature'>{$signature}</div>";
+					}
+					
+					?>
+				</td>
+			</tr>
+		
+		<?php 
+		$j++;
+		endforeach;
+		?>
+	</table>
+	<?php 
+		if( $reply ):
+	?>
+		<div class='fo_nt_p'>
+			<div class='fo_header fo_nt_h'>Reply</div>
+			<a id='Bottom' href='#'></a>
+			<div class='fo_nt_inputs'>
+				<form method='post' action='javascript:Chardev.checkReply(<?php echo $thread->getId() ?>)'>
+					<div class='fo_nt_content_p'>
+						<div>Reply:</div>
+						<textarea class='textarea fo_nt_content' id='reply_content'></textarea>
+					</div>
+					<div class='fo_submit_btn_p'>
+						<input class='button button_light' id='reply_submit' type='submit' value='submit' />
+					</div>
+				</form>
+			</div>
+			<div><?php echo ForumHelper::getAvailableForumCode() ?></div>
+		</div>
+	<?php 
+		else:
+	?>
+		<table class="fo_page"><colgroup><col width="50%"/><col width="0%"/><col width="50%"/></colgroup>
+		<tr>
+		<td class="fo_pl_l">
+			<?php if($page>1):?>
+				<a class="button button_light link_button" href="<?php echo ForumHelper::getThreadUrl($thread,$page-1) ?>">&lsaquo; Previous</a>
+				<?php if($page>2):?>
+					<a class="button button_light link_button" href="<?php echo ForumHelper::getThreadUrl($thread) ?>">&laquo; First</a>
+				<?php endif;?>
+			<?php endif;?>
+		</td>
+		<td class="fo_pl_c"><?php echo $page?>&nbsp;of&nbsp;<?php echo $pages?></td>
+		<td class="fo_pl_r">
+			<?php if($page<$pages):?>
+				<?php if($page<$pages-1):?>
+					<a class="button button_light link_button" href="<?php echo ForumHelper::getThreadUrl($thread,$pages) ?>">Last &raquo;</a>
+				<?php endif;?>
+				<a class="button button_light link_button" href="<?php echo ForumHelper::getThreadUrl($thread,$page+1) ?>">Next &rsaquo;</a>
+			<?php endif;?>
+		</td>
+		</tr>
+		</table>
+	<?php endif; ?>
+</div>

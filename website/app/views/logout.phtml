@@ -1,0 +1,14 @@
+<?php 
+
+
+$form = new \chardev\frontend\Form("Logout.html");
+$form->addHidden('logout', 'true');
+$form->addHidden('redirect_url', chardev\FormatHelper::getRedirectUrl());
+$form->addSubmit('Logout');
+?>
+
+<div class="fm_error"></div>
+<div class="content_wrapper">
+	<h1>Logout</h1>
+	<?php echo $form->getHtml() ?>
+</div>

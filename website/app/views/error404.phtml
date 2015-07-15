@@ -1,0 +1,27 @@
+<?php 
+
+	$exception = $this->getArg("exception");
+
+	$qs = array(
+			"His brain is gone!",
+			"Aye, the haggis is in the fire for sure!",
+			"There is nothing i can do Jim, he's dead!",
+			"I think this new ship was put together by monkeys.",
+			"My God Jim, where are we?",
+			"I know engineers, they love to change things.",
+			"If I were Human, I believe, my response would be 'Go to Hell'!"
+	);
+?>
+
+<h1>Error 404 - Not found</h1>
+<div class='ix_error'><?php echo $qs[rand(0, count($qs)-1)]?></div>
+<?php if($exception):?>
+<div class='ix_error_ex'><?php 
+	echo $exception->getMessage();
+	while( $cause = $exception->getPrevious()) {
+		echo "<br />" .$cause->getMessage();
+		echo "<br />" .nl2br($cause->getTraceAsString(), true) ;
+		$exception = $cause;
+	}
+?></div>
+<?php endif;?>

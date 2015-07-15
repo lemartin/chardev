@@ -1,0 +1,90 @@
+<?php
+	use chardev\forum\facades\HookFacade;
+
+use chardev\FormatHelper;
+
+use chardev\forum\facades\UserFacade;
+
+use chardev\backend\entities\User;
+
+use chardev\forum\facades\ThreadFacade;
+	use chardev\forum\ForumHelper;
+	
+	$this->addStyleSheet("forum.css");
+
+	$db = new \chardev\forum\ThreadDatabase( "mysql:dbname=chardev_user;host=127.0.0.1", "root", "");
+	$threads = $db->getThreads(4, 5, 0, \chardev\forum\ThreadDatabase::ORDER_CREATED );
+	$hook = $db->getHook(4);
+?>
+<table class="ne_table">
+	<colgroup>
+		<col width="536px" />
+		<col width="404px" />
+	</colgroup>
+	<tr>
+		<td valign="top">
+			<div class="ne_p">
+<?php 
+	$n = 0;
+	
+	foreach( $threads as $thread ) :
+		
+		$cssSuffix = $n!=0 ? '_old' : '';
+		$date = ForumHelper::timestampToString($thread['Created']);
+		$author = new UserFacade(new User($thread['AuthorID']));
+		$roleCss = ForumHelper::roleToCssClass($author);
+		$post = $db->getPost($thread['InitialPostID']);
+		$threadFacade = new ThreadFacade($hook, $thread);
+		$content = ($n==0?ForumHelper::replaceCode($post["Content"]):chardev\FormatHelper::shorten($post["Content"],100)."&nbsp<a class=\"ne_read_more\" href=\"".ForumHelper::getThreadUrl($threadFacade)."\">read more</a>");
+?>
+				<div class="ne_title<?php echo $cssSuffix?>"><?php echo $thread['Title'] ?></div>
+				<div class="ne_header">
+						By <span class="<?php echo $roleCss?>"><?php echo $author->getName()?></span> posted <?php echo $date ?>
+				</div>
+				<div class="ne_content<?php echo $n!=0 ? " ne_content_old" : "" ?>">
+					<?php echo $content ?>
+				</div>
+				<div class="ne_cl<?php echo $n!=0 ? " ne_cl_old" : "" ?>">
+					<a class="fo_comment_link" href="<?php echo ForumHelper::getThreadUrl($threadFacade, ForumHelper::getMaxPagesThread($threadFacade))?>"><?php echo (($thread["PostCount"])<2?"No Comments":($thread["PostCount"]-1)." Comments")?></a>
+				</div>
+<?php		
+		$n++;
+	endforeach; 
+?>
+			</div>
+		</td>
+		<td valign="top">
+			<div class="fo_recent_p">
+				<div class="fo_recent_title">Recent forum posts</div>
+<?php
+	$recentPosts = $db->getRecentsPosts(20);
+	$n = 0;
+	foreach( $recentPosts as $post ) :
+		$date = ForumHelper::timestampToString($post['Created']);
+		$author = new UserFacade(new User($post['AuthorID']));
+		$roleCss = ForumHelper::roleToCssClass($author);
+		$thread = $db->getThread($post['ThreadID']);
+		$hook = $db->getHook($thread['ThreadHookID']);
+		$url = ForumHelper::getHookUrl(new HookFacade($hook));
+		
+		$forumName = "<a class=\"fo_header_subforum_link\" href=\"{$url}\">".chardev\FormatHelper::shorten($hook['Name'], 20)."</a>";
+		$link = ForumHelper::getThreadLastPostLink(new ThreadFacade($hook, $thread),45);
+?>
+				<div class="fo_recent <?php ( $n == (count($recentPosts)-1) ? '_last' : '' ) . ( $n % 2 == 0 ? " fo_cell_bg1" : " fo_cell_bg2" ) ?>">
+					<div class="forum_time"><span class="<?php echo $roleCss ?>">
+						<?php echo $author->getName() ?>
+						</span> <?php echo $date ?> in 
+						<?php echo $forumName ?>
+					</div>
+					<div><?php echo $link ?></div>
+				</div>
+<?php		
+		$n++;
+	endforeach; 
+?>
+			</div>
+		</td>
+	</tr>
+</table>
+								
+							

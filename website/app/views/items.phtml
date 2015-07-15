@@ -1,0 +1,98 @@
+<?php
+use chardev\Session;
+
+$bp = self::getBasePath();
+
+$serialized = null;
+$item = null;
+$notFound = null;
+
+$items = "";
+if( isset($_GET["a"]) && $items = $_GET["a"] ) {
+	$args = str_replace( '_', ';', $items);
+	$page = max(1,isset($_GET["p"]) ? (int)$_GET["p"] : 0);
+	$flags = isset($_GET["f"]) ? $_GET["f"] : ""; 
+	$order = isset($_GET["o"]) ? $_GET["o"] : ""; 
+	$serialized = chardev\backend\data\ItemListData::getInstance()->getItems(
+			$args, 
+			$flags,
+			$order,
+			$page
+	);
+	
+	Session::store("item_search", array(
+		"a" => $items,
+		"p" => $page,
+		"f" => $flags,
+		"o" => $order
+	));
+}
+else {
+	$item = $this->getArg("item");
+}
+
+$search_form = "
+		<form onsubmit='document.getElementById(\"dbi_submit\").value = \"name.wlike.\" + Tools.removeDots(document.getElementById(\"dbi_search\").value) + \"_\";' 
+			action='{$bp}Items.html' 
+			method='GET'
+		>
+			<input class='input" .( $serialized ? "" : " dbi_search_input_large" ) . "' id='dbi_search' />
+			<input type='hidden' name='a' id='dbi_submit' />
+		</form>";
+?>
+<div class='dbi_w'>
+<?php if( $serialized || $item || $notFound ): ?>
+	<div class='dbi_header'>
+		<div class='dbi_title'>
+			Item database
+		</div>
+		<div class='dbi_search_c'><?php echo $search_form?>
+		</div>
+		<div class='dbi_search_c'>
+			<span class='dbi_search_label'>Search</span>
+		</div>
+		<div style='clear: both;'></div>
+	</div>
+	<?php if( $notFound ): ?>
+		<h1>Item not found!</h1>
+	<?php elseif( $item ): ?>
+	
+		<script type="text/javascript">
+		<!--
+		var serialized = <?php echo json_encode($item->getData()) ?>;
+		function g_onLoad() {
+			Chardev.addItemTooltipTo( serialized, 'item_parent', 'item_icon');
+		}
+		//-->
+		</script>
+		
+		<table class='dbi_p'>
+			<tr>
+				<td valign='top' id='item_icon'></td>
+				<td valign='top'>
+					<div id='item_parent'><div class='loading dbi_loading'>Loading...</div></div>
+				</td>
+				<td valign='top' id='item_scaling'></td>
+			</tr>
+		</table>
+	<?php else: ?>
+		<script type="text/javascript">
+			$(function() {
+				Chardev.staticItemList(
+					<?php echo json_encode($serialized) ?>, 
+					<?php echo json_encode($page)?>, 
+					<?php echo json_encode($args)?>, 
+					'list_parent', 
+					<?php echo json_encode($bp) ?> + 'item/$.html'
+				);
+				document.getElementById('dbi_search').focus();
+			});
+		</script>
+		<div id='list_parent'>
+	<?php endif;?>
+	</div>
+<?php else: ?>
+	<div class='dbi_search_label_large'>Search the Item Database</div>
+	<div class='dbi_search_large'><?php echo $search_form?></div>
+<?php endif; ?>
+</div>
