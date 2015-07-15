@@ -42,7 +42,7 @@ function LinkedList (){
 	this.first.next = this.last;
 	this.last.isLast = true;
 	this.first.isFirst = true;
-};
+}
 LinkedList.prototype = {
 	first: new ListElement(null),
 	last: new ListElement(null),

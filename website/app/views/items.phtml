@@ -1,7 +1,7 @@
 <?php
 use chardev\Session;
 
-$bp = self::getBasePath();
+$bp = \chardev\TemplateHelper::getBasePath();
 
 $serialized = null;
 $item = null;
@@ -41,7 +41,7 @@ $search_form = "
 		</form>";
 ?>
 <div class='dbi_w'>
-<?php if( $serialized || $item || $notFound ): ?>
+<?php if( $serialized || $item ): ?>
 	<div class='dbi_header'>
 		<div class='dbi_title'>
 			Item database
@@ -53,19 +53,17 @@ $search_form = "
 		</div>
 		<div style='clear: both;'></div>
 	</div>
-	<?php if( $notFound ): ?>
-		<h1>Item not found!</h1>
-	<?php elseif( $item ): ?>
-	
+	<?php if( $item ): ?>
+
 		<script type="text/javascript">
 		<!--
 		var serialized = <?php echo json_encode($item->getData()) ?>;
-		function g_onLoad() {
+		$(function(){
 			Chardev.addItemTooltipTo( serialized, 'item_parent', 'item_icon');
-		}
+		});
 		//-->
 		</script>
-		
+
 		<table class='dbi_p'>
 			<tr>
 				<td valign='top' id='item_icon'></td>

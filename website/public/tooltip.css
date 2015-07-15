@@ -17,12 +17,6 @@
 	line-height: 150%;
 }
 
-.tooltip_set_bonus_spacing
-{
-	height:10px;
-	width:300px;
-}
-
 .tooltip_set_bonus_inactive 
 {
 	font-size:11px;
@@ -134,8 +128,8 @@
 .disable_div{
 	background-image:url(images/tooltip/bg.png);
 	position:absolute;
-	top:0px;
-	left:0px;
+	top:0;
+	left:0;
 	width:100%;
 	height:100%;
 	display:none;
@@ -173,6 +167,12 @@
 	margin-left: auto;
 	margin-right: auto;
 	white-space: nowrap;
+}
+
+.tt_overlay_w {
+	position: relative;
+	top: 0;
+	left: 0;
 }
 
 .tt_overlay {
@@ -262,7 +262,6 @@
 	position: absolute;
 	padding: 10px;
 	text-align: center;
-	width: 1100px;
 }
 
 .tt_close_notice 
@@ -341,5 +340,8 @@
 
 .tt_hit_cap{ color: #808080; text-align:center; padding-top: 3px; padding-bottom: 3px; font-size:11px;}
 
-.tt_stat_with_mods { color: #808080; margin-left: 5px;}
-.tt_rating_percent { color: #808080; margin-left: 5px;}
+.tt_stat_with_mods { font-size: 11px; color: #808080; margin-left: 5px;}
+.tt_rating_percent { font-size: 11px; color: #808080; margin-left: 5px;}
+
+.tt_item_spacing{ height:5px; width:300px;}
+.tt_item_ref_from{ font-size: 11px; }

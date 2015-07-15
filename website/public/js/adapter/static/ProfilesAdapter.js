@@ -7,15 +7,14 @@ function ProfilesAdapter() {
 	//
 	var plHandler = new Handler(function( e ){
 		if( e.is('update')) {
-			new ListBackEndProxy("api/profiles.php").update(this.profileList);
+			new ListBackEndProxy("/api/profiles.php").update(this.profileList);
 		}
 		else if( e.is('delete') ) {
 			
 			if( ! confirm("Do you really want to delete the character profile '"+e.get('desc')+"'?")) {
 				return;
 			}
-			//TODO: Implement delete profile
-			Ajax2.post("api/profile.php", {'action': 'delete', 'id': e.get('profile_id')}, function( obj ) {
+			Ajax2.post("/api/profile.php", {'action': 'delete', 'id': e.get('profile_id')}, function( obj ) {
 				try {
 					obj.get();
 					this.profileList.update();
@@ -24,6 +23,10 @@ function ProfilesAdapter() {
 					Tooltip.showError(e);
 				}
 			}, this);
+		}
+		else if( e.is("click")) {
+			var entity = e.get("entity");
+			window.location.href = entity[8];
 		}
 	}, this);
 	//
@@ -34,8 +37,14 @@ function ProfilesAdapter() {
 	this.profileList.addObserver(plObserver);
 }
 ProfilesAdapter.prototype = {
-	profileList: null,
-	getNode: function() {
-		return this.profileList.gui.node;
-	}
+		/**
+		 * @type {ProfileList}
+		 */
+		profileList: null,
+		/**
+		 * @returns {HTMLElement}
+		 */
+		getNode: function() {
+			return this.profileList.gui.node;
+		}
 };

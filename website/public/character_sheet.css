@@ -23,16 +23,14 @@
 	width:38px;
 	height:38px;
 	position:relative;
-	top: 0px;
-	left: 0px;
-	background-image:url(images/site/item_border.png);
-	background-repeat:no-repeat;
-	background-position:center;
-	padding: 5px;
+	top: 0;
+	left: 0;
+    background: url(images/site/item_border.png) no-repeat center;
+    padding: 5px;
 }
 
 .cs_is_hi{width:13px; height: 13px; margin-top: 1px; margin-left: 1px; float: left; background-color: #484444; border: 1px solid #333;}
-.cs_is_hip{ top: 0px; left: 0px; width:13px; height: 13px;}
+.cs_is_hip{ top: 0; left: 0; width:13px; height: 13px;}
 .cs_is_hip_enlarge { height: 38px; width: 38px; z-index: 2; top: -1px; left: -1px;}
 .cs_is_hi_event{width:15px; height: 15px; top: -1px; left: -1px; display: block;}
 .cs_is_hi_event_p{width:15px; height: 15px; top: -1px; left: -1px;}
@@ -62,12 +60,10 @@
 }
 
 .character_sheet_item_highlight{
-	background-position:center center;
-	background-image:url(images/site/item_slot_shadow.png);
-	cursor:pointer;
+    background: url(images/site/item_slot_shadow.png) center center;
+    cursor:pointer;
 	width:38px;
 	height:38px;
-	top
 }
 
 .character_selector_item_table{
@@ -203,75 +199,6 @@
 	text-align:center;
 }
 
-.buff_bar
-{
-	margin-left:auto;
-	margin-right:0;
-	width: 182px;
-	float:right;
-	background-image:url(images/buff_bar.jpg);
-	line-height:0px;
-}
-
-.buff_bar_left_top
-{
-	background-image:url(images/buff_bar_lt.jpg);
-	background-repeat:no-repeat;
-	background-position:left top;
-}
-
-.buff_bar_right_top
-{
-	background-image:url(images/buff_bar_rt.jpg);
-	background-repeat:no-repeat;
-	background-position:right top;
-}
-
-.buff_bar_left_bottom
-{
-	background-image:url(images/buff_bar_lb.jpg);
-	background-repeat:no-repeat;
-	background-position:left bottom;
-}
-
-.buff_bar_right_bottom
-{
-	background-image:url(images/buff_bar_rb.jpg);
-	background-repeat:no-repeat;
-	background-position:right bottom;
-	padding:3px;
-}
-
-.character_sheet_buff_slot
-{
-	background-image:url(images/buff_icon.jpg);
-	background-position:center;
-	height:18px;
-	width:18px;
-	cursor:pointer;
-	background-repeat:no-repeat;
-	margin:1px;
-	border:1px solid #484848;
-}
-
-.character_sheet_shape_icon
-{
-	height:22px;
-	width:22px;
-	border:1px solid #000000;
-	cursor:pointer;
-	margin-right:2px;
-}
-
-.character_sheet_shape_parent
-{
-	width:100%;
-	height:24px;
-	padding-top:2px;
-	padding-bottom:2px;
-	margin-left:6px;
-}
-
 .compare_red{
 	color:#DD0000;
 	font-weight:bold;
@@ -284,7 +211,7 @@
 
 .compare_neutral {
 	font-weight:bold;
-	padding: 0px 3px;
+	padding: 0 3px;
 }
 	
 .stat_title_p {
@@ -328,7 +255,7 @@
 
 .stat_table_stat_compare_span
 {
-	padding: 0px 2px;
+	padding: 0 2px;
 }
 
 .stat_table_name_div{
@@ -339,140 +266,35 @@
 }
 
 .stat_table_value_div{
-	left:0px;
+	left:0;
 	position:absolute;
 	text-align:right;
-	top:0px;
+	top:0;
 	width: 152px;
 	color: #C0C0C0;
 }
 
 .stat_table_name_div:hover{
-	background-image:none;
-	background-color: #40C0D8;
-	color: black;
+    background: #40C0D8 none;
+    color: black;
 	cursor:default;
 }
 
 .stat_table_name_div:hover span {
-	background-image:none;
-	background-color: #00C0D8;
-	color: black;
+    background: #00C0D8 none;
+    color: black;
 	cursor:default;
-}
-
-.character_sheet_bottom_item_panel
-{
-	width:200px;
-}
-
-.character_sheet_bar_parent
-{
-	width:200px;
 }
 
 /*
  * class race selector
  */
 
-.character_class_icon
-{
-	width:48px;
-	height:48px;
-	cursor:pointer;
-}
-
 .character_race_icon
 {
 	width:48px;
 	height:48px;
 	cursor:pointer;
-}
-
- 
-.race_selector_parent_div{
-	position:relative;
-	z-index:10;
-	background-image:url(images/race_class_selector_border.jpg);
-	background-repeat:no-repeat;
-	padding:2px;
-}
-
-.class_selector_parent_div{
-	position:relative;
-	z-index:9;
-	background-image:url(images/race_class_selector_border.jpg);
-	background-repeat:no-repeat;
-	padding:2px;
-	margin-left:3px;
-}
-
-.class_selector_div{
-	position:absolute;
-	top:0px;
-	left:32px;
-	z-index:100;
-	background-image:url(images/tooltip/bg.png);
-}
-
-.class_selector_icon{
-	width:32px;
-	height:32px;
-}
-
-.race_selector_div{
-	position:absolute;
-	top:0px;
-	left:32px;
-	z-index:100;
-	background-image:url(images/tooltip/bg.png);
-}
-
-.race_selector_icon{
-	width:32px;
-	height:32px;
-}
-
-.race_class_selector_bg
-{
-	background-image:url(images/race_class_selector_bg.jpg);
-}
-
-.race_class_selector_bg_right_bottom
-{
-	background-image:url(images/race_class_selector_bg_rb.jpg);
-	background-repeat:no-repeat;
-	background-position:right bottom;
-}
-.race_class_selector_bg_right_top
-{
-	background-image:url(images/race_class_selector_bg_rt.jpg);
-	background-repeat:no-repeat;
-	background-position:right top;
-}
-
-.race_class_selector_table
-{
-	padding:5px;
-}
-
-.buff_bar_bg
-{
-	background-image:url(images/buff_bar_bg.jpg);
-}
-
-.buff_bar_bg_right_bottom
-{
-	background-image:url(images/buff_bar_bg_rb.jpg);
-	background-repeat:no-repeat;
-	background-position:right bottom;
-}
-
-.buff_bar_bg_right_top
-{
-	background-image:url(images/buff_bar_bg_rt.jpg);
-	background-repeat:no-repeat;
-	background-position:right top;
 }
 
 .buff_race_class_level_table
@@ -516,18 +338,16 @@
 /*	background: url(images/site/item_slot_shadow.png) 6px 6px no-repeat; */
 	height: 48px;
 	width: 48px;
-	top: 0px;
-	left: 0px;
+	top: 0;
+	left: 0;
 }
 
 .rcs_race_icon {
 	width: 48px;
 	height: 48px;
-	margin: 3px;
-	cursor: pointer;
+    cursor: pointer;
 	border: 1px solid black;
-	margin-left: auto;
-	margin-right: auto;
+    margin: 3px auto;
 }
 
 .rcs_select_header {
@@ -578,18 +398,18 @@
 }
 
 .rcs_border {
-	background: url(images/site/rc_border.png) 0px 0px;
+	background: url(images/site/rc_border.png) 0 0;
 	width: 48px;
 	height: 48px;
-	top: 0px;
-	left: 0px;
+	top: 0;
+	left: 0;
 }
 
 .rcs_class_border {
 	width: 48px;
 	height: 48px;
-	top: 0px;
-	left: 0px;
+	top: 0;
+	left: 0;
 }
 
 .cs_level_parent {
@@ -613,7 +433,7 @@
 }
 
 .cs_m_grid_sl {
-	margin: 0px;
+	margin: 0;
 }
 
 .cs_m_grid_sr {
@@ -641,12 +461,11 @@
 }
 
 .cs_w_grid {
-	margin: 0px auto;
+	margin: 0 auto;
 }
 
 .cs_sheet_p {
-	padding: 0px 0px;
-	padding-bottom: 15px;
+    padding: 0 0 15px;
 }
 
 .cs_shape {
@@ -683,12 +502,12 @@
 	font-size:12px;
 	font-weight: bold;
 	color: #808080;
-	padding: 4px 0px 4px 2px;
+	padding: 4px 0 4px 2px;
 	font-family: Georgia, serif;
 }
 
 .bb_buff { 
-	float: left; width: 24px; height: 24px; margin: 0px 1px 1px 0px; border: 1px solid #333333; background: center center no-repeat; cursor: pointer;
+	float: left; width: 24px; height: 24px; margin: 0 1px 1px 0; border: 1px solid #333333; background: center center no-repeat; cursor: pointer;
 	font-size: 14px; font-weight: bold; line-height: 24px; vertical-align: bottom;
 }
 .bb_p { float: right; width: 144px; height: 54px; }

@@ -14,7 +14,7 @@ function UserInformationImpl( userId, data, targetElementId ) {
 	
 	var k = 0, sg, n = 0;
 	
-	DOM.set(document.getElementById(this.targetElementId), this.node);
+	Dom.set(document.getElementById(this.targetElementId), this.node);
 	
 	sg = new StaticGrid(0,2);
 	sg.setVerticalAlign(StaticGrid.VALIGN_TOP);
@@ -31,24 +31,24 @@ function UserInformationImpl( userId, data, targetElementId ) {
 			
 		if( this.data[k]['editable'] == 'select'  ) {
 			var select = new SelectEditable( this.data[k]['options']);
-			DOM.addClass(select.select.node, "ui_data_select");
+			Dom.addClass(select.select.node, "ui_data_select");
 			this.editables[n] = select;
 		}
 		else if( this.data[k]['editable'] == 'input' ){
 			var input = new InputEditable();
-			DOM.addClass(input.input.node, "ui_data_input");
+			Dom.addClass(input.input.node, "ui_data_input");
 			this.editables[n] = input;
 		}
 		else if( this.data[k]['editable'] == 'battlenetprofilemanager' ){
 			this.editables[n] = new BattleNetProfileEditable( this.data[k]['realms'] );
 			
-			sg.cells[n][0].appendChild(ChardevHTML.getInfo("<div>These profiles will be shown in the import section of the character planner, so you can quickly import them, without having to type the character name or select region and realm.</div>"));
+			sg.cells[n][0].appendChild(ChardevHtml.getInfo("<div>These profiles will be shown in the import section of the character planner, so you can quickly import them, without having to type the character name or select region and realm.</div>"));
 		}
 		else {
 			throw new Error("Unknown editable "+this.data[k]['editable']);
 		}
 		new UserEditableObserver( k, this.data[k]['data'], this.editables[n]);
-		this.editables[n].readOnly( g_settings.userId != this.userId );
+		this.editables[n].readOnly( g_settings.user.id != this.userId );
 		sg.cells[n][1].appendChild( this.editables[n].node );
 		
 
@@ -97,7 +97,7 @@ UserEditableObserver.prototype.__onChange = function( e ) {
 		obj[this.key] = e.get('data');
 		
 		Ajax.request(
-			'api/user.php' + TextIO.queryString(obj),
+			'/api/user.php' + TextIO.queryString(obj),
 			new Handler( this.__saveCallback, this ) ,
 			[]
 		);

@@ -4,7 +4,7 @@
 function InputEditable() {
 	Editable.call(this);
 	
-	this.div = DOM.create('div', {});
+	this.div = Dom.create('div', {});
 	
 	this.input = new Input();
 
@@ -12,7 +12,7 @@ function InputEditable() {
 	
 	Listener.add( this.div, 'click', this.__edit, this, [true] );	
 
-	this.form = DOM.create('form',{'action':'javascript:'});
+	this.form = Dom.create('form',{'action':'javascript:'});
 	this.form.appendChild( this.input.node );
 	
 	Listener.add( this.form, 'submit', this.__onChange, this, [] );
@@ -32,23 +32,23 @@ InputEditable.prototype.setData = function(data) {
 	var v = this.input.getValue();
 	
 	this.div.innerHTML = Editable.formatValue(v);
-	DOM.set(this.node, this.div);
+	Dom.set(this.node, this.div);
 };
 InputEditable.prototype.__edit = function( b ) {
 	if( b ) {
 		if( this.disabled || this.isReadOnly ) {
 			return;
 		}
-		DOM.set(this.node, this.form);
+		Dom.set(this.node, this.form);
 		this.input.node.focus();
 	}
 	else {
-		DOM.set(this.node, this.div);
+		Dom.set(this.node, this.div);
 		this.input.setValue(this.data);
 	}
 };
 InputEditable.prototype.__onChange = function() {
 	this.eventMgr.fire('change', { 'data': this.input.getValue()});
-	DOM.set( this.node, DOM.create('img',{'src': '/images/site/bar_loading.gif', 'class': 'ui_bar_loading'}));
+	Dom.set( this.node, Dom.create('img',{'src': '/images/site/bar_loading.gif', 'class': 'ui_bar_loading'}));
 	this.disabled = true;
 };

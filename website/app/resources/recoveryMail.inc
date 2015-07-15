@@ -1,21 +1,18 @@
-<?php 
+<?php
 
-$content ="Hello $name,<br/>";
-$content .="<br/>";
-$content .="to recover your password click ";
-$content .="<a href=\"$url\">here</a>!<br/><br/>";
-$content .="<strong>Your user name: $name</strong><br/>";
-$content .="<strong>Your e-mail: $email</strong><br/><br/>";
-$content .="<br/>";
-$content .="If you encounter problems do not hesitate to write an e-mail to <a href=\"mailto:bug@chardev.org\">bug@chardev.org</a><br/>";
-$content .="<br/>";
-$content .="Regards,<br/>";
-$content .="LeMartin - Martin Waßmann";
-	
-$headers  = "From: registration@chardev.org\n";
-$headers .= "MIME-Version: 1.0\n";
-$headers .= "Content-type: text/html; charset=utf-8\n";
-$headers .= "Reply-To: registration <registration@chardev.org>\n";
-$headers .= "X-mailer: chardev.org";
+$content = "Hello $name,<br/>"
+    . "<br/>"
+    . "to recover your password click <a href=\"$url\">here</a>!<br/><br/>"
+    . "<strong>Your user name: $name</strong><br/>"
+    . "<strong>Your e-mail: $email</strong><br/><br/>"
+    . "<br/>"
+    . "If you encounter problems do not hesitate to write an e-mail to <a href=\"mailto:bug@chardev.org\">bug@chardev.org</a><br/>"
+    . "<br/>"
+    . "Regards,<br/>"
+    . "LeMartin - Martin Waßmann";
 
-?>
+$headers = "From: registration@chardev.org\n"
+    . "MIME-Version: 1.0\n"
+    . "Content-Type: text/html; charset=utf-8\n"
+    . "Reply-To: registration <registration@chardev.org>\n"
+    . "X-mailer: chardev.org";

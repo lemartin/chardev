@@ -23,7 +23,7 @@
 		} 
 		$active = false;
 		
-		$url = TemplateHelper::getBasePath() . 'baseStats/' . FormatHelper::verboseUrl($i+1, $locale['a_class'][$i]) . '.html';
+		$url = \chardev\TemplateHelper::getBasePath() . 'baseStats/' . FormatHelper::verboseUrl($i+1, $locale['a_class'][$i]) . '.html';
 		
 		if( $i + 1 == $parsed['ID'] ) {
 			$class = $i + 1;
@@ -50,7 +50,7 @@
 // 		catch( CacheException $e ) {
 			$records = DatabaseHelper::fetchMany(
 					Database::getConnection(),
-					"SELECT * FROM chardev_cataclysm_static.chardev_base_stats_class_level WHERE class = ? ORDER BY level ASC LIMIT 0,85 ",
+					"SELECT * FROM chardev_mop_static.chardev_base_stats_class_level WHERE class = ? ORDER BY level ASC LIMIT 0,90 ",
 					array($class)
 			);
 // 			Cache::getInstance()->set($key, serialize($records));

@@ -81,7 +81,35 @@ function Item( serialized ) {
 	this.limitCategory = serialized[47];
 	this.limitCategoryMultiple = serialized[48];
 	this.chrRaceMask = serialized[49];
+    this.upgradeLevel = 0;
+    this.upgrades = serialized[50];
+    this.nameDescription = serialized[51];
+    this.source = serialized[52];
+
+    if( this.source && this.source[0] == 3 && this.binds == 1 ) {
+        this.requiredCharacterLevelQuest = this.source[1][2];
+    }
 }
+
+Item.SUB_CLASS_AXE_1H = 1<<0;
+Item.SUB_CLASS_AXE_2H = 1<<1;
+Item.SUB_CLASS_BOW = 1<<2;
+Item.SUB_CLASS_GUN = 1<<3;
+Item.SUB_CLASS_MACE_1H = 1<<4;
+Item.SUB_CLASS_MACE_2H = 1<<5;
+Item.SUB_CLASS_POLEARM = 1<<6;
+Item.SUB_CLASS_SWORD_1H = 1<<7;
+Item.SUB_CLASS_SWORD_2H = 1<<8;
+Item.SUB_CLASS_STAFF = 1<<10;
+Item.SUB_CLASS_EXOTIC_1H = 1<<11;
+Item.SUB_CLASS_EXOTIC_2H = 1<<12;
+Item.SUB_CLASS_FIST = 1<<13;
+Item.SUB_CLASS_MISCELLANEOUS = 1<<14;
+Item.SUB_CLASS_DAGGER = 1<<15;
+Item.SUB_CLASS_CROSSBOW = 1<<18;
+Item.SUB_CLASS_WAND = 1<<19;
+Item.SUB_CLASS_FISHING_POLE = 1<<20;
+	
 
 Item.prototype = {
 	//
@@ -119,7 +147,7 @@ Item.prototype = {
 	itemSet: 0,
 	durability: 0,
 	socketColors: 0,
-	socketBonus: 0,
+	socketBonus: null,
 	icon: "",
 	itemSubClassName: "",
 	typeMask: 0,
@@ -163,6 +191,12 @@ Item.prototype = {
 	requiredSpellId: 0,
 	requiredSkill: null,
 	requiredSpell: null,
+    //
+    upgrades: [],
+    upgradeLevel: 0,
+    nameDescription: null,
+    source: null,
+    requiredCharacterLevelQuest: 0,
 	//
 	//#########################################################################
 	//
@@ -309,6 +343,7 @@ Item.prototype = {
 	//
 	//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 	//
+    // TODO ascertain how scaling works with MoP, keep ranged changes in mind
 	setStats : function( level ) {
 		if( this.scalingStatDistribution == null ) {
 			return;
@@ -326,31 +361,31 @@ Item.prototype = {
 		if( this.itemClass == 4 ) {
 			switch( this.inventorySlot ) {
 			case 1:
-				this.armor = SCALING_STAT_VALUE[level][19+this.itemSubClass];
-				statValue = SCALING_STAT_VALUE[level][7];
+				this.armor = SCALING_STAT_VALUE[level][20+this.itemSubClass];
+				statValue = SCALING_STAT_VALUE[level][8];
 				break;
 			case 3:
-				this.armor = SCALING_STAT_VALUE[level][11+this.itemSubClass];
-				statValue = SCALING_STAT_VALUE[level][8];
+				this.armor = SCALING_STAT_VALUE[level][12+this.itemSubClass];
+				statValue = SCALING_STAT_VALUE[level][9];
 				break;
 			case 5:
 			case 20:
-				this.armor = SCALING_STAT_VALUE[level][15+this.itemSubClass];
-				statValue = SCALING_STAT_VALUE[level][7];
-				break;
-			case 7:
-				this.armor = SCALING_STAT_VALUE[level][23+this.itemSubClass];
-				statValue = SCALING_STAT_VALUE[level][7];
-				break;
-			case 11:
-				statValue = SCALING_STAT_VALUE[level][9];
-				break;
-			case 12:
+				this.armor = SCALING_STAT_VALUE[level][16+this.itemSubClass];
 				statValue = SCALING_STAT_VALUE[level][8];
 				break;
-			case 16:
-				this.armor = SCALING_STAT_VALUE[level][44];
+			case 7:
+				this.armor = SCALING_STAT_VALUE[level][24+this.itemSubClass];
+				statValue = SCALING_STAT_VALUE[level][8];
+				break;
+			case 11:
+				statValue = SCALING_STAT_VALUE[level][10];
+				break;
+			case 12:
 				statValue = SCALING_STAT_VALUE[level][9];
+				break;
+			case 16:
+				this.armor = SCALING_STAT_VALUE[level][45];
+				statValue = SCALING_STAT_VALUE[level][10];
 				break;
 			}
 			switch( this.unmodifiedSubClass ) {
@@ -378,18 +413,19 @@ Item.prototype = {
 			var iscMask = 1<<this.itemSubClass;
 			// ranged
 			if( iscMask&(1<<2|1<<3|1<<18) ) {
-				statValue = SCALING_STAT_VALUE[level][10];
-				dps = SCALING_STAT_VALUE[level][4];
+				statValue = SCALING_STAT_VALUE[level][11];
+				dps = SCALING_STAT_VALUE[level][2];
 			}
 			// one-hand / caster 0 4 7 11 13 15 
 			else if( iscMask&(1<<0|1<<4|1<<7|1<<11|1<<13|1<<15) ) {
-				statValue = SCALING_STAT_VALUE[level][11];
-				dps = SCALING_STAT_VALUE[level][ this.typeMask2&512 ? 2 : 0 ];
+				statValue = SCALING_STAT_VALUE[level][12];
+				dps = SCALING_STAT_VALUE[level][1];
+                console.log(dps);
 			}
 			// two-hand / caster 1 5 6 8 10 12 17 20
 			else if( iscMask&(1<<1|1<<5|1<<6|1<<8|1<<10|1<<12|1<<17|1<<20) ) {
-				statValue = SCALING_STAT_VALUE[level][7];
-				dps = SCALING_STAT_VALUE[level][ this.typeMask2&512 ? 3 : 1 ];
+				statValue = SCALING_STAT_VALUE[level][8];
+				dps = SCALING_STAT_VALUE[level][2];
 			}
 		}
 		
@@ -403,8 +439,8 @@ Item.prototype = {
 				}
 			}
 			// Caster weapons spell power
-			if((this.typeMask2&512) && ( this.itemClass == 2 ) && (SCALING_STAT_VALUE[level][6]>0)) {
-				this.stats[n++] = [45, SCALING_STAT_VALUE[level][6]];
+			if((this.typeMask2&512) && ( this.itemClass == 2 ) && (SCALING_STAT_VALUE[level][7]>0)) {
+				this.stats[n++] = [45, SCALING_STAT_VALUE[level][7]];
 			}
 		}
 		
@@ -615,10 +651,10 @@ Item.prototype = {
 			this.enchants[i].getActiveSpells(auras);
 		}
 			
-		if (this.socketBonus != null && this.isSocketBonusActive()) 
+		if (this.socketBonus !== null && this.isSocketBonusActive()) 
 			this.socketBonus.getActiveSpells(auras);
 		
-		if (this.gemProperties != null && this.gemProperties.enchant.isActive(this.characterScope)) 
+		if (this.gemProperties !== null && this.gemProperties.enchant.isActive(this.characterScope)) 
 			this.gemProperties.enchant.getActiveSpells(auras);
 	},
 	//
@@ -634,8 +670,12 @@ Item.prototype = {
 	isUniqueEquipped: function() {return (this.typeMask & (1<<19)) != 0; },
 	isMeleeWeapon: function(){
 		return this.itemClass == 2 
-			&& ((1<<this.itemSubClass) & ((1<<0) + (1<<4) + (1<<5) + (1<<6) + (1<<7) + (1<<8) + (1<<10) + (1<<13) + (1<<15) ));
+			&& ((1<<this.itemSubClass) & ((1<<0) + (1<<4) + (1<<5) + (1<<6) + (1<<7) + (1<<8) + (1<<10) + (1<<13) + (1<<15) + (1<<20) ));
 	},
+    isRangedWeapon: function(){
+        return this.itemClass == 2
+            && ((1<<this.itemSubClass) & ((1<<2) + (1<<3) + (1<<18) + (1<<19) ));
+    },
 	isStatPresent: function( stat ) {
 		var i, enchant;
 		for( i=0; i<this.stats.length; i++ ) {
@@ -706,5 +746,34 @@ Item.prototype = {
 			}
 		}
 		return 0;
-	}
+	},
+    isTwoHanded: function() {
+        return this.inventorySlot == 15 || this.inventorySlot == 17 || this.inventorySlot == 26 && this.itemSubClass != 19;
+    },
+    //
+    //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    //
+    //	Upgrade level
+    //
+    //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    //
+    setUpgradeLevel: function( upgradeLevel ) {
+        if( this.level < 458 ) {
+            throw new Error(TextIO.sprintf1(locale["ItemUpgrade"]["Error"]["ItemLevelToLow"], this.name));
+        }
+
+        if( this.quality != 2 && this.quality != 3 ) {
+            throw new Error(locale["ItemUpgrade"]["Error"]["OnlyRareEpic"]);
+        }
+
+        if( this.itemClass != 2 && this.itemClass != 4 ) {
+            throw new Error(locale["ItemUpgrade"]["Error"]["OnlyArmorWeapons"]);
+        }
+
+        if( upgradeLevel < 0 || upgradeLevel > 2 || this.quality == 3 && upgradeLevel > 1 ) {
+            throw new Error(TextIO.sprintf1(locale["ItemUpgrade"]["Error"]["InvalidUpgradeLevel"], upgradeLevel));
+        }
+
+        this.upgradeLevel = upgradeLevel;
+    }
 };

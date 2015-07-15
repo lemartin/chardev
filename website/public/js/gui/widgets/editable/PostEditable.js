@@ -4,10 +4,10 @@
 function PostEditable() {
 	Editable.call(this);
 	
-	this.div = DOM.create('div', {});
+	this.div = Dom.create('div', {});
 
-	this.form = DOM.create('form',{'action':'javascript:'});
-	this.textArea = DOM.createAt( this.form, 'textarea',{'class': 'textarea fo_edit'});
+	this.form = Dom.create('form',{'action':'javascript:'});
+	this.textArea = Dom.createAt( this.form, 'textarea',{'class': 'textarea fo_edit'});
 
 	Listener.add( this.textArea, 'blur', this.edit, this, [false] );
 	
@@ -29,7 +29,7 @@ PostEditable.prototype.setData = function(data) {
 	this.disabled = false;
 	
 	this.div.innerHTML = data['ParsedContent'] ? data['ParsedContent'] : "<span class='ui_data_nothing'>Empty</span>";
-	DOM.set(this.node, this.div);
+	Dom.set(this.node, this.div);
 };
 PostEditable.prototype.edit = function( b ) {
 	if( b ) {
@@ -39,16 +39,16 @@ PostEditable.prototype.edit = function( b ) {
 		
 		this.textArea.style.height = Math.max( 100, this.div.offsetHeight ) + "px";
 		
-		DOM.set(this.node, this.form);
+		Dom.set(this.node, this.form);
 		this.textArea.focus();
 	}
 	else {
-		DOM.set(this.node, this.div);
+		Dom.set(this.node, this.div);
 		this.textArea.value = this.data;
 	}
 };
 PostEditable.prototype.__onChange = function() {
 	this.eventMgr.fire('change', { 'data': this.textArea.value });
-	DOM.set( this.node, DOM.create('img',{'src': '/images/site/bar_loading.gif', 'class': 'ui_bar_loading'}));
+	Dom.set( this.node, Dom.create('img',{'src': '/images/site/bar_loading.gif', 'class': 'ui_bar_loading'}));
 	this.disabled = true;
 };

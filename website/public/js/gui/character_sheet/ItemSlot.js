@@ -53,7 +53,7 @@ function ItemSlot( characterSheet, slot)
 		
 		this.historyItems[i].layers[2].className = 'cs_is_hi_event_p';
 		
-		var a = DOM.createAt( this.historyItems[i].layers[2], 'a', {'class': 'cs_is_hi_event', 'href':'javascript:'} )
+		var a = Dom.createAt( this.historyItems[i].layers[2], 'a', {'class': 'cs_is_hi_event', 'href':'javascript:'});
 		a.oncontextmenu = function(){return false;};
 		
 		Listener.add( a, 'mouseover', this.showTooltip, this, [i+1] );
@@ -82,9 +82,9 @@ ItemSlot.prototype = {
 				this.icons[index].src = "/images/icons/large/"+this.items[index].icon+".png";
 				this.icons[index].className = 'cs_is_img_large';
 				
-				DOM.addClass( this.historyItems[index-1].layers[1], 'cs_is_hip_enlarge');
+				Dom.addClass( this.historyItems[index-1].layers[1], 'cs_is_hip_enlarge');
 				
-				var tt = this.items[index].getTooltip() + "<div class='tt_note'>Press CTRL to prevent this tooltip from showing</div>"
+				var tt = this.items[index].getTooltip() + "<div class='tt_note'>Press CTRL to prevent this tooltip from showing</div>";
 				
 				Tooltip.showSlot(  tt , this.icons[index]);
 			}
@@ -108,7 +108,7 @@ ItemSlot.prototype = {
 			}
 			this.icons[index].className = 'cs_is_img_small';
 			
-			DOM.removeClass( this.historyItems[index-1].layers[1], 'cs_is_hip_enlarge');
+			Dom.removeClass( this.historyItems[index-1].layers[1], 'cs_is_hip_enlarge');
 		}
 		
 		Tooltip.hide();
@@ -126,9 +126,6 @@ ItemSlot.prototype = {
 		this.characterSheet.eventMgr.fire('item_right_click',{
 			'slot': this.slot, 'index': index
 		});
-	},
-	setVisibility: function(visible) {
-		this.node.style.display = (visible?"block":"none");
 	},
 	select: function() {
 		this.itemParent.layers[0].style.backgroundImage = "url(/images/site/item_border_hover.png)";
@@ -156,18 +153,23 @@ ItemSlot.prototype = {
 //					this.iconDivs[i].style.display = "none";
 //					this.highlightDivs[i].style.display = "none";
 					
-					DOM.removeClass(this.historyItems[i-1].layers[0], /^cs_is_quality_\d+$/);
+					Dom.removeClass(this.historyItems[i-1].layers[0], /^cs_is_quality_\d+$/);
 				}
 				else {
 					this.icons[i].src = "/images/charsheet/slots/slot_"+this.slot+".jpg";
-					this.itemParent.layers[0].style.backgroundImage = "url(/images/site/item_border.png)";
+					if( this.selected ) {
+						this.itemParent.layers[0].style.backgroundImage = "url(/images/site/item_border_hover.png)";
+					}
+					else {
+						this.itemParent.layers[0].style.backgroundImage = "url(/images/site/item_border.png)";
+					}
 				}
 			}
 			else {
 				
 				if( i > 0){
 					this.icons[i].style.display = "block";
-					DOM.addClass(this.historyItems[i-1].layers[0], 'cs_is_quality_'+itm.quality);
+					Dom.addClass(this.historyItems[i-1].layers[0], 'cs_is_quality_'+itm.quality);
 					//this.historyItems[i-1].style.display = "block";
 					this.icons[i].src = "/images/icons/gem/" + itm.icon + ".png";
 				}

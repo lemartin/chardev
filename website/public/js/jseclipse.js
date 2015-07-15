@@ -37,4 +37,4 @@ document.createElement = function( str ) { return null;};
  * @constructor
  * @param str
  */
-function Error(str){}
+function Error(str){ /**/ }

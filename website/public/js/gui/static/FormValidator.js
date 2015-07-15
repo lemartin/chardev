@@ -41,14 +41,14 @@ var FormValidator = {};
 				}
 				break;
 			case 'email':
-				if( ! value.match(/^.+\@.+\.\w{2,6}$/) ) {
+				if( ! value.match(/^.+@.+\.\w{2,6}$/) ) {
 					showError(el, "Invalid e-mail address");
 					valid = false;
 				}
 				break;
 			default: 
 				var matches;
-				if( matches = restrictions[i].match(/^min\=(\d+)$/)) {
+				if( matches = restrictions[i].match(/^min=(\d+)$/)) {
 					if( value.length < matches[1] ) {
 						showError(el, "Input is too short - Minimum length: " + matches[1] );
 						valid = false;

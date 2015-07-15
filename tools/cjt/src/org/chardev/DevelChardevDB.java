@@ -26,24 +26,32 @@ public class DevelChardevDB {
 		return false;
 	}
 	private static final String dbs[] = new String[]{
-		"jdbc:mysql://localhost:3306/chardev_cataclysm?",
-		"jdbc:mysql://localhost:3306/chardev_cataclysm_fr?",
-		"jdbc:mysql://localhost:3306/chardev_cataclysm_de?",
-		"jdbc:mysql://localhost:3306/chardev_cataclysm_es?",
-		"jdbc:mysql://localhost:3306/chardev_cataclysm_ru?"
-	};
-	private static final String basePaths[] = new String[]{
-		"Y:/chardev/cataclysm/DBFilesClient/",
-		"Y:/chardev/cataclysm/fr/DBFilesClient/",
-		"Y:/chardev/cataclysm/de/DBFilesClient/",
-		"Y:/chardev/cataclysm/es/DBFilesClient/",
-		"Y:/chardev/cataclysm/ru/DBFilesClient/"
+		"jdbc:mysql://localhost:3306/chardev_mop?",
+		"jdbc:mysql://localhost:3306/chardev_mop_fr?",
+		"jdbc:mysql://localhost:3306/chardev_mop_de?",
+		"jdbc:mysql://localhost:3306/chardev_mop_es?",
+		"jdbc:mysql://localhost:3306/chardev_mop_ru?"
 	};
 
 	public static void main(String[] args) {
-		connectToDatabase(dbs[0]);
+		connectToDatabase(dbs[0]);	
 		DBCParser p;
-		p = new DBCParser(databaseConnection, "y:\\chardev\\cataclysm\\dbfilesclient\\researchproject.dbc", "researchproject");
+		// gtOCTClassCombatRatingScalar DBC
+		// itemupgrade DB2
+		// RulesetItemUpgrade DB2
+		// gtresiliencedr
+		// itemspec
+		// itemspecoverride, modifiertree, questpoipoint, questv2
+		p = new DBCParser(databaseConnection, "i:\\Projekte\\chardev\\mop\\dbfilesclient\\spellmisc.dbc", "spellmisc");	
+		p.truncateTargetTable();
+//		p.additionalSkip = 0x10;
 		p.parse();
+//		DBCParser srp = new DBCParser(
+//				databaseConnection, 
+//				"i:\\Projekte\\chardev\\mop\\dbfilesclient\\itemupgrade.db2", "itemupgrade"
+//		);
+//		srp.additionalSkip = 0x10;
+//		srp.truncateTargetTable();
+//		srp.parse();
 	}
 }

@@ -8,50 +8,50 @@ function SaveInterface() {
 	
 	var div;
 	
-	this.node = DOM.create("div", {"class": 'im_parent'});
+	this.node = Dom.create("div", {"class": 'im_parent'});
 	//
 	// Update	
-	this.updateNode = DOM.create( 'form', {'action': 'javascript:'});
+	this.updateNode = Dom.create( 'form', {'action': 'javascript:'});
 	Listener.add(this.updateNode,"submit",function() {
 		this.eventMgr.fire('update');
 	},this,[]);
 	
-	DOM.createAt( this.updateNode, 'div', {'class': 'content_header im_header','text':'Update the current profile'});
+	Dom.createAt( this.updateNode, 'div', {'class': 'content_header im_header','text':'Update the current profile'});
 
-	DOM.append(
-		DOM.createAt(this.updateNode, 'div', {'class': 'im_sa_b'}), 
-		DOM.create('input', {'type': 'submit', 'value': 'Update', 'class': 'button button_light'})
+	Dom.append(
+		Dom.createAt(this.updateNode, 'div', {'class': 'im_sa_b'}), 
+		Dom.create('input', {'type': 'submit', 'value': 'Update', 'class': 'button button_light'})
 	);
 	
-	DOM.append(DOM.createAt( this.node, "div", {'class': 'im_sa_inputs'}), this.updateNode);
+	Dom.append(Dom.createAt( this.node, "div", {'class': 'im_sa_inputs'}), this.updateNode);
 	//
 	// New
-	this.newNode = DOM.create( 'form', {'action': 'javascript:'});
+	this.newNode = Dom.create( 'form', {'action': 'javascript:'});
 	Listener.add(this.newNode,"submit",function() {
-		this.eventMgr.fire('save',{'name': DOM.getValue(this.nameInput), 'desc': DOM.getValue(this.descInput)});
+		this.eventMgr.fire('save',{'name': Dom.getValue(this.nameInput), 'desc': Dom.getValue(this.descInput)});
 	},this,[]);
 
-	this.nameInput = DOM.create( 'input', {'class': 'input im_sa_in'});
-	this.descInput = DOM.create( 'input', {'class': 'input im_sa_in'});
+	this.nameInput = Dom.create( 'input', {'class': 'input im_sa_in'});
+	this.descInput = Dom.create( 'input', {'class': 'input im_sa_in'});
 	
-	DOM.createAt( this.newNode, 'div', {'class': 'content_header im_header','text':'Save as a profile'});
+	Dom.createAt( this.newNode, 'div', {'class': 'content_header im_header','text':'Save as a profile'});
 	
-	div = DOM.createAt(this.newNode, 'div', {'class': 'im_sa_r'});
-	DOM.createAt(div, 'div', {'class': 'im_sa_left', 'text': locale['S_ProfileName']});
-	DOM.append(DOM.createAt(div, 'div', {'class': 'im_sa_right'}), this.nameInput);
-	DOM.clear(div);
+	div = Dom.createAt(this.newNode, 'div', {'class': 'im_sa_r'});
+	Dom.createAt(div, 'div', {'class': 'im_sa_left', 'text': locale['S_ProfileName']});
+	Dom.append(Dom.createAt(div, 'div', {'class': 'im_sa_right'}), this.nameInput);
+	Dom.clear(div);
 	
-	div = DOM.createAt(this.newNode, 'div', {'class': 'im_sa_r'});
-	DOM.createAt(div, 'div', {'class': 'im_sa_left', 'text': locale['S_CharacterDescription']});
-	DOM.append(DOM.createAt(div, 'div', {'class': 'im_sa_right'}), this.descInput);
-	DOM.clear(div);
+	div = Dom.createAt(this.newNode, 'div', {'class': 'im_sa_r'});
+	Dom.createAt(div, 'div', {'class': 'im_sa_left', 'text': locale['S_CharacterDescription']});
+	Dom.append(Dom.createAt(div, 'div', {'class': 'im_sa_right'}), this.descInput);
+	Dom.clear(div);
 	
-	DOM.append(
-		DOM.createAt(this.newNode, 'div', {'class': 'im_sa_b'}), 
-		DOM.create('input', {'type': 'submit', 'value': 'Save', 'class': 'button button_light'})
+	Dom.append(
+		Dom.createAt(this.newNode, 'div', {'class': 'im_sa_b'}), 
+		Dom.create('input', {'type': 'submit', 'value': 'Save', 'class': 'button button_light'})
 	);
 	
-	DOM.append(DOM.createAt( this.node, "div", {'class': 'im_sa_inputs'}), this.newNode);
+	Dom.append(Dom.createAt( this.node, "div", {'class': 'im_sa_inputs'}), this.newNode);
 }
 
 SaveInterface.prototype = {
@@ -64,5 +64,11 @@ SaveInterface.prototype = {
 	newNode: null, updateNode: null,
 	update: function( updatable ) {
 		this.updateNode.style.display = updatable ? "" : "none";
+	},
+	/**
+	 * @param {GenericObserver} observer
+	 */
+	addObserver: function( observer ) {
+		this.eventMgr.addObserver(observer);
 	}
 };

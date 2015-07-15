@@ -26,6 +26,6 @@ SocketedGem.prototype = {
 	name: "",
 	
 	getTooltip: function() {
-		return ItemTooltip.getHTML(this.__gem, this.__character);
+		return ItemTooltip.getHtml(this.__gem, this.__character);
 	}
 };

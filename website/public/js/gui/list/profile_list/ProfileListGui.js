@@ -7,6 +7,10 @@ function ProfileListGui( categories) {
 	this.eventMgr.registerEvent('delete', ['profile_id', 'desc']);
 }
 ProfileListGui.prototype = new ListGui(null);
+ProfileListGui.prototype.isPlanner = false;
+ProfileListGui.prototype.setPlanner = function( b ) {
+	this.isPlanner = b && true;
+};
 ProfileListGui.prototype.newStaticFilter = function( filter ) {
 	var v = filter.variable;
 	if ( v == 'ismine' ) {
@@ -62,7 +66,13 @@ ProfileListGui.prototype.deserialize = function( data ) {
 
 		grid.cells[row][0].className = cellStyle + " pl_inline_header";
 		
-		a = DOM.createAt( grid.cells[row][0], 'a', { 'href': Tools.getBasePath() + data[i][8], 'class': 'pl_link', 'text': name } );
+		if( this.isPlanner ) {
+			a = Dom.createAt( grid.cells[row][0], 'a', { 'href': 'javascript:', 'class': 'import' } );
+			ChardevHtml.addTooltip(a,"Import as new character into current planner");
+			Dom.listen( a, "click", this.eventMgr.fire, this.eventMgr, ["click", {"entity": data[i]}]);
+		}
+		
+		a = Dom.createAt( grid.cells[row][0], 'a', { 'href': Tools.getBasePath() + data[i][8], 'class': 'pl_link', 'text': name } );
 		
 		if( data[i][3] ) {
 			a.onmouseout = function(){Tooltip.hide();};
@@ -71,7 +81,7 @@ ProfileListGui.prototype.deserialize = function( data ) {
 		}
 		grid.cells[row][0].appendChild(a);
 		
-		DOM.createAt( grid.cells[row][0] , 'span', {'class': 'pl_ih_info', 'text': "&nbsp;Created: "+data[i][7]+"&nbsp;"} );
+		Dom.createAt( grid.cells[row][0] , 'span', {'class': 'pl_ih_info', 'text': "&nbsp;Created: "+data[i][7]+"&nbsp;"} );
 		
 //			if( this.onclickHandler ) {
 //				a = document.createElement("a");
@@ -102,8 +112,8 @@ ProfileListGui.prototype.deserialize = function( data ) {
 		
 		grid.cells[row][column].className = cellStyle;
 		
-		if( g_settings.userId == data[i][1] ) {
-			var delLink = DOM.createAt( grid.cells[row][column], 'a', {'class': 'close pl_delete_link', 'href': 'javascript:;'} );
+		if( g_settings.user && g_settings.user.id == data[i][1] ) {
+			var delLink = Dom.createAt( grid.cells[row][column], 'a', {'class': 'close pl_delete_link', 'href': 'javascript:;'} );
 			Listener.add(delLink, 'click', function(id, name){
 				this.eventMgr.fire('delete', {'profile_id': id, 'desc': name });
 			}, this, [data[i][0], name]);

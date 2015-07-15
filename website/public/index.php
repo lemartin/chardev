@@ -1,11 +1,13 @@
 <?php
 
-use chardev\Session;
+require_once __DIR__ . "/../app/bootstrap.php";
+
 use chardev\ChardevHelper;
 use chardev\FormatHelper;
+use chardev\Session;
+use chardev\TemplateHelper;
+use chardev\backend\DoesNotExistException;
 use chardev\backend\UserDatabase;
-
-require_once '../app/chardev/Autoloader.php';
 
 define('BUILD', (int)file_get_contents("../build/.build"));
 
@@ -15,15 +17,19 @@ $uri = $_SERVER['REQUEST_URI'];
 $th = new TemplateHelper();
 $th->addStyleSheets(array("chardev9.css","list.css","tooltip.css"));
 
-$th->addScripts(array("js/common/extern/md5.js","js/common/extern/json2.js","js/common/extern/jquery-1.7.2.min.js"));
+$th->addScripts(array(
+		"js/common/extern/md5.js",
+		"js/common/extern/json2.js",
+		"js/common/extern/jquery-1.7.2.min.js",
+		"js/common/extern/stacktrace-min-0.3.js"));
 
-if( isset($_GET['debug']) ) {
+//if( isset($_GET['debug']) ) {
 	include '../build/js_files.php';
 	$th->addScripts($js_files);
-}
-else {
-	$th->addScript("js/all_optimised.js");
-}
+// }
+// else {
+// 	$th->addScript("js/all_optimised.js");
+// }
 
 $loggedInUser = Session::getLoggedInUser();
 
@@ -32,12 +38,13 @@ try {
 		header("Location: http://wotlk.chardev.org" . $matches[1]);
 		die;
 	}
-	else if( isset($_GET['planner']) ) {
+	else 
+	if( isset($_GET['planner']) ) {
 		header("Location: ".TemplateHelper::getBasePath()."Planner.html");
 		die;
 	}
 	else if(isset($_GET['t']) || preg_match('/^\/talents\/([^\/]+)\.html(?:\?.*|$)/',$uri,$matches)) {
-		$th->setTemplate('Talents',array( 'id-name' => isset($matches) ? $matches[1] : ""));
+		$th->setTemplate('Talents',array( 'id-name' => isset($matches) && isset($matches[1]) ? $matches[1] : ""));
 	}
 	else if( preg_match('/^\/(?:\?.*|$)/',$uri,$matches)) {
 		$th->setTemplate('Index');
@@ -88,7 +95,40 @@ try {
 			$th->setTemplate("Error404");
 		}
 	}
-	else if( preg_match('/^\/item\/([^\/]+)\.html(?:\?.*|$)/',$uri,$matches)) {
+	//
+	//	SPELL
+	//
+	else if( preg_match('/^\/spell\/([^\/]+)\.html(?:\?.*|$)/',$uri,$matches) || preg_match('/^\/spell\/(\d+)$/',$uri,$matches)) {
+		$parsed = FormatHelper::parseVerboseUrl($matches[1]);
+		
+		if( $parsed == null ) {
+			return;
+		}
+		
+		$spellId = $parsed["ID"];
+		//
+		// Retrieve spell from db
+		try {
+			$data = chardev\backend\data\SpellData::getInstance()->fromId($spellId);
+			$spell = new chardev\backend\entities\Spell($data);
+			//
+			// Found spell name is not matching the ID -> redirect
+			if ($parsed["Name"] != FormatHelper::escapeForUrl($spell->getName())) {
+				header("Location: ".TemplateHelper::getBasePath()."spell/".FormatHelper::verboseUrl($spell->getId(),$spell->getName()).".html");
+			}
+			//
+			$th->setTemplate("Spells", array("spell" => $spell));
+		}
+		//
+		// No spell with ID found
+		catch( DoesNotExistException $e ) {
+			$th->setTemplate("Error404");
+		}
+	}
+	//
+	//	ITEM
+	//
+	else if( preg_match('/^\/item\/([^\/]+)\.html(?:\?.*|$)/',$uri,$matches) || preg_match('/^\/item\/(\d+)$/',$uri,$matches)) {
 		$parsed = FormatHelper::parseVerboseUrl($matches[1]);
 		
 		if( $parsed == null ) {
@@ -96,11 +136,6 @@ try {
 		}
 		
 		$itemId = $parsed["ID"];
-		//
-		// Invalid ID
-		if ($itemId <= 0) {
-			$this->_redirectToNamedItem();
-		}
 		//
 		// Retrieve item from db
 		try {
@@ -116,7 +151,7 @@ try {
 		}
 		//
 		// No item with ID found
-		catch( chardev\backend\DoesNotExistException $e ) {
+		catch( DoesNotExistException $e ) {
 			$th->setTemplate("Error404");
 		}
 	}
@@ -210,4 +245,4 @@ catch( \Exception $e ) {
 	$th->setTemplate("Error404", array( "exception" => $e ));
 }
 
-include '../app/layouts/layout.phtml';
+include __DIR__ . '/../app/layouts/layout.phtml';

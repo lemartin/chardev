@@ -36,7 +36,7 @@ function StaticGrid( rows, cols ){
 			this.rows[i].appendChild(this.cells[i][j]);
 		}
     }
-};
+}
 
 StaticGrid.VALIGN_TOP = 'top';
 StaticGrid.VALIGN_MIDDLE = 'middle';

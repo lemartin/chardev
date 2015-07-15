@@ -3,25 +3,25 @@
  */
 function BatchOperations() {
 	this.ops = {};
-	this.node = DOM.create('div', {'class': 'ba_p'});
+	this.node = Dom.create('div', {'class': 'ba_p'});
 	
 	this.batchCollapsable = new Collapsable();
-	this.batchCollapsable.header.appendChild(DOM.create('a', {'href': 'javascript:;', 'text': locale['RF_BatchHeader']}));
+	this.batchCollapsable.header.appendChild(Dom.create('a', {'href': 'javascript:;', 'text': locale['RF_BatchHeader']}));
 	this.batchCollapsable.header.className = "collapse_h ba_collapse_h";
 	this.batchCollapsable.content.className = "collapse_c ba_collapse_c";
 	this.batchCollapsable.node.className = "collapse ba_collapse";
 	
 	this.opsContainer = this.batchCollapsable.content;
 	
-	DOM.append(this.node, this.batchCollapsable.node);
+	Dom.append(this.node, this.batchCollapsable.node);
 }
 
 BatchOperations.prototype = {
 	ops: null,
 	batchCollapsable: null, opsContainer: null, node: null,
 	addSimple: function( id, title, handler ) {
-		var div = DOM.createAt( this.opsContainer, 'div', {'class': 'ba_op_container'});
-		var a = DOM.createAt( div , 'a', {
+		var div = Dom.createAt( this.opsContainer, 'div', {'class': 'ba_op_container'});
+		var a = Dom.createAt( div , 'a', {
 			'text': title,
 			'href': 'javascript:;', 
 			'class': 'ba_simple_op_link'
@@ -34,18 +34,18 @@ BatchOperations.prototype = {
 	addComplex: function( id, title, node, info ) {
 		var div, div2;
 		
-		div = DOM.createAt( this.opsContainer, 'div', {
+		div = Dom.createAt( this.opsContainer, 'div', {
 			'class': 'ba_op_container'
 		});
 		
-		var titleDiv = DOM.createAt( div, 'div', {'class': 'ba_op_title','text': title});
+		var titleDiv = Dom.createAt( div, 'div', {'class': 'ba_op_title','text': title});
 		
 		if( info ) {
-			DOM.append(titleDiv, ChardevHTML.getInfo(info));
+			Dom.append(titleDiv, ChardevHtml.getInfo(info));
 		}
 		
-		div2 = DOM.createAt( div, 'div', {});
-		DOM.append(div2, node);
+		div2 = Dom.createAt( div, 'div', {});
+		Dom.append(div2, node);
 		this.ops[id] = { 'id': id, 'node': div};
 		return this.ops[id];
 	},
@@ -79,15 +79,15 @@ this.batch.appendChild(this.batchCollapsable.node);
 	this.batchCollapsable.content.className = "collapse_c";
 	this.batchCollapsable.node.className = "ra_group ba_collapse";
 	
-	a = DOM.createAt( this.batchCollapsable.content, 'a', {'text': locale['SI_RemoveAllGems'],'href': 'javascript:', 'class': 'ba_simple_op_link'});
+	a = Dom.createAt( this.batchCollapsable.content, 'a', {'text': locale['SI_RemoveAllGems'],'href': 'javascript:', 'class': 'ba_simple_op_link'});
 	Listener.add(a,"click",this.onBatchOperation,this,[SocketInterface.BATCH_OP_REM_ALL]);
 	
-	this.baOpRemColTitle = DOM.createAt( this.batchCollapsable.content, 'a', {'href': 'javascript:', 'class': 'ba_simple_op_link'});
+	this.baOpRemColTitle = Dom.createAt( this.batchCollapsable.content, 'a', {'href': 'javascript:', 'class': 'ba_simple_op_link'});
 	Listener.add(this.baOpRemColTitle,"click",this.onBatchOperation,this,[SocketInterface.BATCH_OP_REM_ALL_SAME_GEM]);
 	
-	this.baOpSocAllTitle = DOM.createAt( this.batchCollapsable.content, 'a', {'href': 'javascript:', 'class': 'ba_simple_op_link'});
+	this.baOpSocAllTitle = Dom.createAt( this.batchCollapsable.content, 'a', {'href': 'javascript:', 'class': 'ba_simple_op_link'});
 	Listener.add(this.baOpSocAllTitle,"click",this.onBatchOperation,this,[SocketInterface.BATCH_OP_SOCK_ALL]);
 	
-	this.baOpSocColTitle = DOM.createAt( this.batchCollapsable.content, 'a', {'href': 'javascript:', 'class': 'ba_simple_op_link'});
+	this.baOpSocColTitle = Dom.createAt( this.batchCollapsable.content, 'a', {'href': 'javascript:', 'class': 'ba_simple_op_link'});
 	Listener.add(this.baOpSocColTitle,"click",this.onBatchOperation,this,[SocketInterface.BATCH_OP_SOCK_ALL_COL]);
 */

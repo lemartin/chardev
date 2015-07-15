@@ -24,9 +24,30 @@ if( ! $profile ) {
 
 <script type="text/javascript">
 <!--
-	g_settings.profile=<?php echo json_encode($profile)?>;
-	g_settings.profileLoadError=<?php echo json_encode($profileLoadError)?>;
-	g_settings.isPlanner=true;
+	$(function(){
+
+		var planner = new CharacterPlanner();
+		var gui = new CharacterPlannerGui();
+		new CharacterPlannerGuiAdapter(planner, gui);
+<?php
+	$loggedInUser = \chardev\Session::getLoggedInUser();
+
+	if( $loggedInUser ):
+?>
+		planner.setUser(new User(<?php echo json_encode($loggedInUser->getJsUserData())?>));
+<?php 
+	endif;
+	if( $profile || $profileLoadError ) :
+?>
+		planner.load( <?php echo json_encode($profile ? $profile : null)?>, <?php echo json_encode($profileLoadError)?>);
+<?php 
+	else:
+?>
+		planner.newCharacter();
+<?php 
+	endif;
+?>
+	});
 //-->
 </script>
 

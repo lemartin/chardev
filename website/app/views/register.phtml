@@ -48,7 +48,7 @@ use chardev\backend\UserDatabase;
 		$step = 5;
 		try {
 			$id = UserDatabase::getInstance()->activateUser($_GET['Token']);
-			header("Location: " . self::getBasePath() . "Login.html?Registration");
+			header("Location: " . \chardev\TemplateHelper::getBasePath() . "Login.html?Registration");
 			die;
 		}
 		catch( \Exception $e ) {

@@ -153,7 +153,7 @@ var TextIO = {
 			desc = desc.replace(/\$max\b/gi, 	"Math.max");
 			desc = desc.replace(
 				/\$hnd\b/gi, 	
-				character.getEquippedItem(16, 0) ? (character.getEquippedItem(16, 0).inventorySlot == 17 && null == character.getEquippedItem(17, 0) ? "2" : "1") : "1"
+				character.getEquippedItem(16, 0) ? (character.getEquippedItem(16, 0).isTwoHanded() && null == character.getEquippedItem(17, 0) ? "2" : "1") : "1"
 			);
 			
 			desc = desc.replace(/\$ap\b/gi, 	String(Math.floor(stats.attackPower)));
@@ -397,5 +397,23 @@ var TextIO = {
 	verboseUrl: function( id, name )  {
 		name = name.replace(/\'|\,|\?|!/g, '').replace(/(?:\s|\\|\:|\/|\&|-|<|>|\.)+/g, '-');
 		return id + "-" + name;
-	}
+	},
+    /**
+     * @param {number} n
+     */
+    //TODO format numbers: allow multiple numbers, return the best way to show them all
+    formatNumber: function( n ) {
+        if( typeof n !== "number" ) {
+            return n;
+        }
+        if( n >= 10000 ) {
+            return Math.floor(n/1000) + "k";
+        }
+        else if( n >= 1000 ) {
+            return TextIO.formatFloat2(n/1000) + "k";;
+        }
+        else {
+            return TextIO.formatFloat2(n);
+        }
+    }
 };

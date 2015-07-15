@@ -30,6 +30,8 @@ Stats.prototype.health = 0;
 Stats.prototype.mana = 0;
 Stats.prototype.baseHealth = 0;
 Stats.prototype.baseMana = 0;
+Stats.prototype.healthFromGear = 0;
+Stats.prototype.manaFromGear = 0;
 
 Stats.prototype.spellPower = 0;
 Stats.prototype.spellHasteRating = 0;
@@ -42,11 +44,10 @@ Stats.prototype.spellCritRating = 0;
 Stats.prototype.spellCrit = 0;
 Stats.prototype.spellPenetrations = [];
 
-Stats.prototype.manaFromInt = 0;
 Stats.prototype.healthFromSta = 0;
 Stats.prototype.manaRegenFromSpi = 0;
 
-Stats.prototype.masteryRating = 0; 
+Stats.prototype.masteryRating = 0;
 Stats.prototype.mastery = 0;
 
 Stats.prototype.apPerCentModifer = 0;
@@ -94,14 +95,12 @@ Stats.prototype.itemLevel = 0;
 Stats.prototype.armorModPerCent = 0;
 Stats.prototype.meleeMiss = 0;
 
-Stats.prototype.hitTillMeleeCap = 0;
-Stats.prototype.expTillDodgeCap = 0;
-Stats.prototype.expTillParryCap = 0;
+Stats.prototype.pvpPowerRating = 0;
 
 Stats.prototype.__started = false;
 
 /**
- * @private 
+ * @private
  */
 Stats.prototype.reset = function() {
 	var i;
@@ -112,22 +111,24 @@ Stats.prototype.reset = function() {
 	this.spFromAttributes = [0,0,0,0,0];
 	this.critFromAttributes = [0,0,0,0,0];
 	this.spellCritFromAttributes = [0,0,0,0,0];
-	
+
 	this.ratings = [];
 	for( i=0; i<CALC_RATINGS; i++ ) {
 		this.ratings[i] = 0;
 	}
 	this.melee = [0,0,0,0,0,0,0,0,0,0];
-	this.ranged = [[0,0],0,0,0,0,0,0,0];
+	this.ranged = [[0,0],0,0,0,0,0,0,0,0];
 	this.spell = [0,0,0,0,0,0,0,0];
-	this.defense = [0,0,0,0,0,0,0];
+	this.defense = [0,0,0,0,0,0,0,0];
 	this.resistance = [0,0,0,0,0];
-	
+
 	this.health = 0;
 	this.mana = 0;
 	this.baseMana = 0;
 	this.baseHealth = 0;
-	
+    this.healthFromGear = 0;
+    this.manaFromGear = 0;
+
 	this.spellPower = 0;
 	this.spellHasteRating = 0;
 	this.spellHaste = 0;
@@ -138,15 +139,14 @@ Stats.prototype.reset = function() {
 	this.mp5 = 0;
 	this.spellCritRating = 0;
 	this.spellCrit = 0;
-	
-	this.manaFromInt = 0;
+
 	this.healthFromSta = 0;
 	this.manaRegenFromSpi = 0;
-	
+
 	this.apPerCentModifer = 0;
 	this.attackPower = 0;
 	this.additionalAttackPower = 0;
-	
+
 	this.meleeHaste = 0;
 	this.meleeHasteRating = 0;
 	this.meleeHasteFromRating = 0;
@@ -155,7 +155,7 @@ Stats.prototype.reset = function() {
 	this.meleeHit = [0,0,0];
 	this.meleeCritRating = [0,0,0];
 	this.meleeCrit = [0,0,0];
-	
+
 
 	this.rangedHaste = 0;
 	this.rangedHasteRating = 0;
@@ -164,23 +164,23 @@ Stats.prototype.reset = function() {
 	this.rangedCritRating = 0;
 	this.rangedHit = 0;
 	this.rangedHitRating = 0;
-	
+
 	this.expertiseRating = [0,0,0,0];
 	this.expertise = [0,0,0,0];
-	
-	this.masteryRating = 0; 
+
+	this.masteryRating = 0;
 	this.mastery = 0;
-	
+
 	this.mhMinDmg = 0;
 	this.mhMaxDmg = 0;
 	this.mhSpeed = 0;
 	this.mhDps = 0;
-	
+
 	this.ohMinDmg = 0;
 	this.ohMaxDmg = 0;
 	this.ohSpeed = 0;
 	this.ohDps = 0;
-	
+
 	this.parryRating = 0;
 	this.dodgeRating = 0;
 	this.dodge = 0;
@@ -188,15 +188,15 @@ Stats.prototype.reset = function() {
 	this.block = 0;
 	this.armorModPerCent = 0;
 	this.meleeMiss = 0;
-	
+
 	this.rangedAttackPower = 0;
 	this.raMinDmg = 0;
 	this.raMaxDmg = 0;
 	this.raSpeed = 0;
 	this.raDps = 0;
-	
-	this.hitTillMeleeCap = 0;
-	
+
+	this.pvpPowerRating = 0;
+
 	for( i=0; i<MAGIC_SCHOOLS; i++ ) {
 		this.spellPenetrations[i] = 0;
 	}
@@ -204,7 +204,7 @@ Stats.prototype.reset = function() {
 		this.resisSchool[i] = 0;
 	}
 	this.itemLevel = 0;
-	
+
 	this.statPerCentModifier = [0,0,0,0,0,0,0,0];
 };
 
@@ -223,20 +223,45 @@ Stats.prototype.getReductionFromArmor = function(level){
 };
 
 /**
- * @param {number} _v
+ * @param {number} value
  * @param {number} chrClassId
  * @returns {number}
  */
-Stats.prototype.deminishingReturnDodge = function(_v, chrClassId){
-	return 1 / (DIMINISHING_K[chrClassId-1] / _v + (DIMINISHING_CD[chrClassId-1] ? 1 / DIMINISHING_CD[chrClassId-1] : 0));
+Stats.prototype.diminishingReturnDodge = function(value, chrClassId){
+    if( value === 0 ) {
+        return 0;
+    }
+    var q = (DIMINISHING_K[chrClassId-1] / value + (DIMINISHING_CD[chrClassId-1] ? 1 / DIMINISHING_CD[chrClassId-1] : 0));
+    if( q === 0 ) {
+        return 0;
+    }
+	return 1 / q;
 };
 /**
- * @param {number} _v
+ * @param {number} value
  * @param {number} chrClassId
  * @returns {number}
  */
-Stats.prototype.deminishingReturnParry = function(_v, chrClassId){
-	return 1 / (DIMINISHING_K[chrClassId-1] / _v + (DIMINISHING_CP[chrClassId-1] ? 1 / DIMINISHING_CP[chrClassId-1] : 0));
+Stats.prototype.diminishingReturnParry = function(value, chrClassId){
+    if( value === 0 ) {
+        return 0;
+    }
+	var q = (DIMINISHING_K[chrClassId-1] / value + (DIMINISHING_CP[chrClassId-1] ? 1 / DIMINISHING_CP[chrClassId-1] : 0));
+    if( q === 0 ) {
+        return 0;
+    }
+	return 1 / q;
+};
+/**
+ * @param {number} value
+ * @param {number} chrClassId
+ * @returns {number}
+ */
+Stats.prototype.diminishingReturnBlock = function(value, chrClassId){
+    if( value === 0 || DIMINISHING_CB[chrClassId-1] === 0 || DIMINISHING_K[chrClassId-1] === 0 ) {
+        return 0;
+    }
+	return 1 / ( 1 / DIMINISHING_CB[chrClassId-1] + DIMINISHING_K[chrClassId-1] / value);
 };
 /**
  * @param {boolean} preview
@@ -256,66 +281,72 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 	this.character.inventory.updateGemCount();
 	//
 	var i, j, itm, tmp, enchant, itemCount = 0;
-	
+
 	var inv = this.character.inventory;
 	var wearsAWeaponInOffhand = inv.get(17) != null && inv.get(17).itemClass == 2;
-	var wearsRangedWeapon = inv.get(18) != null && inv.get(18).itemClass == 2;
-	
+	var wearsRangedWeapon = inv.get(16) != null && inv.get(16).isRangedWeapon();
+
 	var level = this.character.level;
 	var effects = this.character.auras.getEffects(noBuffs);
 	var baseEffects = effects[0];
 	var mhEffects = effects[1];
 	var ohEffects = effects[2];
 	var raEffects = effects[3];
-	
+
 	var raceId = this.character.chrRace == null ? 0 : this.character.chrRace.id;
-	
+
 	var chrClass = this.character.chrClass;
 	var hasClass = false;
-	var classId  = 0; 
+	var classId  = 0;
 	var shapeform = 0;
 	var selectedTree = -1;
 	var baseStats = null;
 	var baseStatsLevel = null;
-	
+
 	if( chrClass ) {
 		hasClass = true;
 		classId = chrClass.id;
 		shapeform = chrClass.shapeform;
-		selectedTree = chrClass.talents.selectedTree;
+		selectedTree = chrClass.selectedSpec;
 		baseStats = chrClass.baseStats;
+
 		if( baseStats[level] ) {
 			baseStatsLevel =  baseStats[level];
 		}
 	}
-		
+
 	var baseAttributesUnmodified = [0,0,0,0,0];
 	var ap_array = AP_PER_STAT[classId];
-	
+
 	if( classId == DRUID && shapeform > 0 ) {
 		switch( shapeform ) {
-		case CAT:	
+		case CAT:
 			ap_array = AP_PER_STAT_CAT;
 			break;
-		case BEAR:	
+		case BEAR:
 			ap_array = AP_PER_STAT_BEAR;
 			break;
-		case MOONKIN:	
+		case MOONKIN:
 			ap_array = AP_PER_STAT_MOONKIN;
 			break;
 		}
 	}
-	
+
 	this.reset();
-	
+
 	if( !hasClass || !baseStatsLevel ) {
 		baseStatsLevel = [0,0,0,0,0,0,0,0,0,0,0];
 	}
 
-	this.baseHealth = baseStatsLevel[5];
-	this.baseMana = baseStatsLevel[6];
-	
-	for( i = 0; i < 5; i++ ) {	
+	this.baseHealth = 0;
+	this.baseMana = 0;
+
+	if( hasClass ) {
+		this.baseHealth = BASE_HP[classId-1][level - 1];
+		this.baseMana = BASE_MP[classId-1][level - 1];
+	}
+
+	for( i = 0; i < 5; i++ ) {
 		baseAttributesUnmodified[i] = ( RACE_ATTRIBUTES[raceId][i] + ( hasClass ? baseStatsLevel[i] : 0 ));
 		this.baseAttributes[i] = Math.floor(baseAttributesUnmodified[i] * ( 1 + baseEffects[137][i]/100 ));
 	}
@@ -356,27 +387,27 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 	//
 	//#########################################################################
 	//
-	
+
 	// Item Stats
-	
+
 	this.armorModPerCent = baseEffects[142][0]/100;
-	
-	for( i = 0; i < INV_ITEMS; i++) {
+
+	for( i = 0; i < Inventory.SLOTS; i++) {
 		var hasBSSocket = this.character.hasBlacksmithingSocket(i);
-		
+
 		itm = preview ? inv.get(i) : inv.items[i][0];
-		if( itm == null || !this.character.canWear(itm) || !this.character.fitsItemClassRequirements(itm) ) {
+		if( itm === null || !this.character.canWear(itm) || !this.character.fitsItemClassRequirements(itm) || ! this.character.fitsLevelRequirements(itm) ) {
 			continue;
 		}
 		itm.setStats(level);
-		if( i!=5 && i!=6 ) {
+		if( i !== 5 && i !== 6 ) {
 			itemCount++;
 			this.itemLevel += itm.level;
 		}
 		this.getItemStats(itm);
 		for( j=0; j<3; j++ ) {
 			if( itm.gems[j] ) {
-				
+
 				if( itm.socketColors[j] <= 0 ) {
 					if( ! hasBSSocket ) {
 						continue;
@@ -394,7 +425,7 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 		}
 		for( j=0; j<itm.enchants.length; j++ ) {
 			enchant = itm.enchants[j];
-			if( enchant != null ) {
+			if( enchant !== null ) {
 				this.getEnchantStats( enchant );
 			}
 		}
@@ -402,14 +433,14 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 			var es = itm.selectedRandomEnchantment.enchants;
 			for(j=0; j<5; j++ ) {
 				enchant = es[j];
-				if( enchant != null ) {
+				if( enchant !== null ) {
 					this.getEnchantStats( enchant );
 				}
 			}
 		}
 	}
 	this.resisSchool[0] = Math.round( (this.resisSchool[0] + baseEffects[22][0] + baseEffects[143][0] ) * (1 + baseEffects[101][0]/100) );
-	
+
 	for( i = 1; i < this.resisSchool.length; i++ ) {
 		this.resisSchool[i] = Math.round( ( this.resisSchool[i] + baseEffects[22][i] + baseEffects[143][i] ) * ( 1 + baseEffects[142][i]/100 ) );
 	}
@@ -431,7 +462,7 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 		baseEffects[137][4],
 		baseEffects[137][2]
 	];
-	
+
 	for( i = 0; i < 5; i++ ) {
 		this.attributes[i] += baseEffects[29][i];
 		this.attributes[i] *= 1 + baseEffects[137][i]/100;
@@ -439,16 +470,18 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 		this.attributes[i] = Math.floor(this.attributes[i]);
 		// TODO shapeform
 		if( ap_array[i] > 0 ) {
-			this.apFromAttributes[i] =  this.attributes[i] >= 10 * ap_array[i] ? this.attributes[i] * ( baseEffects[268][i] / 100 +  ap_array[i] ) - 10 * ap_array[i] : 0; 
+			this.apFromAttributes[i] =  this.attributes[i] >= 10 * ap_array[i] ? this.attributes[i] * ( baseEffects[268][i] / 100 +  ap_array[i] ) - 10 * ap_array[i] : 0;
 		}
-		// 
+		//
 		for( j=0; j<32; j++ ) {
 			this.ratings[j] += Math.floor(baseEffects[220][j][i]/100 * ( this.attributes[i] - baseAttributesUnmodified[i] ));
 		}
 	}
 
-	this.critFromAttributes[1] 		+= BASE_MELEE_CRIT[classId] * 100 + this.attributes[1] * baseStatsLevel[7];
-	this.spellCritFromAttributes[3] 	+= BASE_SPELL_CRIT[classId] * 100 + this.attributes[3] * baseStatsLevel[8];
+	if( hasClass ) {
+		this.critFromAttributes[1] += BASE_MELEE_CRIT[classId-1] * 100 + this.attributes[1] / AGI_TO_MELEE_CRIT_CONVERSION[classId-1][level-1];
+		this.spellCritFromAttributes[3] += BASE_SPELL_CRIT[classId-1] * 100 + this.attributes[3] / INT_TO_MELEE_CRIT_CONVERSION[classId-1][level-1];
+	}
 	//
 	//	Expertise
 	//
@@ -456,8 +489,8 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 	//
 	for( i=0; i<4; i++ ) {
 		this.expertiseRating[i] += effects[i][189][23];
-		this.expertise[i] += 
-			this.expertiseRating[i] / COMBAT_RATINGS[23][level-1] + 
+		this.expertise[i] +=
+			this.expertiseRating[i] / COMBAT_RATINGS[23][level-1] +
 			effects[i][240];
 		if( i> 0 ) {
 			this.expertise[i] += this.expertise[0];
@@ -465,20 +498,15 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 		}
 	}
 	//
-	//		till cap
-	//
-	this.expTillDodgeCap = Math.ceil(( ENEMY_DODGE[3] - this.expertise[1] * EXPERTISE_TO_CHANCE ) * COMBAT_RATINGS[23][level-1] / EXPERTISE_TO_CHANCE );
-	this.expTillParryCap = Math.ceil(( ENEMY_PARRY[3] - this.expertise[1] * EXPERTISE_TO_CHANCE ) * COMBAT_RATINGS[23][level-1] / EXPERTISE_TO_CHANCE );
-	//
 	// 	Mastery
 	//
 	if( level >= 80 ) {
 		this.masteryRating = this.ratings[38] + baseEffects[189][25];
 
-		if( classId == WARRIOR && chrClass.talents.selectedTree == 1 ) {
+		if( classId == WARRIOR && chrClass.selectedSpec == 1 ) {
 			this.mastery = 2 + this.masteryRating / COMBAT_RATINGS[25][level-1];
 		}
-		else if( classId == MAGE && chrClass.talents.selectedTree == 2 ) {
+		else if( classId == MAGE && chrClass.selectedSpec == 2 ) {
 			this.mastery = 2 + this.masteryRating / COMBAT_RATINGS[25][level-1];
 		}
 		else {
@@ -491,12 +519,11 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 	//
 	//#########################################################################
 	//
-	this.healthFromSta = ( level < 80 ? 10 : 10 + (level - 80) * 0.8 )  * Math.max( 0, this.attributes[2] - 20 ) + ( this.attributes[2] >= 20 ? 20 : this.attributes[2] );
-	this.health = this.healthFromSta + this.baseHealth * ( 1 + baseEffects[282] / 100 ) + baseEffects[34] + baseEffects[230] ;
+	this.healthFromSta = ( level < 80 ? 10 : level < 85 ? 10 + (level - 80) * 0.8 : 14 )  * Math.max( 0, this.attributes[2] - 20 ) + ( this.attributes[2] >= 20 ? 20 : this.attributes[2] );
+	this.health = this.healthFromSta + this.baseHealth * ( 1 + baseEffects[282] / 100 ) + baseEffects[34] + baseEffects[230] + this.healthFromGear;
 	this.health*= 1 + baseEffects[133]/100;
 	//
-	this.manaFromInt = 15 * Math.max( 0, this.attributes[3] - 20 ) + ( this.attributes[3] >= 20 ? 20 : this.attributes[3] );
-	this.mana = this.manaFromInt + this.baseMana + baseEffects[35][0];
+	this.mana = this.baseMana + this.manaFromGear;
 	this.mana*= 1 + baseEffects[132]/100;
 	//
 	//#########################################################################
@@ -524,9 +551,9 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 	this.apPerCentModifer += baseEffects[166];
 	//
 	this.attackPower+= AP_PER_LEVEL[classId] * level; // BASE_AP[classId] removed
-	for ( i = 0; i < 5; i++) 
+	for ( i = 0; i < 5; i++)
 	{
-		this.attackPower += this.apFromAttributes[i];			
+		this.attackPower += this.apFromAttributes[i];
 	}
 	//
 	this.additionalAttackPower *= (1 + this.apPerCentModifer/100);
@@ -549,13 +576,13 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 	//-------------------------------------------------------------------------
 	//	MELEE
 	//-------------------------------------------------------------------------
-	//	Item independant / main hand / off-hand switch 
+	//	Item independant / main hand / off-hand switch
 	//
 	// 		Hit
 	this.meleeHitRating[0] = this.ratings[5] + this.ratings[20];
 	// 		Crit
 	this.meleeCritRating[0] = this.ratings[8] + this.ratings[21];
-	
+
 	for( j=0; j<this.attributes.length; j++ ) {
 		this.meleeCrit[0] += this.critFromAttributes[j];
 	}
@@ -564,11 +591,11 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 	// 			Hit
 		this.meleeHitRating[i] += effects[i][189][5] + effects[i][189][20];
 		this.meleeHit[i] +=
-			this.meleeHitRating[i] / COMBAT_RATINGS[5][level-1] + 
+			this.meleeHitRating[i] / COMBAT_RATINGS[5][level-1] +
 			effects[i][54];
 	// 			Crit
 		this.meleeCritRating[i] += effects[i][189][8] + effects[i][189][21];
-		this.meleeCrit[i] += 
+		this.meleeCrit[i] +=
 			this.meleeCritRating[i] / COMBAT_RATINGS[8][level-1] +
 			effects[i][52] + effects[i][290] + effects[i][71][0];
 	//			Sum up
@@ -580,10 +607,6 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 		}
 	}
 	//
-	//		till Cap
-	//
-	this.hitTillMeleeCap = Math.ceil(( MELEE_MISS_BASE[3] - this.meleeHit[1] ) * COMBAT_RATINGS[5][level-1]);
-	//
 	//-------------------------------------------------------------------------
 	//	RANGED
 	//-------------------------------------------------------------------------
@@ -591,15 +614,15 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 	//	HIT
 	//
 	this.rangedHitRating = this.ratings[6] + this.ratings[20];
-	this.rangedHit = 
+	this.rangedHit =
 		this.rangedHitRating / COMBAT_RATINGS[6][level-1] +
 		baseEffects[54] + raEffects[54];
 	//
 	//	CRIT
 	//
 	this.rangedCritRating = this.ratings[9] + this.ratings[21];
-	this.rangedCrit = 
-		this.rangedCritRating / COMBAT_RATINGS[9][level-1] + 
+	this.rangedCrit =
+		this.rangedCritRating / COMBAT_RATINGS[9][level-1] +
 		baseEffects[290] + baseEffects[71][0] + baseEffects[52] +
 		raEffects[290] + raEffects[71][0] + raEffects[52];
 	for( j=0; j<this.attributes.length; j++ ) {
@@ -613,7 +636,7 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 	//#########################################################################
 	// TODO feral ap
 	/*
-	if (chrClassId == 1024 && (shapeform == 1 || shapeform == 2 || shapeform == 3) && (tmp = inventory.get(16))) 
+	if (chrClassId == 1024 && (shapeform == 1 || shapeform == 2 || shapeform == 3) && (tmp = inventory.get(16)))
 	{
 		this.attackPower += tmp.getFeralAp() + (tmp.getFeralAp() + tmp.getRating(27)) * Math.ceil(talents.getSpent(1,3,1) * 6.66) / 100;
 	}
@@ -621,21 +644,22 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 	//
 	//	Main-hand
 	//
+    tmp = inv.get(16);
 	if (classId == DRUID && shapeform == BEAR ) {
 		this.mhSpeed 	= 2500;
-		if ( (tmp = inv.get(16)) ) {
+		if ( tmp && tmp.isMeleeWeapon() ) {
 			this.mhMinDmg 	= tmp.minDamage * 2500 / tmp.delay;
 			this.mhMaxDmg 	= tmp.maxDamage * 2500 / tmp.delay;
 		}
 	}
 	else if (classId == DRUID && shapeform == CAT ) {
 		this.mhSpeed 	= 1000;
-		if ( (tmp = inv.get(16)) ) {
+        if ( tmp && tmp.isMeleeWeapon() ) {
 			this.mhMinDmg 	= tmp.minDamage * 1000 / tmp.delay;
 			this.mhMaxDmg 	= tmp.maxDamage * 1000 / tmp.delay;
 		}
 	}
-	else if ( (tmp = inv.get(16)) ) {
+	else if ( tmp && tmp.isMeleeWeapon() ) {
 		this.mhSpeed 	= tmp.delay;
 		this.mhMinDmg 	= tmp.minDamage;
 		this.mhMaxDmg 	= tmp.maxDamage;
@@ -649,20 +673,20 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 	this.mhMinDmg += this.attackPower / 14 * this.mhSpeed / 1000;
 	this.mhMaxDmg += this.attackPower / 14 * this.mhSpeed / 1000;
 	//
-	this.mhSpeed /= 
+	this.mhSpeed /=
 		( 1 + this.meleeHasteFromRating / 100 ) *
 		( 1 + baseEffects[138] / 100 + mhEffects[138] / 100 ) *
 		( 1 + baseEffects[319] / 100 + mhEffects[319] / 100 ) *
 		( 1 + baseEffects[192] / 100 + mhEffects[192] / 100) *
 		( 1 + baseEffects[193] / 100 + mhEffects[193] / 100);
-	
+
 	this.meleeHaste = (
 			( 1 + this.meleeHasteFromRating / 100 ) *
 			( 1 + baseEffects[138] / 100 ) *
 			( 1 + baseEffects[319] / 100 ) *
 			( 1 + baseEffects[192] / 100 ) *
 			( 1 + baseEffects[193] / 100 )
-			- 1 
+			- 1
 		) * 100;
 	//
 	this.mhMinDmg += baseEffects[13][0] + mhEffects[13][0];
@@ -674,14 +698,14 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 	//
 	//	Off-hand
 	//
-	if ( wearsAWeaponInOffhand ) 
+	if ( wearsAWeaponInOffhand )
 	{
 		tmp = inv.get(17);
 		this.ohSpeed 	= tmp.delay;
 		this.ohMinDmg 	= tmp.minDamage + this.attackPower / 14 * this.ohSpeed / 1000;
 		this.ohMaxDmg 	= tmp.maxDamage + this.attackPower / 14 * this.ohSpeed / 1000;
 		//
-		this.ohSpeed /= 
+		this.ohSpeed /=
 			( 1 + this.meleeHasteFromRating / 100 ) *
 			( 1 + baseEffects[138] / 100 + ohEffects[138] / 100 ) *
 			( 1 + baseEffects[319] / 100 + ohEffects[319] / 100 ) *
@@ -697,8 +721,8 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 
 		this.ohMaxDmg *= 1 + ( baseEffects[79][0] + ohEffects[79][0]  ) / 100;
 		this.ohMaxDmg *= 1 + ( baseEffects[122] + ohEffects[122] ) / 100;
-		this.ohMaxDmg >>= 1; 
-		
+		this.ohMaxDmg >>= 1;
+
 		this.ohDps = (this.ohMinDmg + this.ohMaxDmg) * 500 / this.ohSpeed;
 	}
 	//
@@ -709,19 +733,19 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 	//#########################################################################
 	//
 	if ( wearsRangedWeapon ) {
-		tmp = inv.get(18);
-		
+		tmp = inv.get(16);
+
 		this.raSpeed = tmp.delay;
 		this.raMinDmg = tmp.minDamage + this.rangedAttackPower / 14 * this.raSpeed / 1000 + baseEffects[13][0] + raEffects[13][0];
 		this.raMaxDmg = tmp.maxDamage + this.rangedAttackPower / 14 * this.raSpeed / 1000 + baseEffects[13][0] + raEffects[13][0];
-		
+
 		this.raSpeed /= ( 1 + this.rangedHasteFromRating / 100 ) *
 						( 1 + ( baseEffects[140] + raEffects[140] ) / 100 ) *
 						( 1 + ( baseEffects[141] + raEffects[141] ) / 100 ) *
 						( 1 + ( baseEffects[320] + raEffects[320] ) / 100 ) *
 						( 1 + ( baseEffects[192] + raEffects[192] ) / 100 ) *
 						( 1 + ( baseEffects[193] + raEffects[193] ) / 100 );
-		
+
 		this.raDps = (this.raMinDmg + this.raMaxDmg) * 500 / this.raSpeed;
 	}
 	this.rangedHaste = (
@@ -747,29 +771,30 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 	//	mainly to avoid breaking spell power into different damage types
 	//
 	//	The same is true for the effects 13 and 135.
-	this.spellPower = 
-		this.spFromAttributes[3] + 
-		this.ratings[34] + 
+	this.spellPower =
+		this.spFromAttributes[3] +
+		this.ratings[34] +
 		baseEffects[238][1] / 100 * this.attackPower +
 		baseEffects[135][1];
 	this.spellPower *= 1 + baseEffects[317] / 100;
 	//
 	//	Spell Haste
-	this.spellHasteRating = this.ratings[19] + this.ratings[25] + baseEffects[189][19]; 
+	this.spellHasteRating = this.ratings[19] + this.ratings[25] + baseEffects[189][19];
 	this.spellHaste = (
-			( 1 + this.spellHasteRating / COMBAT_RATINGS[19][level-1] / 100 ) * 
+			( 1 + this.spellHasteRating / COMBAT_RATINGS[19][level-1] / 100 ) *
 			( 1 + baseEffects[65] / 100 ) *
 			( 1 + baseEffects[193] / 100 )
-			- 1 
+			- 1
 		) * 100;
 	//	Hit
 	this.spellHitRating = this.ratings[7] + this.ratings[20] + baseEffects[189][7] + baseEffects[189][20];
-	this.spellHit = this.spellHitRating / COMBAT_RATINGS[7][level-1] + 
-		Math.min(baseEffects[55][1],baseEffects[55][2],baseEffects[55][3],baseEffects[55][4],baseEffects[55][5],baseEffects[55][6]);
+	this.spellHit = this.spellHitRating / COMBAT_RATINGS[7][level-1] +
+        Math.min(baseEffects[55][1],baseEffects[55][2],baseEffects[55][3],baseEffects[55][4],baseEffects[55][5],baseEffects[55][6]) +
+        this.expertise[0];
 	//	Crit
 	this.spellCritRating = this.ratings[10] + this.ratings[21] + baseEffects[189][10] + baseEffects[189][21];
-	this.spellCrit = this.spellCritFromAttributes[3] + 
-		this.spellCritRating / COMBAT_RATINGS[10][level-1] + 
+	this.spellCrit = this.spellCritFromAttributes[3] +
+		this.spellCritRating / COMBAT_RATINGS[10][level-1] +
 		baseEffects[57] + baseEffects[290] + Math.max(mhEffects[57],ohEffects[57]);
 	//
 	//	Spell Penetration
@@ -779,23 +804,24 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 	//
 	//	Mana regeneration
 	if( this.character.hasMana() ) {
-		this.manaRegenFromSpi = 5 * (0.001 + Math.sqrt(this.attributes[3]) * this.attributes[4] * BASE_REGEN[level-1]);
+		this.manaRegenFromSpi = 0;
+		if( hasClass ) {
+			this.manaRegenFromSpi = 5 * MP5_PER_SPIRIT[classId-1] * this.attributes[4];
+		}
 		this.sp5 = this.manaRegenFromSpi;
-		
+
 		this.mp5 = baseEffects[85] + this.ratings[32] + this.sp5 * (baseEffects[134] / 100);
 		for( i = 0; i < 5; i++ ) {
 			this.mp5 += baseEffects[219][i] / 100 * this.attributes[i];
 		}
+
+		this.sp5 += this.baseMana * 0.02  * ( 1 + baseEffects[379] / 100.0 );
+		this.mp5 += this.baseMana * 0.02  * ( 1 + baseEffects[379] / 100.0 );
 	}
 	else{
 		this.mp5 = 0;
 		this.sp5 = 0;
 	}
-	//
-
-	this.sp5 += baseStatsLevel[10];
-	this.mp5 += baseStatsLevel[10];
-
 	//
 	//#########################################################################
 	//
@@ -806,12 +832,11 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 
 	// Block
 	if( GameInfo.canBlock(classId) ) {
-		this.block = 
-			5 + 
-			baseEffects[51] + 
-			( classId == PALADIN && selectedTree == 1 ? 2.25 * this.mastery : 0) +
-			( classId == WARRIOR && selectedTree == 2 ? 1.5  * this.mastery : 0) +
-			( this.ratings[4] + baseEffects[189][4] ) /COMBAT_RATINGS[4][level-1];
+		this.block = 3 + baseEffects[51] + this.diminishingReturnBlock(
+                ( classId === PALADIN && selectedTree === 1 ? (this.mastery > 8 ? 8 + 2.25 * (this.mastery-8) : 8) : 0) +
+                ( classId === WARRIOR && selectedTree === 2 ? 0.5 * this.mastery : 0) +
+                ( this.ratings[4] + baseEffects[189][4] ) /COMBAT_RATINGS[4][level-1],
+                classId); console.log(3 + baseEffects[51]);
 	}
 	//
 	//	DODGE and PARRY
@@ -819,55 +844,39 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 	this.dodgeRating = this.ratings[2] + baseEffects[189][2];
 	// class check necessary for diminishing returns;
 	if( hasClass ) {
-		
-		if( classId == PALADIN || classId == WARRIOR || classId == DEATHKNIGHT ) {
-			this.dodge = 
-				baseEffects[49] +
-				5 +
-				this.deminishingReturnDodge(
-					this.dodgeRating / COMBAT_RATINGS[2][level-1] + baseStatsLevel[9] ,
-					classId
-			);
-		}
-		else {
-			this.dodge = 
-				baseEffects[49] +
-				BASE_DODGE[classId] +
-			 	this.baseAttributes[1] * baseStatsLevel[9] +
-				this.deminishingReturnDodge(
-					this.dodgeRating / COMBAT_RATINGS[2][level-1] + baseStatsLevel[9] * ( this.attributes[1] - this.baseAttributes[1]) ,
-					classId
-			);
-		}
-		
-		if( GameInfo.canParry(classId) ) {
-			this.parryRating = this.ratings[3] + baseEffects[189][3];
-			switch(classId) {
-			case WARRIOR:
-			case PALADIN:
-			case DEATHKNIGHT:
-				this.parryRating += (this.attributes[0] - baseAttributesUnmodified[0]) * 0.27;
-				break;
-			}
-			this.parry = 5 + baseEffects[47] + this.deminishingReturnParry( 
-				this.parryRating / COMBAT_RATINGS[3][level-1], 
-				classId 
+
+        this.dodge = baseEffects[49] + BASE_DODGE[classId] + baseStatsLevel[5] * baseAttributesUnmodified[1] +
+            this.diminishingReturnDodge(
+                this.dodgeRating / COMBAT_RATINGS[2][level-1] + baseStatsLevel[5] * ( this.attributes[1] - baseAttributesUnmodified[1]) ,
+                classId
+        );
+
+		if( classId === WARRIOR || classId === PALADIN || classId === ROGUE || classId === DEATHKNIGHT || classId === SHAMAN && selectedTree === 1 ) {
+			
+            this.parryRating = this.ratings[3] + baseEffects[189][3];
+            
+			this.parry = 3 + baseEffects[47] + baseStatsLevel[6] * baseAttributesUnmodified[0] + this.diminishingReturnParry(
+				this.parryRating / COMBAT_RATINGS[3][level-1] + baseStatsLevel[6] * ( this.attributes[0] - baseAttributesUnmodified[0]),
+				classId
 			);
 		}
 	}
 	else {
 		this.dodge = baseEffects[49] + this.dodgeRating / COMBAT_RATINGS[2][level-1];
-	}	
-	this.resilienceRating = this.ratings[24] + 
+	}
+	this.resilienceRating = this.ratings[24] +
 	Math.min(
 		this.ratings[14] + baseEffects[189][14],
 		this.ratings[15] + baseEffects[189][15],
 		this.ratings[16] + baseEffects[189][16]
 	);
-	this.resilienceDamageReduction = (1 - Math.pow( 0.99 , ( this.resilienceRating / COMBAT_RATINGS[15][level-1] )));
+	this.resilienceDamageReduction = 40 + (1 - Math.pow( 0.99 , ( this.resilienceRating / COMBAT_RATINGS[15][level-1] ))) * 100;
 	//
 	//	Miss
 	this.meleeMiss = 5 - effects[0][184] - effects[1][184] - effects[2][184] - effects[3][184];
+	//
+	// PvP Power
+	this.pvpPowerRating = this.ratings[46];
 	//
 	//#########################################################################
 	//
@@ -882,9 +891,9 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 	this.general[4] = 100; // Focus
 	this.general[5] = Math.floor(100 + baseEffects[35][6]/10.0); // RunicPower
 	this.general[6] = this.itemLevel;
-	
+
 	this.melee[0] = [
-		[Math.floor(this.mhMinDmg),Math.ceil(this.mhMaxDmg)] , 
+		[Math.floor(this.mhMinDmg),Math.ceil(this.mhMaxDmg)] ,
 		wearsAWeaponInOffhand ? [Math.floor(this.ohMinDmg),Math.ceil(this.ohMaxDmg)] : null
 	];
 	this.melee[1] = [this.mhDps, wearsAWeaponInOffhand ? this.ohDps : null];
@@ -892,10 +901,10 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 	this.melee[3] = [ this.mhSpeed, wearsAWeaponInOffhand ? this.ohSpeed : null ];
 	this.melee[4] = this.meleeHaste;
 	this.melee[5] = this.meleeHit[1];
-	this.melee[6] = this.meleeCrit[1]; 
-	this.melee[7] = [ Math.floor(this.expertise[1]), wearsAWeaponInOffhand ? Math.floor(this.expertise[2]) : null ];
+	this.melee[6] = this.meleeCrit[1];
+	this.melee[7] = [ this.expertise[1], wearsAWeaponInOffhand ? this.expertise[2] : null ];
 	this.melee[8] = this.mastery;
-	
+
 	if( wearsRangedWeapon ) {
 		this.ranged[0] = [ Math.floor(this.raMinDmg), Math.ceil(this.raMaxDmg) ];
 		this.ranged[1] = this.raDps;
@@ -906,37 +915,39 @@ Stats.prototype.calculate = function( preview, noBuffs  ) {
 		this.ranged[1] = -1;
 		this.ranged[3] = -1;
 	}
-	
+
 	this.ranged[2] = this.rangedAttackPower;
 	this.ranged[4] = this.rangedHaste;
 	this.ranged[5] = this.rangedHit;
-	this.ranged[6] = this.rangedCrit; 
-	this.ranged[7] = this.mastery;
-	
+	this.ranged[6] = this.rangedCrit;
+	this.ranged[7] = this.expertise[3];
+    this.ranged[8] = this.mastery;
+
 	this.spell[0] = this.spellPower;
-	this.spell[1] = this.spellHaste; 
-	this.spell[2] = this.spellHit; 
+	this.spell[1] = this.spellHaste;
+	this.spell[2] = this.spellHit;
 	this.spell[3] = Math.min(
 		this.spellPenetrations[1],
 		this.spellPenetrations[2],
 		this.spellPenetrations[3],
 		this.spellPenetrations[4],
 		this.spellPenetrations[5]
-	); 
+	);
 	this.spell[4] = this.sp5;
 	this.spell[5] = this.mp5;
 	this.spell[6] = this.spellCrit;
 	this.spell[7] = this.mastery;
 
-	this.defense[0] = this.resisSchool[0];	
+	this.defense[0] = this.resisSchool[0];
 	this.defense[1] = this.dodge;
 	this.defense[2] = this.parry;
-	
+
 	this.defense[3] = this.block;
-	this.defense[4] = this.resilienceRating; //resilience
-	this.defense[5] = this.meleeMiss + this.dodge + this.parry;
-	this.defense[6] = this.meleeMiss + this.dodge + this.block + this.parry;
-	
+	this.defense[4] = this.resilienceDamageReduction; //resilience
+	this.defense[5] = this.pvpPowerRating / COMBAT_RATINGS[26][level-1];
+	this.defense[6] = this.meleeMiss + this.dodge + this.parry;
+	this.defense[7] = this.meleeMiss + this.dodge + this.block + this.parry;
+
 	this.resistance[0] = this.resisSchool[6];
 	this.resistance[1] = this.resisSchool[2];
 	this.resistance[2] = this.resisSchool[3];
@@ -958,8 +969,8 @@ Stats.prototype.getItemStats = function( itm ) {
 		if( itm.stats[i] == null ) {
 			continue;
 		}
-		
-		if( itm.stats[i][0] >=	 50 ) {	
+
+		if( itm.stats[i][0] >= 50 && itm.stats[i][0] <= 56 ) {
 			switch( itm.stats[i][0] ) {
 			case 50: this.resisSchool[0] += itm.stats[i][1]; break;
 			case 51: this.resisSchool[2] += itm.stats[i][1]; break;
@@ -977,7 +988,7 @@ Stats.prototype.getItemStats = function( itm ) {
 			this.attributes[STAT_IDS_TO_ATTRIBUTES[itm.stats[i][0]]] += itm.stats[i][1];
 		}
 	}
-	
+
 	if( itm.addedStat != -1 && itm.addedStatValue != -1 ){
 		if( itm.addedStat >= 11 ) {
 			this.ratings[itm.addedStat-11] += itm.addedStatValue;
@@ -986,12 +997,12 @@ Stats.prototype.getItemStats = function( itm ) {
 			this.attributes[STAT_IDS_TO_ATTRIBUTES[itm.addedStat]] += itm.addedStatValue;
 		}
 	}
-	
+
 	this.resisSchool[0] += itm.armor;
 	if( itm.itemClass == 4 && itm.itemSubClass > 0 ) {
 		this.resisSchool[0] += itm.armor * this.armorModPerCent;
-	} 
-	
+	}
+
 };
 
 /**
@@ -1002,46 +1013,35 @@ Stats.prototype.getEnchantStats = function( enchant ) {
 	if( !enchant.isActive(this.character) ) {
 		return;
 	}
-	for ( i = 0; i < enchant.types.length; i++ ) 
+	for ( i = 0; i < enchant.types.length; i++ )
 	{
-		if( enchant.types[i] == 5 )
+        var spellId = enchant.spellIds[i];
+        var value = enchant.values[i];
+        var type = enchant.types[i];
+                
+		if( type === 5 )
 		{
-			if( enchant.spellIds[i] >= 11 )
-			{
-				this.ratings[enchant.spellIds[i]-11] += enchant.values[i];
-			}
+            
+            if( spellId === 0 ) {
+                this.manaFromGear += value;
+            }
+            else if( spellId === 1 )
+            {
+                this.healthFromGear += value;
+            }
+            else if( spellId >= 11 )
+            {
+                this.ratings[spellId - 11] += value;
+            }
 			else
 			{
-				this.attributes[STAT_IDS_TO_ATTRIBUTES[enchant.spellIds[i]]] += enchant.values[i];
+				this.attributes[STAT_IDS_TO_ATTRIBUTES[spellId]] += value;
 			}
 		}
-		else if ( enchant.types[i] == 4 )
+		else if ( type === 4 )
 		{
-			this.resisSchool[enchant.spellIds[i]] += enchant.values[i];
+			this.resisSchool[spellId] += value;
 		}
-		
-	}
-};
 
-Stats.prototype.getReforgeRatings = function( ) {
-	var ratings = [];
-	var level = this.character.level;
-	
-	ratings[0] = this.attributes[4];
-	ratings[1] = this.dodge * COMBAT_RATINGS[2][level-1];
-	ratings[2] = this.parry * COMBAT_RATINGS[3][level-1];
-	//		switch spell and melee hit,crit,hast
-	if( this.character.isSpellAffine() ) {
-		ratings[3] = this.spellHit * COMBAT_RATINGS[7][level-1];
-		ratings[4] = this.spellCrit * COMBAT_RATINGS[10][level-1];
-		ratings[5] = this.spellHaste * COMBAT_RATINGS[19][level-1];
 	}
-	else {
-		ratings[3] = this.meleeHit[1] * COMBAT_RATINGS[5][level-1];
-		ratings[4] = this.meleeCrit[1] * COMBAT_RATINGS[8][level-1];
-		ratings[5] = this.meleeHaste * COMBAT_RATINGS[17][level-1];
-	}
-	ratings[6] = this.expertise[1] * COMBAT_RATINGS[23][level-1];
-	ratings[7] = this.mastery * COMBAT_RATINGS[25][level-1];
-	return ratings;
 };

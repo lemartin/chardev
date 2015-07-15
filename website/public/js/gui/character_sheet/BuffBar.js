@@ -2,7 +2,7 @@
  * @constructor
  */
 function BuffBar () {
-	this.node = DOM.create('div', {'class': 'bb_p'});
+	this.node = Dom.create('div', {'class': 'bb_p'});
 	this.eventMgr = new GenericSubject();
 	this.eventMgr.registerEvent('remove_buff', ['id']);
 	this.eventMgr.registerEvent('add_stack', ['id']);
@@ -15,7 +15,7 @@ BuffBar.prototype = {
 	 * 
 	 */
 	update : function( activeBuffs ) {
-		DOM.truncate(this.node);
+		Dom.truncate(this.node);
 		
 		for( var i in activeBuffs ) {
 			this.__showBuff( activeBuffs[i] );
@@ -25,7 +25,7 @@ BuffBar.prototype = {
 	 * @param {ActiveBuff} activeBuff
 	 */
 	__showBuff : function( activeBuff ) {
-		var d = DOM.createAt( this.node, 'div', {'class': 'bb_buff', 'backgroundImage': '/images/icons/small/'+activeBuff.icon+'.png'});
+		var d = Dom.createAt( this.node, 'div', {'class': 'bb_buff', 'backgroundImage': '/images/icons/small/'+activeBuff.icon+'.png'});
 		
 		Listener.add( d, 'contextmenu', this.__onRemove, this, [activeBuff.id] );
 		Listener.add( d, 'click', this.__onClick, this, [activeBuff.id] );

@@ -4,7 +4,7 @@
  */
 function Inventory( character )
 {
-	this.items = new Array(INV_ITEMS);					
+	this.items = new Array(Inventory.SLOTS);					
 	this.gemCount = [0,0,0,0,0];
 	this.character = character;
 	this.reforgePreview = null;
@@ -31,12 +31,11 @@ Inventory.validInventorySlots = [			1,							//0 head
 											11,							//13 ring #2
 											12,							//14 trinket #1
 											12,							//15 trinket #2
-											[21,17,13],					//16 main hand
-											[23,22,14,13,17], 			//17 off hand
-											[28,26,25,15]				//18 ranged/relic
+											[26,21,17,15,13],		    //16 main hand
+											[23,22,17,14,13] 			//17 off hand
 ];
 
-Inventory.SLOTS = 19;
+Inventory.SLOTS = 18;
 
 Inventory.prototype = {
 	items : [],
@@ -58,8 +57,16 @@ Inventory.prototype = {
 	 * @param {number} slot
 	 */
 	__shiftLeft : function(slot){
-		for(var i=this.items[slot].length-1;i>0;i--){
-			this.items[slot][i] = this.items[slot][i-1];
+		if( this.items[slot][0] == null ) {
+			return
+		}
+		else if( this.items[slot][1] == null ) {
+			this.items[slot][1] = this.items[slot][0]; 
+		}
+		else {
+			for(var i=this.items[slot].length-1;i>0;i--){
+				this.items[slot][i] = this.items[slot][i-1];
+			}
 		}
 		this.items[slot][0] = null;
 	},
@@ -69,7 +76,7 @@ Inventory.prototype = {
 	 */
 	__testTwoHanders : function(itm,slot)
 	{
-		if (slot == 16 && !this.character.canDualWieldTwoHandedWeapons() && itm.inventorySlot == 17) 
+		if (slot == 16 && !this.character.canDualWieldTwoHandedWeapons() && itm.isTwoHanded())
 		{
 			if (this.items[17][0] != null) 
 			{
@@ -77,7 +84,7 @@ Inventory.prototype = {
 			}
 		}
 		
-		if (slot == 17 && !this.character.canDualWieldTwoHandedWeapons() && this.items[16][0] && this.items[16][0].inventorySlot == 17) 
+		if (slot == 17 && !this.character.canDualWieldTwoHandedWeapons() && this.items[16][0] && this.items[16][0].isTwoHanded())
 		{
 			this.__shiftLeft(16);
 		}
@@ -158,7 +165,7 @@ Inventory.prototype = {
 		this.enchantPreview = false;
 		this.enchantPreviewRef = null;
 	},
-	
+
 	/**
 	 * @param {number} slot
 	 * @param {Item} itm
@@ -190,6 +197,10 @@ Inventory.prototype = {
 		if( !this.character.fitsItemClassRequirements(itm) ) {
 			throw new InvalidItemException( itm, InvalidItemException.CAUSE_WRONG_CHARACTER_CLASS );
 		}
+
+        if( !this.character.fitsLevelRequirements(itm) ) {
+            throw new InvalidItemException( itm, InvalidItemException.CAUSE_CHARACTER_LEVEL );
+        }
 		
 		
 		if ( this.__testUnique(itm, slot) ) {
@@ -284,10 +295,30 @@ Inventory.prototype = {
 	 */
 	get : function(slot)
 	{
-		if( this.previewSlot == slot && this.previewSocket == -1 && this.previewItem != null )
+		if( this.previewSlot === slot && this.previewSocket === -1 && this.previewItem !== null )
 		{
 			return this.previewItem;	
 		}
+        
+        if( slot === 17 
+                && this.previewSlot === 16 
+                && this.previewSocket === -1 
+                && this.previewItem !== null 
+                && this.previewItem.isTwoHanded() && ! this.character.canDualWieldTwoHandedWeapons()
+        ) {
+            return null;
+        }
+        
+        if( slot === 16
+                && this.previewSlot === 17
+                && this.previewSocket === -1 
+                && this.previewItem !== null 
+                && this.items[16][0] !== null
+                && this.items[16][0].isTwoHanded() && ! this.character.canDualWieldTwoHandedWeapons()
+        ) {
+            return null;
+        }
+        
 		if( slot >= 0 && slot < this.items.length )
 		{
 			return this.items[slot][0];
@@ -303,7 +334,7 @@ Inventory.prototype = {
 	{
 		var c = 0;
 		var tmp = null;
-		for (var j = 0; j < INV_ITEMS; j++)
+		for (var j = 0; j < Inventory.SLOTS; j++)
 		{
 			tmp = this.get(j);
 			if ( tmp != null && tmp.itemSet!=null && tmp.itemSet.id == setId ) 
@@ -336,7 +367,7 @@ Inventory.prototype = {
 		var gem = null;
 		var isc = -1;
 		this.gemCount = [0,0,0,0,0];
-		for (var i = 0; i < INV_ITEMS; i++) {
+		for (var i = 0; i < Inventory.SLOTS; i++) {
 			if ( (itm = this.get(i)) ) {
 				for (var j = 0; j < 3; j++) {
 					if ( (gem = itm.gems[j]) ) {
@@ -400,7 +431,7 @@ Inventory.prototype = {
 	},
 	restoreAllItems : function() {
 		var i;
-		for( i=0; i<INV_ITEMS; i++ ) {
+		for( i=0; i<Inventory.SLOTS; i++ ) {
 			if( this.items[i][0] ) {
 				this.items[i][0].restore();
 			}
@@ -428,113 +459,40 @@ Inventory.prototype = {
 	},
 	reforgeToArray : function() {
 		var arr = [];
-		for( var i=0; i<INV_ITEMS; i++ ) {
+		for( var i=0; i<Inventory.SLOTS; i++ ) {
 			if( this.items[i][0] ) {
 				arr[i]=[this.items[i][0].reducedStat,this.items[i][0].addedStat];
 			}
 		}
 		return arr;
 	},
-	
-	/**
-	 * @param {Array} listOfOldStats
-	 * @param {Array} listOfNewStats
-	 */
-	reforgeAllItems : function( listOfOldStats, listOfNewStats ) {
-		var i, j, k, l, m, v, log = "", itm;
-		if( listOfOldStats.length == 0 ) {
-			throw new InvalidReforgeException( null, -1, -1, InvalidReforgeException.CAUSE_NO_REDUCE_STATS );
+	reforgeAll: function(refArr) {
+		var oldRefArr = this.reforgeToArray();
+		try {
+			this.restoreAllItems();
+			this.reforgeFromArray(refArr);
 		}
-		if( listOfNewStats.length == 0 ) {
-			throw new InvalidReforgeException( null, -1, -1, InvalidReforgeException.CAUSE_NO_ADD_STATS );
+		catch( e ) {
+			this.restoreAllItems();
+			this.reforgeFromArray(oldRefArr);
+			throw e;
 		}
-		for( i=0; i<INV_ITEMS; i++ ) {
-			v = false;
-			itm = this.items[i][0];
-			if( itm == null ) {
-				log += "No item found in slot "+i+".<br />";
-				continue;
-			}
-			if( itm.level < REFORGE_ITEM_MIN_LEVEL ) {
-				log += "Item level to low.<br />";
-				continue;
-			}
-			if( itm.reducedStat != -1 ) {
-				log += "Item '<span style='color:"+g_color[itm.quality]+"'>"+itm.name+"</span>' is already reforged.<br />";
-				continue;
-			}
-			log += "<span style='color:"+g_color[itm.quality]+"'>"+itm.name+"</span>";
-			for( j=0; j<listOfOldStats.length; j++ ) {
-				log += "Trying to reduce "+locale['ItemStatNames'][listOfOldStats[j]]+"<br />";
-				for( k=0; k<itm.stats.length; k++ ) {
-					if( itm.stats[k] && itm.stats[k][0] == listOfOldStats[j] ) {
-						log += "Found "+locale['ItemStatNames'][listOfOldStats[j]]+"<br />";
-						for( m=0; m<listOfNewStats.length; m++ ) {
-							v = true;
-							for( l=0; l<itm.stats.length; l++ ) {
-								if( itm.stats[l] && itm.stats[l][0] == listOfNewStats[m] ) {
-									v = false;
-								}
-							}
-							if( v ) {
-								try {
-									itm.reforge ( listOfOldStats[j], listOfNewStats[m] );
-								}
-								catch(e) {
-									throw e;
-								}
-								log += "Reforge successful reduced "+locale['ItemStatNames'][listOfOldStats[j]]+" and added "+locale['ItemStatNames'][listOfNewStats[m]]+"<br />";
-								break;
-							}
-	
-							log += locale['ItemStatNames'][listOfNewStats[m]]+" is already present <br />";
-						}
-						break;
-					}
-				}
-				log += "No modification<br />";
-			}
+	},
+	reforge: function(slot, reduce, add) {
+		var itm = this.items[slot][0];
+		if( itm ) {
+			itm.restore();
+			itm.reforge( reduce, add );
+			return true;
 		}
-		//TODO show log somewhere.... but where?
-		//Tooltip.showHTML(log);
+		return false;
+	},
+	restore: function(slot) {
+		var itm = this.items[slot][0];
+		if( itm ) {
+			itm.restore();
+			return true;
+		}
+		return false;
 	}
-//	,
-//	getReforgeCombinations: function() {
-//		var c = 1;
-//		for( var i=0; i<18; i++ ) {
-//			c *= this.getReforgeCombinationsItem(this.items[i][0]);
-//		}
-//		return c;
-//	},
-//	/**
-//	 * @param {Item} itm
-//	 */
-//	getReforgeCombinationsItem: function( itm ) {
-//		var c = 8;
-//		var i,k;
-//		for( i=0; i<itm.stats.length; i++ ) {
-//			if( itm.stats[i] ) {
-//				for( k in REFORGABLE_STATS  ) {
-//					if( REFORGABLE_STATS[k] == itm.stats[i][0] ) {
-//						c -= 1;
-//					}
-//						
-//				}
-//			}
-//		}
-//		if( itm.selectedRandomEnchantment ) {
-//			for( i=0; i<itm.selectedRandomEnchantment.enchants.length; i++ ) {
-//				enchant = itm.selectedRandomEnchantment.enchants[i];
-//				if( enchant && enchant.types[0] == 5 ) {
-//					for( k in REFORGABLE_STATS  ) {
-//						if( REFORGABLE_STATS[k] == enchant.spellIds[0] ) {
-//							c -= 1;
-//						}
-//							
-//					}
-//				}
-//			}
-//		}
-//		return c == 8 ? 1 : c;
-//	}
 };

@@ -8,7 +8,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Types;
 import java.util.Arrays;
 
 public class DBCParser extends DBCReader {
@@ -98,7 +97,7 @@ public class DBCParser extends DBCReader {
 	public void truncateTargetTable() {
 		try {
 			Statement stmt = databaseConnection.createStatement();
-			stmt.executeQuery("TRUNCATE TABLE `" + targetTable + "`");
+			stmt.execute("TRUNCATE TABLE `" + targetTable + "`");
 			stmt.close();
 		} catch (SQLException e) {
 			System.out.println(e);

@@ -126,20 +126,20 @@ BattleNetProfileEditable.prototype.setData= function( profiles ) {
 		div = document.createElement("div");
 		div.className = 'group bnpm_entry';
 
-		var a = DOM.createAt(div,'a',{'href': 'javascript:;', 'class': 'remove bnpm_remove'});
+		var a = Dom.createAt(div,'a',{'href': 'javascript:;', 'class': 'remove bnpm_remove'});
 		Listener.add( a, 'click', this.__onRemove, this, [profile, div] );
 		
-		DOM.createAt(div,'span',{'text': profile['Name'], 'class': 'bnpm_name'});
+		Dom.createAt(div,'span',{'text': profile['Name'], 'class': 'bnpm_name'});
 		
-		DOM.createAt(div,'span',{'text': ", " + profile['Level'] + " " + locale['CharacterRace'][profile['CharacterRaceID']] + " "});
+		Dom.createAt(div,'span',{'text': ", " + profile['Level'] + " " + locale['CharacterRace'][profile['CharacterRaceID']] + " "});
 
-		DOM.createAt(div,'span',{'text': locale['CharacterClass'][profile['CharacterClassID']], 'class': 'character_class_'+profile['CharacterClassID']+' bnpm_chrclass'});
+		Dom.createAt(div,'span',{'text': locale['CharacterClass'][profile['CharacterClassID']], 'class': 'character_class_'+profile['CharacterClassID']+' bnpm_chrclass'});
 		
-		DOM.createAt(div,'span',{'text': ", " + profile['Region'].toUpperCase()+"-"+profile['Realm'], 'class': 'bnpm_origin'});
+		Dom.createAt(div,'span',{'text': ", " + profile['Region'].toUpperCase()+"-"+profile['Realm'], 'class': 'bnpm_origin'});
 		
-		DOM.createAt(div,'br',{});
+		Dom.createAt(div,'br',{});
 		
-		DOM.createAt(div,'a', {
+		Dom.createAt(div,'a', {
 			'href': Tools.getBasePath() + 'Planner.html' + TextIO.queryString({'name': profile['Name'], 'realm': profile['Realm'], 'region': profile['Region'] }),
 			'text': "Static link to import this character from Battle.net into chardev",
 			'class': "bnpm_static_link"
@@ -149,14 +149,14 @@ BattleNetProfileEditable.prototype.setData= function( profiles ) {
 	}
 	
 	this.disabled = false;
-	DOM.set( this.editParent, this.addLink);
+	Dom.set( this.editParent, this.addLink);
 };
 
 BattleNetProfileEditable.prototype.__onCancel= function() {
-	DOM.set( this.editParent, this.addLink);
+	Dom.set( this.editParent, this.addLink);
 };
 BattleNetProfileEditable.prototype.__onAdd= function() {
-	DOM.set( this.editParent, this.addParent);
+	Dom.set( this.editParent, this.addParent);
 };
 BattleNetProfileEditable.prototype.__onRemove= function( profile, node ) {
 	if( this.disabled ) {

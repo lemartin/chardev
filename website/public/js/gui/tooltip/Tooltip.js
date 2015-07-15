@@ -17,6 +17,8 @@ TooltipImpl.prototype = {
 	content: null,
 	/** @type {Element} **/
 	overlay: null,
+	/** @type {Element} **/
+	wrapper: null,
 	disabled: false,
 	errorShown: false,
 	/** @type {Element} **/
@@ -35,6 +37,7 @@ TooltipImpl.prototype = {
 		this.content = document.createElement("div");
 		this.div = document.createElement("div");
 		this.div.className = "tooltip_div";
+		this.div.style.display = "none";
 		
 		var sg = new StaticGrid(3,3);
 		sg.cells[0][0].innerHTML = "<div class='tt_bg_lt'></div>";
@@ -52,32 +55,7 @@ TooltipImpl.prototype = {
 		this.div.appendChild(sg.node);
 		node.appendChild(this.div);
 	},
-	__createDiv : function() {
-		this.content = document.createElement("div");
-		this.div = document.createElement("div");
-		this.div.className = "tooltip_div";
-		
-		var sg = new StaticGrid(3,3);
-		sg.cells[0][0].innerHTML = "<div class='tt_bg_lt'></div>";
-		sg.cells[0][1].className = 'tt_bg_t';
-		sg.cells[0][2].innerHTML = "<div class='tt_bg_rt'></div>";
-		sg.cells[1][0].className = 'tt_bg_l';
-		sg.cells[1][1].appendChild(this.content); this.content.className = 'tt_bg';
-		sg.cells[1][2].className = 'tt_bg_r';
-		sg.cells[2][0].innerHTML = "<div class='tt_bg_lb'></div>";
-		sg.cells[2][1].className = 'tt_bg_b';
-		sg.cells[2][2].innerHTML = "<div class='tt_bg_rb'></div>";
-		
-		this.__layoutGrid = sg;
-		
-		this.div.appendChild(sg.node);
-		document.body.appendChild(this.div);
-	},
 	__showTooltip: function( html ) {
-		if( this.div == null ){
-			this.__createDiv();
-		}
-		
 		this.div.style.width = "";
 		this.div.style.whiteSpace = "nowrap";
 		this.content.innerHTML = html;
@@ -124,21 +102,28 @@ TooltipImpl.prototype = {
 	__center: function( node ) {
 		var hNode = node.scrollHeight;
 		var wNode = node.scrollWidth;
-		var size = Tools.windowSize();
 		var lBody = document.body.scrollLeft;
 		var tBody = document.body.scrollTop;
 		
-		node.style.marginLeft = Math.max(0, lBody + (size[0]/2 - wNode/2)) + "px";
-		node.style.marginTop = Math.max(0, tBody + (size[1]/3 - hNode/2)) + "px";
+		node.style.marginLeft = Math.max(0, lBody + ($(window).width()/2 - wNode/2)) + "px";
+		node.style.marginTop = Math.max(0, tBody + ($(window).height()/3 - hNode/2)) + "px";
 	},
 	__disable: function() {
+		
 		if( this.overlay == null ) {
 			this.overlay = document.getElementById("tt_overlay");
+			this.wrapper = document.getElementById("tt_wrapper");
 		}
-		var size = Tools.windowSize();
-		this.overlay.style.width = Math.max( size[0], document.body.scrollWidth) + "px";
-		this.overlay.style.height = Math.max( size[1], document.body.scrollHeight) + "px";
-		this.overlay.style.display = "block";
+		var s = this.wrapper.style;
+		s.overflow = "hidden";
+		s.height = $(window).height() + "px";
+		s.width = $(window).width() + "px";
+		
+		s = this.overlay.style; 
+		s.height = $(window).height() + "px";
+		s.width = $(window).width() + "px";
+		s.display = "block";
+		
 		this.disabled = true;
 		this.overlay.onclick = null;
 	},
@@ -193,6 +178,16 @@ TooltipImpl.prototype = {
 		Listener.add( document,"mousemove",Tooltip.handleMove, Tooltip, null );
 		Listener.add( document,"keydown",Tooltip.handleKeyDown, Tooltip, null );
 		Listener.add( document,"keyup",Tooltip.handleKeyUp, Tooltip, null );
+		Listener.add( window,"resize",function() {
+			if( this.disabled ) {
+				this.__disable();
+				if( this.overlay.firstChild ) {
+					this.__center(this.overlay.firstChild);
+				}
+			}
+		}, Tooltip, null );
+		
+		this.setParent(document.body);
 	},
 	showSlot: function(html,caller) {	
 		
@@ -214,18 +209,21 @@ TooltipImpl.prototype = {
 	},
 	showDisabled: function( node ) {
 		this.__disable();
-		DOM.set( this.overlay, node);
+		Dom.set( this.overlay, node);
 		this.__center(node);
 	},
 	showHtmlDisabled: function(html) {
 		html += "<br /><span class=\"tt_close_notice\">Left click or hit escape to continue.</span>";
-		this.showDisabled(DOM.createAt(DOM.create('div',{'class':'tt_msg_c'}), 'div', { 'text':html, 'class': 'tt_msg' }));
+		this.showDisabled(Dom.createAt(Dom.create('div',{'class':'tt_msg_c'}), 'div', { 'text':html, 'class': 'tt_msg' }));
 		this.overlay.onclick = function(){Tooltip.enable();};
 	},
 	enable: function() {
 		if( this.overlay ) {
-			DOM.truncate(this.overlay);
+			Dom.truncate(this.overlay);
 			this.overlay.style.display = "none";
+			this.wrapper.style.width = "";
+			this.wrapper.style.heigh = "";
+			this.wrapper.style.overflow = "";
 		}
 		this.disabled = false;
 		this.errorShown = false;
@@ -317,20 +315,9 @@ TooltipImpl.prototype = {
 	}
 };
 var Tooltip = new TooltipImpl(); Tooltip.setHidable(true);
-//
-//#############################################################################
-//
-//	Initialise Engine after page load
-//
-//#############################################################################
-//
-window["__tooltip_init"] = Tooltip.initialise;
-window["g_moveTooltip"] = function(){Tooltip.move.call(Tooltip);};
-window["g_hideTooltip"] = function(){Tooltip.hide.call(Tooltip);};
-//
+
 if( ! window["Tooltip"]) {
 	window["Tooltip"] = {
-		"showError": Tooltip.showError,
-		"showLoading": Tooltip.showLoading
+		"initialise": Tooltip.initialise
 	};
 }

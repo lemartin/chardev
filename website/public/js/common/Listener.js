@@ -3,7 +3,7 @@
  */
 var Listener = {
 	/**
-	 * @param {Element|HTMLDocument} node
+	 * @param {Element|HTMLDocument|Window} node
 	 * @param {string} event
 	 * @param {Function} callback
 	 * @param {Object} scope

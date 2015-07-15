@@ -53,7 +53,7 @@ public class Items {
 				}
 			} else if (itemSubClass == 6) {
 				ResultSet result = statement.executeQuery("SELECT `"
-						+ itemQuality + "` AS armor "
+						+ (itemQuality > 6 ? 6 : itemQuality) + "` AS armor "
 						+ "FROM `itemarmorshield` s " + "WHERE s.`ID` = "
 						+ itemLevel);
 

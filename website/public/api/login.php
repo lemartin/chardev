@@ -1,6 +1,6 @@
 <?php
 
-require_once '../../app/chardev/Autoloader.php';
+require_once __DIR__ . "/../../app/bootstrap.php";
 
 use \chardev\Ajax;
 
@@ -9,7 +9,7 @@ $password = isset($_POST['login_password']) ? $_POST['login_password'] : "";
 $stayLoggedIn = isset($_POST['login_cookie']) ? $_POST['login_cookie'] : "";
 
 try {
-	\chardev\Session::logIn($userName, $password, $stayLoggedIn);
+	\chardev\Session::login($userName, $password, $stayLoggedIn);
 	
 	if (isset($_POST['redirect_url'])) {
 		Ajax::autoRedirect($_POST['redirect_url']);

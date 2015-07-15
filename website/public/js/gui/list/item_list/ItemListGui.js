@@ -5,9 +5,9 @@
 function ItemListGui( categories ) {
 	ListGui.call(this, categories );
 
-	this.propagateParent = DOM.createAt(this.filterCollapsable.content, 'div', {'class': 'il_prop'});
-	this.propagateCheckbox = DOM.createAt(this.propagateParent, 'input', {'type': 'checkbox', 'class': 'il_prop_check', 'checked': true});
-	DOM.createAt(this.propagateParent, 'span', {'text': 'Use custom filters for all slots', 'class': 'il_prop_note'});
+	this.propagateParent = Dom.createAt(this.filterCollapsable.content, 'div', {'class': 'il_prop'});
+	this.propagateCheckbox = Dom.createAt(this.propagateParent, 'input', {'type': 'checkbox', 'class': 'il_prop_check', 'checked': true});
+	Dom.createAt(this.propagateParent, 'span', {'text': 'Use custom filters for all slots', 'class': 'il_prop_note'});
 }
 ItemListGui.prototype = new ListGui(null);
 ItemListGui.prototype.staticLink = "";
@@ -90,9 +90,6 @@ ItemListGui.prototype.deserialize = function( data ) {
 	grid.cells[0][column++].appendChild(this.getSortLink('iLvl',ItemList.ORDER_ILVL));
 	grid.cells[0][column++].appendChild(this.getSortLink('Slot',ItemList.ORDER_SLOT));
 	grid.cells[0][column++].appendChild(this.getSortLink('Type',ItemList.ORDER_TYPE));
-//	if( this.isStatWeightBasedScoreShown() ) {
-//		grid.cells[0][column++].appendChild(this.getSortLink('Score',ItemList.ORDER_SCORE));
-//	}
 
 	for( i=0; i<column; i++ ) {
 		grid.cells[0][i].className = "il_header_cell";
@@ -108,47 +105,23 @@ ItemListGui.prototype.deserialize = function( data ) {
 		a = document.createElement("a");
 		a.className = 'il_link item_quality_'+tmp.quality;
 		
-//		if( tmp.quality == 1 ) {
-//			var wf = document.createElement("span");
-//			wf.innerHTML = tmp.name;
-//			wf.className = 'il_link_white_fix';
-//			a.appendChild(wf);
-//		}
-//		else {
-			a.innerHTML = tmp.name;
-//		}
+		a.innerHTML = tmp.name;
 		
 		cellStyle = "il_cell "+ ( i%2 == 0 ? "il_cell_bg0" : "il_cell_bg1");
 		
-//		a.onmouseout = function(){Tooltip.hidePreview();};
-//		a.onmousemove = function(){Tooltip.move();};
-//		
-//		if( this.listType == IL_ITEM_LIST ) {
-//			Listener.add( a, 'mouseover', Tooltip.showItem, Tooltip, [tmp.id] );
-//		}
-//		else {
-//			Listener.add( a, 'mouseover', Tooltip.showGem, Tooltip, [tmp.id] );
-//		}
-//
-//		if( this.onclickHandler ) {
-//			Listener.add( a, "click", function(itm){ this.onclickHandler.notify([itm]); }, this, [tmp.clone()]);
-//		}
-//		else {
+		Listener.add(a, 'mouseover', this.eventMgr.fire, this.eventMgr, ['show_tooltip',{'entity': tmp}]);
+		Listener.add(a, 'mouseout', this.eventMgr.fire, this.eventMgr, ['hide_tooltip',{}]);
+		Listener.add(a, 'mousemove', this.eventMgr.fire, this.eventMgr, ['move_tooltip',{}]);
+		Listener.add(a, 'click', this.eventMgr.fire, this.eventMgr, ['click',{'entity': tmp}]);
 		
-			Listener.add(a, 'mouseover', this.eventMgr.fire, this.eventMgr, ['show_tooltip',{'entity': tmp}]);
-			Listener.add(a, 'mouseout', this.eventMgr.fire, this.eventMgr, ['hide_tooltip',{}]);
-			Listener.add(a, 'mousemove', this.eventMgr.fire, this.eventMgr, ['move_tooltip',{}]);
-			Listener.add(a, 'click', this.eventMgr.fire, this.eventMgr, ['click',{'entity': tmp}]);
-			
-			if( this.staticLink ) {
-				a.href = TextIO.sprintf1(this.staticLink,TextIO.verboseUrl(tmp.id,tmp.name));
-			}
+		if( this.staticLink ) {
+			a.href = TextIO.sprintf1(this.staticLink,TextIO.verboseUrl(tmp.id,tmp.name));
+		}
 		
-//		}
 		grid.cells[i][column].className = cellStyle;
 		grid.cells[i][column++].innerHTML = "<div style='background-image:url(/images/icons/small/" + tmp.icon + ".png)' class='il_icon' ></div>";
 
-		grid.cells[i][column].className = cellStyle;
+		grid.cells[i][column].className = cellStyle + " il_link_p";
 		
 		grid.cells[i][column].appendChild(a);
 		
@@ -170,32 +143,12 @@ ItemListGui.prototype.deserialize = function( data ) {
 		grid.cells[i][column].className = cellStyle + " li_imp_col";
 		grid.cells[i][column++].innerHTML = tmp.level;
 
-		grid.cells[i][column].className = cellStyle + (this.dpsAndDelay ? " li_unimp_col" : " li_imp_col");;
+		grid.cells[i][column].className = cellStyle + (this.dpsAndDelay ? " li_unimp_col" : " li_imp_col");
 		grid.cells[i][column++].innerHTML = ( tmp.inventorySlot ? locale["a_slot"][tmp.inventorySlot] : "" );
 
-		grid.cells[i][column].className = cellStyle + (this.dpsAndDelay ? " li_unimp_col" : " li_imp_col");;
+		grid.cells[i][column].className = cellStyle + (this.dpsAndDelay ? " li_unimp_col" : " li_imp_col");
 		grid.cells[i][column++].innerHTML = tmp.itemSubClassName[0];
 		
-		
-//		if( this.isStatWeightBasedScoreShown() ) {
-//			
-//			grid.cells[i][column].className = "il_imp_col";
-//			grid.cells[i][column].innerHTML = data[i][1];
-//			
-//			if( this.compareItem != null && cmpItemScore > 0 ) {
-//				var ratio = data[i][1] / cmpItemScore;
-//				if( ratio > 1 ) {
-//					grid.cells[i][column].style.color = "#" + ( ratio > 2 ? "FF" : Math.floor(0xFF - 0xC0 * ( ratio - 1 )).toString(16)) + "FF00";
-//				}
-//				else if( ratio < 1) {
-//					grid.cells[i][column].style.color = "#FF" + ( ratio > 2 ? "FF" : Math.floor(0xFF - 0xC0 * ( 1 - ratio )).toString(16)) + "00";
-//				}
-//			}
-//			column++;
-//		}
-		
-//		grid.cells[i][column].className = "il_cell il_unimp_col";
-//		grid.cells[i][column++].innerHTML = "<a href='http://wowhead.com/item="+tmp.id+"' target='_blank'></a>";
 	}
 	this.setContent(grid.node);
 };

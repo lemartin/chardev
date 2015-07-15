@@ -10,13 +10,15 @@ var Tools = {
 	},
 	_basePath: null,
 	getBasePath: function() {
-		if( Tools._basePath === null ) {
-			var depth = window.location.pathname.replace(/\?.+$/,'').split('/').length - 2;
-			Tools._basePath = "";
-			for( var i = 0; i < depth; i++ ) {
-				Tools._basePath += '../';
-			}
+		var depth = window.location.pathname.replace(/\?.+$/,'').split('/').length - 2;
+		Tools._basePath = "";
+		for( var i = 0; i < depth; i++ ) {
+			Tools._basePath += '../';
 		}
+		
+		Tools.getBasePath = function() {
+			return Tools._basePath;
+		};
 		
 		return Tools._basePath;
 	}
@@ -80,7 +82,7 @@ Tools.setColoredStat = function( compareNode, node, compareStat, stat, precision
 		Tools.removeChilds(compareNode);
 	}
 	else {
-		DOM.set(node, document.createTextNode("["+flooredCompareStat+"]"));
+		Dom.set(node, document.createTextNode("["+flooredCompareStat+"]"));
 		if (flooredCompareStat > flooredStat) {
 			compareNode.className = CSS_COMPARE_GREEN_CLASS;
 		}
@@ -88,7 +90,7 @@ Tools.setColoredStat = function( compareNode, node, compareStat, stat, precision
 			compareNode.className = CSS_COMPARE_RED_CLASS;
 		}
 	}
-	DOM.set(node, document.createTextNode(flooredStat));
+	Dom.set(node, document.createTextNode(flooredStat));
 };
 
 Tools.floor = function(value,precision){

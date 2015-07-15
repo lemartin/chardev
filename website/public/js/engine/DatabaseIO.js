@@ -1,6 +1,4 @@
-var DatabaseIO = new Object();
-
-DatabaseIO._errorPrefix = "DatabaseIO: Error - ";
+var DatabaseIO = {};
 
 /**
  * @param {number} classId
@@ -9,7 +7,7 @@ DatabaseIO._errorPrefix = "DatabaseIO: Error - ";
 DatabaseIO.getCharacterClass = function(classId, handler) 
 {
 	Ajax.request(
-		'api/character_class.php' + TextIO.queryString({ 'id': classId }), 
+		'/api/character_class.php' + TextIO.queryString({ 'id': classId }), 
 		new Handler( DatabaseIO.getCharacterClass_callback, DatabaseIO) , 
 		[handler]
 	);
@@ -45,7 +43,7 @@ DatabaseIO.getCharacterClass_callback = function(request, handler )
 DatabaseIO.getCharacterRace = function( raceId, handler )
 {
 	Ajax.request( 
-		'api/character_race.php' + TextIO.queryString({'id': raceId}) , 
+		'/api/character_race.php' + TextIO.queryString({'id': raceId}) , 
 		new Handler( DatabaseIO.getCharacterRace_callback , DatabaseIO ), 
 		[handler] 
 	);

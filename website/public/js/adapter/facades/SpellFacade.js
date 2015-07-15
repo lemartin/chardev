@@ -18,9 +18,9 @@ SpellFacade.prototype = {
 		return this.__spell.getDescription( this.__character );
 	},
 	getTooltip: function() {		
-		return SpellTooltip.getHTML(this.__spell, this.__character, 0, null);
+		return SpellTooltip.getHtml(this.__spell, this.__character);
 	},
 	getExtendedTooltip: function( type, args) {		
-		return SpellTooltip.getHTML(this.__spell, this.__character, type, args);
+		return SpellTooltip.getHtml(this.__spell, this.__character);
 	}
 };

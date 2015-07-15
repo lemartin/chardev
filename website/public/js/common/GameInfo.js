@@ -23,7 +23,7 @@ var GameInfo = {
 	 */
 	canParry : function(chrClassId)
 	{
-	    return ((1<<chrClassId & (1<<WARRIOR|1<<PALADIN|1<<ROGUE|1<<HUNTER|1<<DEATHKNIGHT)) != 0);
+	    return ((1<<chrClassId & (1<<WARRIOR|1<<PALADIN|1<<ROGUE|1<<DEATHKNIGHT)) != 0);
 	},
 	
 	/**
@@ -84,16 +84,6 @@ var GameInfo = {
 	},
 	
 	/**
-	 * @param {number} slot
-	 * @param {number} chrClassId
-	 * @returns {boolean}
-	 */
-	isWeaponSlot : function(slot, chrClassId)
-	{
-		return slot == 16 || slot == 17 && GameInfo.canDualWield(chrClassId) || slot == 18 && ((1<<chrClassId) & (1<<WARRIOR|1<<ROGUE|1<<HUNTER)) != 0;
-	},
-	
-	/**
 	 * @param {number} chrClassId
 	 * @param {number} shapeForm
 	 * @returns {number}
@@ -138,6 +128,9 @@ var GameInfo = {
 		else if( socketColor == 8 ) {
 			return 1<<1|1<<3|1<<4|1<<8;
 		}
+		else if( socketColor == 16 ) {
+			return 1<<9;
+		}
 		else if( socketColor == 32 ) {
 			return 1<<10;
 		}
@@ -150,6 +143,7 @@ var GameInfo = {
 	 * @returns {number}
 	 */
 	getMaximumProfessionTier : function( skillLineId, level ) {
+		if(level>=80){return 7;}
 		if(level>=75){return 6;}
 		if( skillLineId == 165 || skillLineId == 182 || skillLineId == 186 )
 		{		

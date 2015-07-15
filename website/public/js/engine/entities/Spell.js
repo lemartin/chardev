@@ -18,14 +18,14 @@ function Spell( serialized ) {
 	if( ss != null ) {
 		for( i = 0; i < ss.length; i++ ) {
 			s = ss[i];
-			if( ! s || SpellCache.contains(s[0]) ) {
+			if( ! s ) {
 				continue;
 			}
-			SpellCache.set( new Spell(s) );
+			SpellCache.set(new Spell(s));
 		}
 	}
 	//
-	this.level = 85;
+	this.level = Character.MAX_LEVEL;
 	this.serialized = serialized;
 	this.id = serialized[0];
 	this.name = serialized[1];
@@ -33,8 +33,13 @@ function Spell( serialized ) {
 	this.icon = serialized[3];
 	this.duration = serialized[4];
 	this.ranges = serialized[5]; //0: MinEnemy, 1: MaxEnemy, 2: MinFriend, 3: MaxFriend
-	this.cost = serialized[6]; //0: Absolute, 1: Percent
-	this.energyType = serialized[7];
+	if( serialized[6] ) {
+		this.power = new SpellPower(serialized[6]); //0: Absolute, 1: Percent
+	}
+	else {
+		this.power = null;
+	}
+	this.type = serialized[7];
 	this.castTime = serialized[8];
 	this.cooldowns = serialized[9]; //0: Spell, 1: Category, 2: Global
 	if( this.cooldowns == null ) {
@@ -43,8 +48,8 @@ function Spell( serialized ) {
 	else {
 		this.shownCooldown = Math.max(this.cooldowns[0],this.cooldowns[1])/1000;
 	}
-	this.effects = new Array(3);
-	for( i = 0; i < 3; i++ ) {
+	this.effects = [];
+	for( i = 0; i < serialized[10].length; i++ ) {
 		this.effects[i] = serialized[10][i] ? new SpellEffect(serialized[10][i]) : null;
 	}
 	this.scaling = serialized[11] ? new SpellScaling(serialized[11]) : null;
@@ -55,7 +60,7 @@ function Spell( serialized ) {
 	
 	this.type = [];
 	for( i=0; i<serialized[16].length; i++ ) {
-		this.type[i] = Tools.toUnsigned(serialized[16][i]);
+		this.type[i] = serialized[16][i];
 	}
 	
 	this.auraOptions = serialized[18] ? new SpellAuraOptions(serialized[18]) : null;
@@ -75,8 +80,8 @@ Spell.prototype = {
 		icon : null,
 		duration : null,
 		ranges : null,
-		cost : null,
-		energyType : null,
+		power : null,
+		type : null,
 		castTime : null,
 		cooldowns : null,
 		shownCooldown : 0,
@@ -100,33 +105,32 @@ Spell.prototype = {
 		//	TODO
 		//
 		runecost : 0,
-		getDescription : function( characterScope ){
-			var desc = this.bustedDesc;
-			var match;
-			var cTime, eValue;
-			var mod;
+		getDescription : function( character ){
 			
-			// replace scaling effect variables $m and $M
-			while( ( match = desc.match(/\$(s|m|M)\(-?(\d+),(-?\d+),(-?\d+),(-?\d+),(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)\)/i)) != null ) {
-				mod = parseFloat(match[8]);
-				cTime = g_calculateCastTime( parseInt(match[2], 10), parseInt(match[3], 10), parseInt(match[4], 10), this.level );
-				eValue = g_calculateScaling( cTime?cTime[1]:1, parseInt(match[5], 10), parseFloat(match[6]), parseFloat(match[7]), this.level );
-				desc = desc.replace(match[0],Math.floor(mod*(Math.abs(eValue[0])+(match[1]=='M'?Math.abs(eValue[1]):0))));
-			}	
-			// replace duration
-			while( ( match = desc.match(/\$d\((\d+),(\d+),(\d+),(\d+(?:\.\d+)?)\)/i)) != null ) {
-				mod = parseFloat(match[4]);
-				cTime = g_calculateCastTime( parseInt(match[2], 10), parseInt(match[3], 10), parseInt(match[4], 10), this.level );
-				desc = desc.replace(match[0],cTime[0]);
+			var desc = this.bustedDesc ? DescriptionInterpreter.interpret(this.bustedDesc, character) : this.desc;
+            
+            if( desc === null ) {
+                return "";
+            }
+			
+			var opening = 0, closing = 0;
+			var repl = desc;
+			
+			repl = repl.replace(/\|c([0-9a-z]{8})/gi, function(str, p1) {
+				opening ++;
+				return "<span style=\"color:#" + p1.substr(2,6) + "\">";
+			});
+			
+			repl = repl.replace(/\|r/gi, function(str, p1) {
+				closing ++;
+				return "</span>";
+			});
+			
+			for( ; closing < opening; closing ++ ) {
+				repl += "</span>";
 			}
-			// replace time inside equations with value, outside with formated string
-			while( ( match = desc.match(/(\${[^}]*)\$time\((-?\d+(?:\.\d+)?)\)([^}]*})/i)) ) {
-				desc = desc.replace(match[0],match[1]+match[2]+match[3]);
-			}
-			while( ( match = desc.match(/\$time\((-?\d+(?:\.\d+)?)\)/i)) ) {
-				desc = desc.replace(match[0],TextIO.timeToString(match[1]));
-			}
-			return TextIO.parse(desc.replace(/\$pl/ig,this.level), characterScope);
+			
+			return repl.split(/\r\n/);
 		},
 		setLevel : function(level) {
 			var cTime, eValue, i;
@@ -140,7 +144,14 @@ Spell.prototype = {
 				for( i = 0; i < this.effects.length; i++ ) {
 					if( this.effects[i] != null )
 					{
-						eValue = g_calculateScaling( cTime != null ? cTime[1] : 1, this.scaling.distribution, this.scaling.coefficients[i], this.scaling.dices[i], this.level );
+						eValue = g_calculateScaling( 
+								cTime != null ? cTime[1] : 1, 
+								this.scaling.distribution, 
+								this.effects[i].spellScalingCoefficient, 
+								0, //TODO: Where did the dices go? 
+								this.level 
+						);
+						
 						if( eValue != null ) {
 							this.effects[i].value = eValue[0];
 							this.effects[i].dice = eValue[1];

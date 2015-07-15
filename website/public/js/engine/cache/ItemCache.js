@@ -1,37 +1,51 @@
-
 var ItemCache = {};
-ItemCache.elements = {};
-ItemCache.set = function( itm ) { ItemCache.elements[itm.id] = itm; };
-ItemCache.get = function( id ) { return ItemCache.elements[id];};
-ItemCache.contains = function(id) { return ItemCache.elements[id] || false; };
-/**
- * @param {number} id
- * @param {Handler} handler
- * @param {Array} args
- */
-ItemCache.asyncGet = function(id,handler,args){
-	if(ItemCache.get(id))
-	{
-		handler.notify(args);
+(function() {
+	var elements = {};
+	/**
+	 * @param {Array} data
+	 * @param {Handler} handler
+	 */
+	function asyncGetHandler( data, handler ) {
+		if ( data != null ) 
+		{
+			var itm = new Item(data);
+			ItemCache.set(itm);
+			handler.notify([itm]);
+		}
 	}
-	else{
-		Ajax.get(	
-			'api/item.php'+TextIO.queryString({ 'id': id, 'lang': g_settings.language}),
-			ItemCache.getHandler,
-			[handler,args]
-		);
-	}
-};
-/**
- * @param {Array} itm
- * @param {Handler} handler
- * @param {Array} args
- */
-ItemCache.asyncGet_callback = function( itm, handler, args ) {
-	if ( itm != null ) 
-	{
-		ItemCache.set(new Item(itm));
-		handler.notify(args);
-	}
-};
-ItemCache.getHandler = new Handler( ItemCache.asyncGet_callback, ItemCache );
+	/**
+	 * @param {number} id 
+	 */
+	ItemCache.get = function( id ) {
+		return elements[id];
+	};
+	/**
+	 * @param {Item} itm
+	 */
+	ItemCache.set = function( itm ) {
+		elements[itm.id] = itm.clone();
+	};
+	/**
+	 * @param {number} id 
+	 */
+	ItemCache.contains = function(id) { 
+		return elements[id] || false; 
+	};
+	/**
+	 * @param {number} id
+	 * @param {Handler} handler
+	 */
+	ItemCache.asyncGet = function( id, handler ){
+		var itm = ItemCache.get(id);
+		if(itm) {
+			handler.notify([itm]);
+		}
+		else {
+			Ajax.get(	
+				'/api/item.php'+TextIO.queryString({ 'id': id }),
+				new Handler(asyncGetHandler, this),
+				[handler]
+			);
+		}
+	};
+})();

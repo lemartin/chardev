@@ -43,6 +43,9 @@ function InvalidItemException( itm, cause ) {
 	case InvalidItemException.CAUSE_UNIQUE:
 		message = "You are already wearing this item!";
 		break;
+    case InvalidItemException.CAUSE_CHARACTER_LEVEL:
+        message = "You do not match the level requirement to wear this item!";
+        break;
 	default:
 		message = "Unable to equip "+itm.name+" due to unknown reason!";
 		break;
@@ -56,6 +59,7 @@ InvalidItemException.prototype.itm = null;
 InvalidItemException.CAUSE_WRONG_CHARACTER_CLASS = 0;
 InvalidItemException.CAUSE_WRONG_ITEM_CLASS = 1;
 InvalidItemException.CAUSE_UNIQUE = 2;
+InvalidItemException.CAUSE_CHARACTER_LEVEL = 3;
 
 /**
  * @constructor

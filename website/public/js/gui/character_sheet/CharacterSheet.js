@@ -66,7 +66,7 @@ function CharacterSheet() {
 	div = document.createElement("div");
 	div.className = "cs_m_grid_t";
 	div.appendChild(grid.node);
-	profDiv = DOM.createAt(div, 'div', {'class': 'cs_prof_p'});
+	profDiv = Dom.createAt(div, 'div', {'class': 'cs_prof_p'});
 	//
 	this.node.appendChild(div);
 	//
@@ -80,7 +80,7 @@ function CharacterSheet() {
 	div.className= "cs_m_grid_sl";
 	slotGrid = new StaticGrid(8,2);
 	this.slots = [];
-	for( i = 0; i < INV_ITEMS; i++ ) {
+	for( i = 0; i < Inventory.SLOTS; i++ ) {
 		this.slots[i] = new ItemSlot( this, i );
 	}
 	for( i = 0; i < 8; i++ ) {
@@ -93,7 +93,6 @@ function CharacterSheet() {
 	div.appendChild(wpnGrid.node);
 	wpnGrid.cells[0][0].appendChild(this.slots[16].node);
 	wpnGrid.cells[0][1].appendChild(this.slots[17].node);
-	wpnGrid.cells[0][2].appendChild(this.slots[18].node);
 	
 	wpnGrid.node.className = "cs_w_grid";
 	
@@ -124,8 +123,8 @@ function CharacterSheet() {
 		this.statCollapsables[i].node.className = 'cs_st_p';
 		this.statCollapsables[i].content.className = 'cs_st_c';
 		
-		div = DOM.createAt( this.statCollapsables[i].header, 'div', {'class': 'stat_title_p'} );
-		DOM.createAt( div, 'a', {'class': 'stat_title', 'text': locale['CS_StatGroups'][i], 'href': 'javascript:'} );
+		div = Dom.createAt( this.statCollapsables[i].header, 'div', {'class': 'stat_title_p'} );
+		Dom.createAt( div, 'a', {'class': 'stat_title', 'text': locale['CS_StatGroups'][i], 'href': 'javascript:'} );
 		
 		grid.cells[0][1].appendChild(this.statCollapsables[i].node);
 	}
@@ -143,10 +142,8 @@ function CharacterSheet() {
 		this.professionsParent.cells[i][0].appendChild(this.professionSelects[i].node);
 		this.professionsParent.cells[i][1].appendChild(this.professionLevelSelects[i].node);
 	}
-	DOM.createAt(profDiv, 'div', {'class': 'cs_prof_title', 'text': locale['Professions']});
+	Dom.createAt(profDiv, 'div', {'class': 'cs_prof_title', 'text': locale['Professions']});
 	profDiv.appendChild(this.professionsParent.node);
-	
-	this.slots[18].setVisibility(false);
 	
 	this.showStatGroups(-1);
 }
@@ -336,16 +333,4 @@ CharacterSheet.prototype = {
 	hideSlotTooltip: function( slot, index ) {
 		this.slots[slot].hideTooltip(index);
 	}
-};
-/**
- * @constructor
- * @param {number} id
- * @param {number} level
- */
-function SkilledPrimaryProfession( id, level ) {
-	this.id = id;
-	this.level = level;
-}
-SkilledPrimaryProfession.prototype = {
-	id: 0, level: 0
 };

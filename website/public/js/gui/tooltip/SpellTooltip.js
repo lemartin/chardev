@@ -1,22 +1,18 @@
 
 var SpellTooltip = {
 	/**
+	 * @param {Spell} spell
 	 * @param {Character} characterScope
-	 * @param {number} type
-	 * @param {Array} args
 	 * @returns {string}
 	 */
-	getHTML : function( spell, characterScope, type, args )
+	getHtml : function( spell, characterScope )
 	{
-		spell.setLevel( characterScope != null ? characterScope.level : DEFAULT_LEVEL );
+		spell.setLevel( characterScope != null ? characterScope.level : Character.MAX_LEVEL );
 		
 		var html = "<table cellpadding = 0 cellspacing = 0 style='vertical-align: top'>";
 		var tmp = "", lHtml = '', rHtml = '';
 		//
-		if( !type || (type&1) == 0 )
-		{	
-			html+=Tools.addTr1("<span class='tooltip_title'>" + spell.name + "</span>");
-		}
+		html+=Tools.addTr1("<span class='tooltip_title'>" + spell.name + "</span>");
 		//
 		//#########################################################################
 		//
@@ -31,7 +27,7 @@ var SpellTooltip = {
 		//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 		//
 		lHtml = '';
-		if( spell.runecost && spell.energyType == 5)
+		if( spell.runecost && spell.power.type == 5)
 		{
 			if(spell.runecost[0]){
 				lHtml += spell.runecost[0]+ " " + locale['Blood'];
@@ -43,23 +39,23 @@ var SpellTooltip = {
 				lHtml += ( lHtml ? ", " : "" ) + spell.runecost[2]+ " " + locale['Frost'];
 			}
 		}
-		else if( spell.cost )
+		else if( spell.power )
 		{
-			tmp = ( spell.energyType == 1 || spell.energyType == 6 ? spell.cost[0] / 10 : spell.cost[0] );
+			tmp = ( spell.power.type == 1 || spell.power.type == 6 ? spell.power.absolute / 10 : spell.power.absolute );
 			if ( characterScope != null ) 
 			{
-				tmp = Math.max(Tools.floor(tmp, 2), Math.floor(spell.cost[1] * characterScope.stats.baseMana / 100));
+				tmp = Math.max(Tools.floor(tmp, 2), Math.floor(spell.power.relative * characterScope.stats.baseMana / 100));
 				if( tmp > 0 ) {
-					lHtml = tmp + " " + locale['energy2'][spell.energyType];
+					lHtml = tmp + " " + locale['energy2'][spell.power.type];
 				}
 			}
 			else 
 			{
 				if (tmp > 0) {
-					lHtml = tmp + " " + locale['energy2'][spell.energyType];
+					lHtml = tmp + " " + locale['energy2'][spell.power.type];
 				}
-				else if (spell.cost[1] > 0) {
-					lHtml = Tools.floor(spell.cost[1], 2) + '% ' + locale['ofBaseMana'];
+				else if (spell.power.relative > 0) {
+					lHtml = Tools.floor(spell.power.relative, 2) + '% ' + locale['ofBaseMana'];
 				}
 			}
 		}
@@ -114,16 +110,6 @@ var SpellTooltip = {
 		}
 		else if ( lHtml ) {
 			html += Tools.addTr1(lHtml);
-		}
-		//
-		//
-		//
-		if( type&1 )
-		{
-			for(var i = 0; i < args.length ; i++)
-			{
-				html += Tools.addTr1("<span class='tooltip_talents_required'>"+args[i]+"</span");
-			}
 		}
 		//
 		//	desc

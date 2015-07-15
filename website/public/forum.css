@@ -22,7 +22,7 @@
 	text-align: right;
 }
 
-.fo_thread_cat{ border-bottom: 1px solid #343030; padding: 5px 0px 0px 5px; color: #808080 }
+.fo_thread_cat{ border-bottom: 1px solid #343030; padding: 5px 0 0 5px; color: #808080 }
 
 .fo_edit { width: 700px; height: 200px; }
 
@@ -259,7 +259,7 @@
 .forum_goto_link
 {
 	font-size:16px;
-	font-family:Tahoma;
+	font-family:Tahoma, sans-serif;
 	color: #00a8bd;
 }
 
@@ -268,7 +268,7 @@
 .forum_goto_link:hover
 {
 	font-size:16px;
-	font-family:Tahoma;
+	font-family:Tahoma, sans-serif;
 	text-decoration:none;
 }
 .fo_page

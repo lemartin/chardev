@@ -1,10 +1,9 @@
 <?php
 
-use chardev\backend\UserDatabase;
+require_once __DIR__ . "/../../app/bootstrap.php";
 
 use chardev\Ajax;
-
-require_once '../../app/chardev/Autoloader.php';
+use chardev\backend\UserDatabase;
 
 \chardev\Session::startBackendSession();
 
@@ -30,12 +29,11 @@ try {
 	else if( isset($_GET['id'])) {
 		$id = $_GET['id'] ? json_decode($_GET['id']) : null;
 		echo json_encode(UserDatabase::getInstance()->getProfile($id));
-		break;
 	}
 }
 catch( chardev\backend\DuplicateProfileException $dpe ) {
 	header("chardev-duplicate-profile: yes");
-	echo json_encode($dpe->getId());
+	echo json_encode("profile/{$dpe->getId()}.html");
 }
 catch( \Exception $e ) {
 	Ajax::dieOnException($e);

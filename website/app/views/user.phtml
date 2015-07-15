@@ -1,14 +1,14 @@
-<?php 
-
-use chardev\frontend\Form;
-
-use chardev\FormatHelper;
-
-use chardev\Session;
-
-use chardev\backend\UserDatabase;
+<?php
 
 use chardev\ChardevHelper;
+use chardev\FormatHelper;
+use chardev\Session;
+use chardev\backend\UserDatabase;
+use chardev\frontend\Form;
+
+/**
+ * @var \chardev\TemplateHelper
+ */
 
 $args = $this->getArg("validated_args");
 	$user = $args["User"];
@@ -185,8 +185,8 @@ $args = $this->getArg("validated_args");
 						<input 
 							type='submit' 
 							class='button button_light ui_da_btn'
-							onmouseout='this.className=\"button button_light ui_da_btn\"' 
-							onmouseover='this.className=\"button button_light button_light_hover ui_da_btn\"' 
+							onmouseout='this.className="button button_light ui_da_btn"'
+							onmouseover='this.className="button button_light button_light_hover ui_da_btn"'
 							value='Delete my Account!'
 						/>
 						<input type='hidden' name='confirm' />
@@ -212,8 +212,8 @@ $args = $this->getArg("validated_args");
 				<input 
 					type='submit' 
 					class='button button_light ui_da_btn'
-					onmouseout='this.className=\"button button_light ui_da_btn\"' 
-					onmouseover='this.className=\"button button_light button_light_hover ui_da_btn\"' 
+					onmouseout='this.className="button button_light ui_da_btn"'
+					onmouseover='this.className="button button_light button_light_hover ui_da_btn"'
 					value='Delete my Account'
 				/>
 			</form>

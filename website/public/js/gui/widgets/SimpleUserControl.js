@@ -7,7 +7,7 @@ function SimpleUserControl() {
 
 SimpleUserControl.prototype = {
 	/**
-	 * @type {Element}
+	 * @type {HtmlElement}
 	 */
 	node: null,
 	getValue: function(){throw new NotImplementedException('SimpleUserControl','getValue');},

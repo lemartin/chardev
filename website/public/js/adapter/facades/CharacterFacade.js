@@ -53,12 +53,18 @@ CharacterFacade.prototype = {
 		}
 	},
 	getStatTooltip: function( group, index ) {
-		return StatTooltip.getHTML(this.__character, group, index);
+		return StatTooltip.getHtml(this.__character, group, index);
 	},
 	getStats: function() {
 		return this.__character.stats;
 	},
 	getShapeform: function() {
 		return this.__character.chrClass ? this.__character.chrClass.shapeform : 0;
+	},
+	getTalentDistribution: function() {
+		return this.__character.getTalentDistribution();
+	},
+	getTalents: function() {
+		return this.__character.getTalents();
 	}
 };

@@ -50,20 +50,6 @@ CharacterRace.prototype = {
 		return "CharacterRace ("+this.name+","+this.racials+")";
 	},
 	isValidCharacterClass: function( chrClassId ) {
-		switch( this.id ) {
-			case DRAENEI: return chrClassId != DRUID && chrClassId != WARLOCK && chrClassId != ROGUE;
-			case DWARF: return chrClassId != DRUID;
-			case GNOME: return chrClassId != DRUID && chrClassId != HUNTER && chrClassId != PALADIN && chrClassId != SHAMAN;
-			case HUMAN: return chrClassId != DRUID && chrClassId != SHAMAN;
-			case NIGHTELF: return chrClassId != PALADIN && chrClassId != SHAMAN && chrClassId != WARLOCK;
-			case WORGEN: return chrClassId != PALADIN && chrClassId != SHAMAN;
-			case BLOODELF: return chrClassId != DRUID && chrClassId != SHAMAN;
-			case GOBLIN: return chrClassId != DRUID && chrClassId != PALADIN;
-			case ORC: return chrClassId != DRUID && chrClassId != PRIEST;
-			case TAUREN: return chrClassId != MAGE && chrClassId != ROGUE && chrClassId != WARLOCK;
-			case TROLL: return chrClassId != PALADIN;
-			case FORSAKEN: return chrClassId != DRUID && chrClassId != PALADIN && chrClassId != SHAMAN;
-		}
-		return false;
+        return (CHR_RACE_CLASS_MASK[this.id] & (1<<(chrClassId-1))) > 0;
 	}
 };

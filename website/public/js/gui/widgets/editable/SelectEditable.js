@@ -7,7 +7,7 @@ function SelectEditable( options ) {
 	
 	this.options = options;
 	
-	this.div = DOM.create("div", {});
+	this.div = Dom.create("div", {});
 	
 	this.select = SingleSelect.fromObject(options);
 	this.select.node.className += ' single_select_focussable';
@@ -33,23 +33,23 @@ SelectEditable.prototype.setData = function(data) {
 	var v = this.options[data];
 	
 	this.div.innerHTML = Editable.formatValue(v);
-	DOM.set(this.node, this.div);
+	Dom.set(this.node, this.div);
 };
 SelectEditable.prototype.__edit = function( b ) {
 	if( b ) {
 		if( this.disabled || this.isReadOnly ) {
 			return;
 		}
-		DOM.set(this.node, this.select.node);		
+		Dom.set(this.node, this.select.node);		
 		this.select.node.focus();
 	}
 	else {
-		DOM.set(this.node, this.div);
+		Dom.set(this.node, this.div);
 		this.select.setValue(this.data);
 	}
 };
 SelectEditable.prototype.__onChange = function() {
 	this.eventMgr.fire('change', { 'data': this.select.getValue()});
-	DOM.set( this.node, DOM.create('img',{'src': '/images/site/bar_loading.gif', 'class': 'ui_bar_loading'}));
+	Dom.set( this.node, Dom.create('img',{'src': '/images/site/bar_loading.gif', 'class': 'ui_bar_loading'}));
 	this.disabled = true;
 };

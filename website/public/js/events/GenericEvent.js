@@ -17,6 +17,7 @@ GenericEvent.prototype = {
 	__kvps: {},
 	subject: null,
 	observer: null,
+	handled: false,
 	/**
 	 * @param {string} key
 	 */
@@ -41,7 +42,21 @@ GenericEvent.prototype = {
 			if( ! this.observer.listensTo(event) ) {
 				throw new Error("The event "+event+" is not registered for the observer!");
 			}
+			if( this.event === event ) {
+				this.handled = true;
+				return true;
+			}
+			else {
+				return false;
+			}
 		}
-		return this.event === event;
+		else {
+			return this.event === event;
+		}
+	},
+	check: function() {
+		if( GenericEvent.DEBUG && ! this.handled ) {
+			throw new Error("Event "+this.event+" was not handled!");
+		}
 	}
 };

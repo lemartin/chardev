@@ -1,5 +1,5 @@
 var StatTooltip = {
-	getHTML : function( character, group, index ) {
+	getHtml : function( character, group, index ) {
 		var stats = character.stats;
 		var html = "";
 		switch(group){
@@ -51,9 +51,6 @@ var StatTooltip = {
 				var tmp_html = "";
 				if( index == 2 ) {
 					tmp_html += ( tmp_html ? "<br />" : "" ) + TextIO.sprintf1(locale['TT_StatText']['IncreasesHealth'],Math.floor(stats.healthFromSta));
-				}
-				else if( index == 3 ) {
-					tmp_html += ( tmp_html ? "<br />" : "" ) + TextIO.sprintf1(locale['TT_StatText']['IncreasesMana'],Math.floor(stats.manaFromInt));
 				}
 				else if( index == 4 ) {
 					tmp_html += ( tmp_html ? "<br />" : "" ) + TextIO.sprintf1(locale['TT_StatText']['IncreasesManaRegen'],Math.floor(stats.manaRegenFromSpi));
@@ -188,29 +185,21 @@ var StatTooltip = {
 				//
 				//#########################################################
 				//
-				var mhExt = EXPERTISE_TO_CHANCE * stats.melee[7][0],
-					ohExt = stats.melee[7][1] == null ? null : EXPERTISE_TO_CHANCE * stats.melee[7][1],
-					ratingPerCent = COMBAT_RATINGS[23][character.level-1] / EXPERTISE_TO_CHANCE;
-				//
+                var exStr = TextIO.formatFloat2(stats.melee[7][0]) + "%"
+                    + ( stats.melee[7][1] != null ? " / " + TextIO.formatFloat2(stats.melee[7][1]) + "%" : "" );
 				html += Tools.addTr1(
 					"<span class='tt_stat_title'>"+
 					locale['CS_Stats'][group][index]+ 
-					" " + 
-					stats.melee[7][0] +
-					( ohExt != null ? " / " + stats.melee[7][1] : "" ) +
-					"</span>");
+					" " + exStr + "</span>");
 				
 				
 				html += Tools.addTr1(TextIO.sprintf1(
 					locale['TT_StatText']['ReduceDodgeParry'],
-					TextIO.formatFloat2(mhExt) + "%" + ( ohExt != null ? "/"+TextIO.formatFloat2(ohExt)+"%" : "" )
+                    exStr
 				));
 				html += Tools.addTr1(TextIO.sprintf(
-					locale['TT_StatText']['ExpertiseRating'], [
-					                                           Math.floor(stats.expertiseRating[1]),
-					                                           Math.floor(stats.expertiseRating[1]/COMBAT_RATINGS[23][character.level-1])
-					                                          ]
-				));
+					locale['TT_StatText']['ExpertiseRating'],
+                    [ Math.floor(stats.expertiseRating[1]),exStr]));
 				//
 				tmp = "<table class='tt_miss_table' cellpadding='0' cellspacing='0'><colgroup><col width='50%' /><col width='50%' /></colgroup>";
 				//
@@ -222,11 +211,7 @@ var StatTooltip = {
 				//
 				tmp += "<tr><td class='tt_miss_title_l'>"+locale['TT_TargetLevel']+"</td><td class='tt_miss_title_r'>"+locale['TT_DodgeChance']+"</td></tr>";
 				//
-				tmp += StatTooltip.__levelChanceRows( character.level, ENEMY_DODGE, mhExt, ohExt );
-				//
-				tmp += "<tr><td colspan='2'>"+
-						StatTooltip.__statCapNotice( ENEMY_DODGE[3], mhExt, ratingPerCent )
-						+"</td></tr>";
+				tmp += StatTooltip.__levelChanceRows( character.level, ENEMY_DODGE, stats.melee[7][0], stats.melee[7][1], null );
 				//
 				//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 				//
@@ -236,10 +221,10 @@ var StatTooltip = {
 				//
 				tmp += "<tr><td class='tt_miss_title_l'>"+locale['TT_TargetLevel']+"</td><td class='tt_miss_title_r'>"+locale['TT_ParryChance']+"</td></tr>";
 				//
-				tmp += StatTooltip.__levelChanceRows( character.level, ENEMY_PARRY, mhExt, ohExt );
+				tmp += StatTooltip.__levelChanceRows( character.level, ENEMY_PARRY, stats.melee[7][0], stats.melee[7][1], ENEMY_DODGE );
 				//
 				tmp += "<tr><td colspan='2'>"+
-				StatTooltip.__statCapNotice( ENEMY_PARRY[3], mhExt, ratingPerCent )
+				StatTooltip.__statCapNotice( ENEMY_DODGE[3] + ENEMY_PARRY[3], Math.max(0,stats.melee[7][0]), COMBAT_RATINGS[23][character.level-1] )
 						+"</td></tr>";
 				//
 				//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -326,11 +311,56 @@ var StatTooltip = {
 								TextIO.formatFloat2(stats.rangedCritRating/COMBAT_RATINGS[9][character.level-1])
 							]));
 				break;
-			case 7:
+            case 7:
+                //
+                //#########################################################
+                //
+                // 		EXPERTISE
+                //
+                //#########################################################
+                //
+                var exStr = TextIO.formatFloat2(stats.ranged[index]) + "%";
+                html += Tools.addTr1(
+                    "<span class='tt_stat_title'>"+
+                        locale['CS_Stats'][group][index]+
+                        " " + exStr + "</span>");
+
+
+                html += Tools.addTr1(TextIO.sprintf1(
+                    locale['TT_StatText']['ReduceDodgeParry'],
+                    exStr
+                ));
+                html += Tools.addTr1(TextIO.sprintf(
+                    locale['TT_StatText']['ExpertiseRating'],
+                    [ Math.floor(stats.expertiseRating[1]),exStr]));
+                //
+                tmp = "<table class='tt_miss_table' cellpadding='0' cellspacing='0'><colgroup><col width='50%' /><col width='50%' /></colgroup>";
+                //
+                //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+                //
+                // 		ENEMIES DODGE
+                //
+                //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+                //
+                tmp += "<tr><td class='tt_miss_title_l'>"+locale['TT_TargetLevel']+"</td><td class='tt_miss_title_r'>"+locale['TT_DodgeChance']+"</td></tr>";
+                //
+                tmp += StatTooltip.__levelChanceRows( character.level, ENEMY_DODGE, stats.ranged[7], null, null );
+                //
+                tmp += "<tr><td colspan='2'>"+
+                    StatTooltip.__statCapNotice( ENEMY_DODGE[3], Math.max(0,stats.melee[7][0]), COMBAT_RATINGS[23][character.level-1] )
+                    +"</td></tr>";
+                //
+                tmp += "</table>";
+                html += Tools.addTr1(tmp);
+                //
+                //#########################################################
+                //
+                break;
+			case 8:
 				html += Tools.addTr1( "<span class='tt_stat_title'>"+
 							TextIO.sprintf1(
 								locale['TT_StatTitle']['Mastery'],
-								TextIO.formatFloat2(stats.ranged[7]))+
+								TextIO.formatFloat2(stats.ranged[index]))+
 							"</span>");
 				html += Tools.addTr1(
 							TextIO.sprintf( locale['TT_StatText']['MasteryRating'], [
@@ -404,12 +434,15 @@ var StatTooltip = {
 				break;
 			}
 			break;
+		//
+		// DEFENSE
+		//
 		case 5:
 			html += Tools.addTr1(
 				"<span class='tt_stat_title'>"+
 				TextIO.sprintf1(
 						locale['TT_StatTitle_Defense'][index],
-						( index == 4 || index == 0 ? stats.defense[index] : TextIO.formatFloat2(stats.defense[index])) 
+						( index == 0 ? stats.defense[index] : TextIO.formatFloat2(stats.defense[index])) 
 				) +
 				"</span>"
 			);
@@ -446,10 +479,28 @@ var StatTooltip = {
 			case 4:
 				html += Tools.addTr1( 
 							TextIO.sprintf1( locale['TT_StatText']['Resilience'],
-								TextIO.formatFloat2(stats.resilienceDamageReduction * 100)
+								TextIO.formatFloat2(stats.defense[4])
 							));
+
+				html += Tools.addTr1(
+							TextIO.sprintf( locale['TT_StatText']['ResilienceRating'], [
+                            	Math.floor(stats.resilienceRating),
+                            	TextIO.formatFloat2(stats.defense[4])
+                            ]));
 				break;
 			case 5:
+				html += Tools.addTr1( 
+							TextIO.sprintf1( locale['TT_StatText']['PvpPower'],
+								TextIO.formatFloat2(stats.defense[5])
+							));
+
+				html += Tools.addTr1(
+							TextIO.sprintf( locale['TT_StatText']['PvpPowerRating'], [
+                            	Math.floor(stats.pvpPowerRating),
+                            	TextIO.formatFloat2(stats.defense[5])
+                            ]));
+				break;
+			case 6:
 				html += Tools.addTr1( 
 							TextIO.sprintf( locale['TT_StatText']['Avoidance'], [
 								TextIO.formatFloat2(stats.meleeMiss),
@@ -483,14 +534,25 @@ var StatTooltip = {
 		}
 		return "";
 	},
-	__levelChanceRows: function( lvl, arr, statMH, statOH ) {
+	__levelChanceRows: function( lvl, arr, statMH, statOH, preReq ) {
 		var i, tmp = "";
 		for( i=0; i<4; i++ ) {
+            var oh = statOH;
+            var mh = statMH;
+
+            if( preReq != null ) {
+                oh = oh === null ? null : oh - preReq[i];
+                mh = mh - preReq[i];
+            }
+
+            oh = oh === null ? null : Math.max(0, oh);
+            mh = Math.max(0, mh);
+
 			tmp += "<tr><td class='tt_miss_level'>"+
 					( lvl + i ) +
 					"</td><td class='tt_miss'>"+
-					TextIO.formatFloat2(Math.max(0, arr[i] - statMH )) + 
-					( statOH != null ? "/" + TextIO.formatFloat2(Math.max(0, arr[i] - statOH)) : "" ) +
+					TextIO.formatFloat2(Math.max(0, arr[i] - mh)) +
+					( oh != null ? "/" + TextIO.formatFloat2(Math.max(0, arr[i] - oh)) : "" ) +
 					"%</td></tr>";
 		}
 		return tmp;

@@ -19,8 +19,9 @@ PostEditableObserver.prototype.data = null;
 PostEditableObserver.prototype.editable = null;
 PostEditableObserver.prototype.__onChange = function( e ) {
 	if( e.is('change') ) {
+		//TODO change to new api interface
 		Ajax.post(
-			'php/interface/forum/forum.php', {
+			'/php/interface/forum/forum.php', {
 				'action': 'edit',
 				'post': this.postId,
 				'content': e.get('data')

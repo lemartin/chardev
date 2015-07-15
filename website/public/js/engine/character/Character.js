@@ -19,21 +19,19 @@ function Character() {
 	this.eventMgr.registerEvent('random_enchant_change', ['slot']);
 	
 	this.eventMgr.registerEvent('talents_reset', []);
-	this.eventMgr.registerEvent('talent_tree_reset', ['tree']);
-	this.eventMgr.registerEvent('talent_tree_selected', ['tree']);
-	this.eventMgr.registerEvent('talent_point_added', ['tree','row','col','remainingPoints']);
-	this.eventMgr.registerEvent('talent_point_removed', ['tree','row','col','remainingPoints']);
-	this.eventMgr.registerEvent('talent_distribution_set', ['distribution']);
-	this.eventMgr.registerEvent('talents_init', []);
+	this.eventMgr.registerEvent('talents_tiers_change', ['tiers']);
+	this.eventMgr.registerEvent('talents_select', ['row', 'col']);
+	this.eventMgr.registerEvent('talents_deselect', ['row', 'col']);
+	this.eventMgr.registerEvent('talents_set_distribution', ['distribution']);
 	
 	this.eventMgr.registerEvent('buffs_change', []);
 
 	this.eventMgr.registerEvent('shapeform_change', ['new_shape','old_shape']);
 	this.eventMgr.registerEvent('presence_change', ['new_presence','old_presence']);
+	this.eventMgr.registerEvent('glyph_added', ['glyph']);
+	this.eventMgr.registerEvent('glyph_removed', ['glyph']);
 	
-	var talentHandler = new Handler(function(e) {
-		this.eventMgr.refire(e);
-	}, this);
+	this.eventMgr.registerEvent("specialisation_change", ["index"]);
 	
 	this.primaryProfessions = [null, null];
 	this.stats = new Stats(this);
@@ -41,10 +39,12 @@ function Character() {
 	this.inventory = new Inventory( this );
 	this.auras = new Auras( this );
 	this.buffs = new Buffs();
-	this.talentObserver = new GenericObserver([
-		'talents_reset', 'talent_tree_reset','talent_tree_selected','talent_point_added',
-		'talent_point_removed','talent_distribution_set','talents_init'
-	], talentHandler);
+	this.talentObserver = new GenericObserver(
+			['select', 'deselect','reset','set_distribution','tiers_change'],
+			new Handler(function(e) {
+				this.eventMgr.refireAs( 'talents_' + e.event, e);
+			}, this)
+	);
 	
 	this.buffs.addObserver(new GenericObserver(['change','remove_buff','remove_stack'], new Handler(function(e){
 		
@@ -61,6 +61,12 @@ function Character() {
 				}
 			}
 		}
+		else if( e.is('change') ) {
+			// do nothing, but take event from stack
+		}
+		else if( e.is('remove_stack') ) {
+			// do nothing, but take event from stack
+		}
 		
 		if( ! e.get('silent') ) {
 			this.calculateStats();
@@ -68,7 +74,9 @@ function Character() {
 		this.eventMgr.fire('buffs_change', {});
 	},this)));
 	
-	this.classObserver = new GenericObserver(['shapeform_change','presence_change'], new Handler(function(e) {
+	this.classObserver = new GenericObserver([
+        'shapeform_change','presence_change','glyph_added','glyph_removed','specialisation_change'
+    ], new Handler(function(e) {
 		if( e.is('shapeform_change')) {
 			var oldShape = e.get('old_shape');
 			var newShape = e.get('new_shape');
@@ -102,9 +110,21 @@ function Character() {
 			
 			this.eventMgr.refire(e);
 		}
+		else if( e.is('glyph_added')) {
+			this.calculateStats();
+			this.eventMgr.refire(e);
+		}
+		else if( e.is('glyph_removed')) {
+			this.calculateStats();
+			this.eventMgr.refire(e);
+		}
+		else if( e.is('specialisation_change')) {
+			this.calculateStats();
+			this.eventMgr.refire(e);
+		}
 	}, this));
 	
-	this.setLevel(Character.MAX_LEVEL);
+	this.setLevel(Character.DEFAULT_LEVEL);
 	this.name = "";
 	this.description = "";
 	//
@@ -112,7 +132,8 @@ function Character() {
 	this.__lastSaved = null; 
 }
 
-Character.MAX_LEVEL = 85;
+Character.MAX_LEVEL = 90;
+Character.DEFAULT_LEVEL = Character.MAX_LEVEL;
 
 Character.prototype = {
 	/** @type{GenericSubject} **/
@@ -157,7 +178,7 @@ Character.prototype = {
 		this.eventMgr.removeObserver(observer);
 	},
 	setLevel : function( level ) {		
-		if (level >= this.getMinLevel() && level <= MAX_LEVEL ) {
+		if (level >= this.getMinLevel() && level <= Character.MAX_LEVEL ) {
 			if ( this.chrClass != null ) {
 				this.chrClass.setLevel(level);
 			}
@@ -252,6 +273,10 @@ Character.prototype = {
 		this.eventMgr.fire('preview_stats_change', {'previewStats': this.previewStats});
 		this.inventory.removePreview();
 	},
+	setPreviewStats: function( previewStats ) {
+		this.eventMgr.fire('preview_stats_change', {'previewStats': previewStats});
+		this.inventory.removePreview();
+	},
 	resetPreviewStats: function() {
 		this.eventMgr.fire('preview_stats_change', {'previewStats': null});
 	},
@@ -272,16 +297,19 @@ Character.prototype = {
 				return true;
 			}
 		}
-		else if( itm.itemClass == 2 ) {
+		if( itm.itemClass == 2 ) {
 			return true;
 		}
 		return false;
 	},
 	fitsItemClassRequirements: function( itm ) {
 		return itm.chrClassMask == 0 || 
-			(itm.chrClassMask&(1535)) == 1535
+			(itm.chrClassMask&(2047)) == 2047
 			|| this.chrClass != null && ( itm.chrClassMask&(1<<(this.chrClass.id-1))) != 0; 
 	},
+    fitsLevelRequirements: function( itm ) {
+        return itm.requiredCharacterLevel <= this.level && itm.requiredCharacterLevelQuest <= this.level;
+    },
 	/**
 	 * @public
 	 * @param {number} slot
@@ -306,22 +334,32 @@ Character.prototype = {
 		case 14: return 1<<12;
 		case 15: return 1<<12;
 		case 16: 
-			if( this.chrClass != null ) {
+			if( this.chrClass !== null ) {
 				switch( this.chrClass.id ) {
-				case ROGUE	: return 1<<21|1<<13;
-				default: return 1<<21|1<<17|1<<13;
+				case ROGUE:
+                    return 1<<21|1<<13|1<<15|1<<26;
+                case HUNTER:
+                case WARRIOR:
+                    return 1<<21|1<<17|1<<13|1<<15|1<<26;
+                case PRIEST:
+                case MAGE:
+                case WARLOCK:
+                    return 1<<21|1<<17|1<<13|1<<26;
+				default:
+                    return 1<<21|1<<17|1<<13;
 				}
 			}
 			return 1<<21|1<<13;
-		case 17: 
-			if( this.chrClass != null ) {
+		case 17:
+			if( this.chrClass !== null ) {
 				switch( this.chrClass.id ) {
-				case WARRIOR	: return 1<<23|1<<14| ( this.chrClass.talents.selectedTree == 1 ? 1<<13|1<<22 : 0 ) | ( this.canDualWieldTwoHandedWeapons() ? 1<<17 : 0 );
+				case WARRIOR	: return 1<<23|1<<14| ( this.chrClass.selectedSpec === 1 ? 1<<13|1<<22 : 0 ) | ( this.canDualWieldTwoHandedWeapons() ? 1<<17 : 0 );
 				case PALADIN	: return 1<<23|1<<14;
 				case HUNTER 	: return 1<<23|1<<22|1<<13;
 				case ROGUE		: return 1<<23|1<<22|1<<13;
 				case DEATHKNIGHT: return 1<<23|1<<22|1<<13;
-				case SHAMAN		: return 1<<23|1<<14| ( this.chrClass.talents.selectedTree == 1 ? 1<<13|1<<22 : 0 );
+				case SHAMAN		: return 1<<23|1<<14| ( this.chrClass.selectedSpec === 1 ? 1<<13|1<<22 : 0 );
+                case MONK       : return 1<<23|( this.chrClass.selectedSpec === 2 ? 1<<13|1<<22 : 0 );
 				default			: return 1<<23;
 				}
 			}
@@ -331,7 +369,7 @@ Character.prototype = {
 	},
 	getDefaultArmorMask: function() {
 		var defaultMask = 1<<0|1<<1|1<<2|1<<3|1<<4;
-		if( this.chrClass != null ) {
+		if( this.chrClass !== null ) {
 			switch( this.chrClass.id ) {
 			case 1: defaultMask = this.level >= 40 ? 1<<4 : 1<<3; break;
 			case 2: defaultMask = this.level >= 40 ? 1<<4 : 1<<3; break;
@@ -342,6 +380,7 @@ Character.prototype = {
 			case 7: defaultMask = this.level >= 40 ? 1<<3 : 1<<2; break;
 			case 8: defaultMask = 1<<1; break;
 			case 9: defaultMask = 1<<1; break;
+			case 10: defaultMask = (1<<1)|(1<<2); break;
 			case 11: defaultMask = 1<<2; break;
 			}
 		}
@@ -369,25 +408,6 @@ Character.prototype = {
 		case 14:
 		case 15:
 			return [4,1<<0];
-		case 18:
-			if( this.chrClass != null ) {
-				switch( this.chrClass.id ) {
-				case WARLOCK:
-				case MAGE:
-				case PRIEST:
-					return [2,1<<19];
-				case WARRIOR:
-				case HUNTER:
-				case ROGUE:
-					return [2,1<<2|1<<3|1<<16|1<<18];
-				case PALADIN:
-				case SHAMAN:
-				case DEATHKNIGHT:
-				case DRUID:
-					return [4,1<<11];
-				}
-			}
-			return [100,1];
 		}
 		return [-1,0];
 	},
@@ -397,16 +417,16 @@ Character.prototype = {
 			case 1:
 				return ( this.level >= 40 ? 31 : 15 ) + 64;
 			case 2:
-				return ( this.level >= 40 ? 31 : 15 ) + 64 + 2048;
+				return ( this.level >= 40 ? 31 : 15 ) + 64;
 			case 6:
-				return ( this.level >= 40 ? 31 : 15 ) + 2048;
+				return ( this.level >= 40 ? 31 : 15 );
 			case 3: 
 				return this.level >= 40 ? 15 : 7;
 			case 7:
-				return ( this.level >= 40 ? 15 : 7 ) + 64 + 2048;
+				return ( this.level >= 40 ? 15 : 7 ) + 64;
+			case 4:
+			case 10:
 			case 11:
-				return 7 + 2048;
-			case 4: 
 				return 7;
 			case 5:
 			case 8:
@@ -417,7 +437,8 @@ Character.prototype = {
 		return 31;
 	},
 	canDualWieldTwoHandedWeapons : function(){
-		return this.chrClass != null && this.chrClass.id == WARRIOR && this.chrClass.talents.talents[1][6][1].spent > 0;
+		//TODO Warrior DW Talent? - && this.chrClass.talents.talents[1][6][1].spent > 0
+		return this.chrClass != null && this.chrClass.id == WARRIOR;
 	},
 	hasMana: function() {
 		if( this.chrClass == null ) { 
@@ -437,7 +458,7 @@ Character.prototype = {
 	},
 	isSpellAffine: function() {
 		var clId = this.chrClass ? this.chrClass.id : 0;
-		var tt = this.chrClass ? this.chrClass.talents.selectedTree : -1;
+		var tt = this.chrClass ? this.chrClass.selectedSpec : -1;
 		
 		return clId == WARLOCK || clId == PRIEST || clId == MAGE || clId == DRUID && tt != 1 || clId == SHAMAN && tt != 1 || clId == PALADIN && tt != 2;
 	},
@@ -508,6 +529,25 @@ Character.prototype = {
 	//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 	//
 	__testAndApplyIndirectAura: function( spellId ) {
+        //
+        // TODO The asynchronous retrieval is quite dangerous, as we may 
+        // experience race conditions, the spells should instead be fetched
+        // when the character class is loaded
+        if( ! SpellCache.contains(spellId) ) {
+            SpellCache.asyncGet(spellId, new Handler( function() {
+                this.__testAndApplyIndirectAura(spellId);
+            }, this));
+        }
+        var spell = SpellCache.get(spellId)
+        if( ! spell ) {
+            return;
+        }
+        //
+        // If the required level of the spell is to high, remove it
+        if( spell.spellLevels !== null && spell.spellLevels.spellLevel > this.level ) {
+			this.buffs.removeInternal(spellId, false );
+            return;
+        }
 		//
 		// If the spell applying the aura is available and not already applied, 
 		// add the spell as new buff.
@@ -626,8 +666,8 @@ Character.prototype = {
 		this.chrClass.setPresence(presence);
 		
 		if( this.chrClass ) {
-			if( profile[4] === 2 || profile[4] === 1 || profile[4] === 0 ) {
-				this.chrClass.talents.selectTree(profile[4]);
+			if( profile[4] !== undefined && profile[4] >= 0 ) {
+				this.chrClass.setSpecialisation(profile[4]);
 			}
 			if( profile[2] ) {
 				this.chrClass.talents.setDistribution(profile[2],true);
@@ -647,12 +687,20 @@ Character.prototype = {
 				if( !profile[3][i] ) {
 					continue;
 				}
-				var g = new Glyph(profile[3][i]);
-				this.chrClass.addGlyph( g );
+				try {
+					this.chrClass.addGlyph(new Glyph(profile[3][i]));
+				}
+				catch( ngse ) {
+					// TODO remove in near future
+					// ignore missing glyph slots to allow conversion of cata profiles
+					if( !(ngse instanceof NoGlyphSlotsException)) {
+						throw ngse;
+					}
+				}
 			}
 		}
 		
-		for( i=0; i<INV_ITEMS; i++ ) {
+		for( i=0; i<Inventory.SLOTS; i++ ) {
 			if( ! profile[1][i] ) {
 				continue;
 			}
@@ -673,7 +721,7 @@ Character.prototype = {
 					if ( profile[1][i][1+j] ) {
 						gem = new Item(profile[1][i][1+j]);
 						itm.addGem( gem ,j);
-						ItemCache.set(gem.clone());
+						ItemCache.set(gem);
 					}
 				}
 				if( profile[1][i][4] ) {
@@ -701,7 +749,7 @@ Character.prototype = {
 						itm.addEnchant( new SpellItemEnchantment( profile[1][i][7][j] ) );
 					}
 				}
-				ItemCache.set(itm.clone());
+				ItemCache.set(itm);
 			}
 			else {
 				this.inventory.remove(i);
@@ -748,7 +796,7 @@ Character.prototype = {
 		        presence
 		];
 		s[1] = [];
-		for( i=0; i<INV_ITEMS; i++ ) {
+		for( i=0; i<Inventory.SLOTS; i++ ) {
 			itm = this.inventory.items[i][0];
 			if( itm == null ) {
 				s[1][i] = null;
@@ -778,7 +826,7 @@ Character.prototype = {
 				}
 			}
 		} 
-		s[4] = ( this.chrClass ? this.chrClass.talents.selectedTree : -1 );
+		s[4] = ( this.chrClass ? this.chrClass.selectedSpec : -1 );
 		s[5] = [null, null];
 		for( i=0; i<2; i++ ) {
 			var p = this.primaryProfessions[i];
@@ -814,7 +862,7 @@ Character.prototype = {
 		talents = this.chrClass != null ? this.chrClass.talents : null, glyph,
 		glyphs = [[],[],[]], primaryProfessions= [];
 	
-		for( i=0; i<INV_ITEMS; i++ ) {
+		for( i=0; i<Inventory.SLOTS; i++ ) {
 			itm = this.inventory.items[i][0];
 			if( itm == null ) {
 				continue;
@@ -880,18 +928,59 @@ Character.prototype = {
 					}
 				}
 			}
+            
+            var calcTalent = "";
+            var talentsObj = [];
+            for( var row = 0; row < Talents.TIERS; row ++ ) {
+                var index = -1;
+                for( var col = 0; col < Talents.COLUMNS; col ++ ) {
+                    if(talents.talents[row][col].selected) {
+                        index = col;
+                    }
+                }
+				if( index !== -1 ) {
+                    talentsObj.push({
+                       column: index,
+                       spell: {
+                           id: talents.talents[row][index].spell.id,
+                           name: talents.talents[row][index].spell.name
+                       },
+                       tier: row
+                    });
+                }
+			}
+            
+            var calcSpec = "";
+            switch(this.chrClass.selectedSpec) {
+                case 0: calcSpec = "a"; break;
+                case 1: calcSpec = "Z"; break;
+                case 2: calcSpec = "b"; break;
+            }
+            
+            var spec = this.chrClass.getSpecialisation();
+            var specObj;
+            if( spec !== null ) {
+                specObj = {
+                    backgroundImage: spec.bg,
+                    description: spec.description,
+                    icon: spec.icon,
+                    name: spec.name
+                    // order:
+                    // role:
+                };
+            }
+            
 			//TODO add missing values to talent obj
 			talentObj = [{
-				'selected': true,
-				'name':talents.selectedTree != -1 ? talents.treeNames[talents.selectedTree] : "None",
-				'icon': "",
-				'build':talents.getDistribution(true).join(""),
-				'trees': [],
-				'glyphs': {
-					'prime':glyphs[2],
-					'major':glyphs[0],
-					'minor':glyphs[1]
-				}
+                calcTalent: calcTalent,
+                calcSpec: calcSpec,
+				glyphs: {
+					major: glyphs[0],
+					minor: glyphs[1]
+				},
+				selected: true,
+                spec: specObj,
+                talents: talentsObj
 			}];
 		}
 		else {
@@ -921,6 +1010,12 @@ Character.prototype = {
 				'secondary': []
 			}
 		});
+	},
+	setName: function( name ) {
+		this.name = name;
+	},
+	setDescription: function( desc ) {
+		this.description = desc;
 	},
 	//
 	//
@@ -1002,7 +1097,7 @@ Character.prototype = {
 		this.inventory.setEnchantPreview(enchantSpell, slot);
 		this.calculatePreviewStats();
 	},
-	removeEnchantPreview: function( slot, enchantSpell ) {
+	removeEnchantPreview: function() {
 		this.inventory.removePreview();
 		this.calculatePreviewStats();
 	},
@@ -1044,11 +1139,18 @@ Character.prototype = {
 	getEquippedSetItems: function(setId) {
 		return this.inventory.getEquippedSetItems(setId);
 	},
+	//
+	//	REFORGING
+	//
 	reforgeItem: function( slot, reduce, add) {
-		var itm = this.inventory.items[slot][0];
-		if( itm ) {
-			itm.restore();
-			itm.reforge( reduce, add );
+		if( this.inventory.reforge(slot, reduce, add)) {
+			this.eventMgr.fire('reforge_change', {'slot': slot});
+			this.calculateStats();
+		}
+	},
+	restoreItem: function( slot) {
+		if( this.inventory.restore(slot)) {
+			this.eventMgr.fire('reforge_change', {'slot': slot});
 			this.calculateStats();
 		}
 	},
@@ -1070,48 +1172,29 @@ Character.prototype = {
 		this.inventory.removePreview();
 		this.calculatePreviewStats();
 	},
-	restoreItem: function( slot, reduce, add) {
-		var itm = this.inventory.items[slot][0];
-		if( itm ) {
-			itm.restore();
-			this.calculateStats();
-		}
-	},
 	restoreAll: function() {
 		this.inventory.restoreAllItems();
 		this.calculateStats();
 		this.calculatePreviewStats();
+		this.eventMgr.fire('reforge_change', {'slot': -1});
 	},
 	reforgeAll: function( refArr ) {
-		
-		var oldRefArr = this.inventory.reforgeToArray();
-		try {
-			this.inventory.restoreAllItems();
-			this.inventory.reforgeFromArray(refArr);
-			this.calculateStats();
-			this.calculatePreviewStats();
-		}
-		catch( e ) {
-			this.inventory.reforgeFromArray(oldRefArr);
-			this.calculateStats();
-			this.calculatePreviewStats();
-			throw e;
-		}
+		this.inventory.reforgeAll(refArr);
+		this.calculateStats();
+		this.calculatePreviewStats();
+		this.eventMgr.fire('reforge_change', {'slot': -1});
 	},
 	//
 	// BUFF DELEGATES
 	//
 	addBuff: function( spellId ) {
 		this.buffs.add(spellId, false);
-		//this.calculateStats();
 	},
 	addStack: function( spellId ) {
 		this.buffs.addStack(spellId);
-		//this.calculateStats();
 	},
 	removeBuff: function( spellId ) {
 		this.buffs.remove(spellId, false);
-		//this.calculateStats();
 	},
 	getActiveBuffs: function() {
 		return this.buffs.buffs;
@@ -1129,65 +1212,38 @@ Character.prototype = {
 			this.calculateStats();
 		}
 	},
-	resetTalentTree: function( tree ) {
+	toggleTalent: function( row, col ) {
 		var talents = this.chrClass != null ? this.chrClass.talents : null;
-		if( talents ) {
-			talents.resetTree(tree);
-			this.calculateStats();
-		}
-	},
-	addTalentPoint: function( tree, row, col ) {
-		var talents = this.chrClass != null ? this.chrClass.talents : null;
-		if( talents ) {
-			talents.addPoint(tree, row, col);
-			this.calculateStats();
-		}
-	},
-	removeTalentPoint: function( tree, row, col ) {
-		var talents = this.chrClass != null ? this.chrClass.talents : null;
-		if( talents ) {
-			talents.removePoint(tree, row, col);
-			this.calculateStats();
-		}
-	},
-	selectTalentTree: function( tree ) {
-		var talents = this.chrClass != null ? this.chrClass.talents : null;
-		if( talents ) {
-			talents.selectTree(tree);
-			this.calculateStats();
-		}
-	},
-	setTalentDistribution: function( distribution, condensed) {
-		var talents = this.chrClass != null ? this.chrClass.talents : null;
-		if( talents ) {
-			talents.setDistribution(distribution, condensed);
+		if( talents && talents.toggle(row, col)) {
 			this.calculateStats();
 		}
 	},
 	getSelectedTalentTree: function() {
-		var talents = this.chrClass != null ? this.chrClass.talents : null;
-		if( talents ) {
-			return talents.selectedTree;
-		}
+		// TODO
 		return -1;
 	},
 	getTalents: function() {
-		return this.chrClass != null ? this.chrClass.talents : null;
+		if( this.chrClass == null ) {
+			return null;
+		}
+		var ts = this.chrClass.talents.talents;
+		var facades = [];
+		for( var i=0; i< ts.length; i++ ) {
+			facades[i] = [];
+			for( var j=0; j< ts[i].length; j++ ) {
+				facades[i][j] = new TalentFacade( ts[i][j], this); 
+			}
+		}
+		return facades;
 	},
-	setName: function( name ) {
-		this.name = name;
+	getTalentDistribution: function() {
+		return this.chrClass != null ? this.chrClass.talents.getDistribution() : null;
 	},
-	setDescription: function( desc ) {
-		this.description = desc;
-	},
-	//
 	//
 	//	CHARACTER CLASS DELEGATES
 	//
-	//
 	addGlyph: function( glyph ) {
 		this.chrClass.addGlyph(glyph);
-		this.calculateStats();
 	},
 	removeGlyph: function( glyph ) {
 		if( this.chrClass != null && glyph != null ) {
@@ -1195,7 +1251,6 @@ Character.prototype = {
 			for( var i=0; i< gs.length; i++ ) {
 				if( gs[i] != null  && gs[i].id == glyph.id ) {
 					this.chrClass.removeGlyph(glyph.type, i);
-					this.calculateStats();
 					return;
 				}
 			}
@@ -1212,7 +1267,12 @@ Character.prototype = {
 			this.chrClass.setPresence(presenceId);
 			this.calculateStats();
 		}
-	} 
+	},
+	setSpecialisation: function( index ) {
+		if( this.chrClass != null ) {
+			this.chrClass.setSpecialisation( index );
+		}
+	}
 };
 /**
  * @constructor
@@ -1224,9 +1284,19 @@ function IllegalRaceClassException( chrRace, chrClass ) {
 	this.chrClass = chrClass;
 }
 IllegalRaceClassException.prototype = {
-	chrRace: null, chrClass: null,
+    /**
+     * @type {CharacterRace}
+     */
+	chrRace: null,
+    /**
+     * @type {CharacterClass}
+     */
+    chrClass: null,
+    /**
+     * @returns {string}
+     */
 	toString: function() {
-		return "Illegal combination of race ("+this.chrRace+") and class("+this.chrClass+").";
+		return "Illegal combination of race ("+this.chrRace.id+") and class("+this.chrClass.id+").";
 	}
 };
 /**

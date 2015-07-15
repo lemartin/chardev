@@ -225,5 +225,6 @@ List.prototype = {
 		var tmp = this.filterMgr.getArgumentString(); 
 		tmp = tmp.replace(new RegExp("\\b"+variable+"\\.\\w+\\.[^;]+;"),"") + replace ;
 		this.filterMgr.setArgumentString(tmp);
+		this.updateFilter();
 	}
 };

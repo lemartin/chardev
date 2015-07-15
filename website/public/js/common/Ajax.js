@@ -21,7 +21,7 @@ var Ajax = {
 			url += "&_=" + new Date().getTime();
 		}
 		
-		request.open('POST', Tools.getBasePath() + url , true);
+		request.open('POST', url , true);
 		
 		if ( handler ) {
 			request.onreadystatechange = function() {
@@ -116,7 +116,7 @@ Ajax.__do = function( url , handler , args , callbackOnError)
 		url += "&_=" + new Date().getTime();
 	}
 	
-	request.open('GET', Tools.getBasePath() + url , true);
+	request.open('GET', url , true);
 	
 	if ( handler ) {
 		request.onreadystatechange = function() {
@@ -125,7 +125,7 @@ Ajax.__do = function( url , handler , args , callbackOnError)
 	}
 	else 
 	{
-		request.onreadystatechange = function(){};
+		request.onreadystatechange = function(){ /*do nothing*/};
 	}
 	
 	request.setRequestHeader("Content-Type","application/x-www-form-urlencoded; Charset=utf-8");		

@@ -28,6 +28,7 @@ function SpellEffect(serialized){
 	this.levelModifier = serialized[11];
 	this.procSpellId = serialized[12];
 	this.id = serialized[13];
+	this.spellScalingCoefficient = serialized[14];
 	this.baseValue = this.value;
 }
 SpellEffect.prototype = {
@@ -45,7 +46,7 @@ SpellEffect.prototype = {
 	procChance : 0,
 	levelModifier : 0,
 	procSpellId : 0,
-
+	spellScalingCoefficient: 0,
 	baseValue : 0,
 
 	/**

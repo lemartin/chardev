@@ -8,17 +8,18 @@ function CharacterClass( serialized ) {
 	this.eventMgr.registerEvent('presence_change', ['new_presence','old_presence']);
 	this.eventMgr.registerEvent('glyph_added', ['glyph']);
 	this.eventMgr.registerEvent('glyph_removed', ['glyph']);
+	this.eventMgr.registerEvent("specialisation_change", ["index"]);
 	//
 	var i,j=0;
 	this.serialized = serialized;
 	this.stats = [];
 	this.level = -1; 
 	this.shapes = null;
-	this.glyphs = [[null,null,null],[null,null,null],[null,null,null]];
+	this.glyphs = [[null,null,null],[null,null,null]/*,[null,null,null]*/];
 	this.id = serialized[0];
 	this.name = serialized[1];
-	this.talents = new Talents(serialized[2],false);
-	this.baseStats = serialized[3]; // str, agi, ... , hp, mp, melee crit per agi
+	this.talents = new Talents(serialized[2]);
+	this.baseStats = serialized[3]; // str, agi, ... , dodge_per_agi
 	this.shapesRef = {};
 	
 	this.classSpells = [];
@@ -47,14 +48,17 @@ function CharacterClass( serialized ) {
 		}
 	}
 	
-	if( serialized[9] ) {
-		this.presences = [];
-		for( i=0;i<serialized[9].length; i++ ) {
-			SpellCache.set(new Spell(serialized[9][i]));
-		}
-	}
-	
 	this.conditionalBuffs = serialized[8];
+	
+	this.specs = [];
+	for( i=0; i<serialized[9].length; i++ ) {
+        
+        if( serialized[9][i] === null ) {
+            continue;
+        }
+        
+		this.specs.push(new CharacterSpecialisation(serialized[9][i]));
+	}
 }
 CharacterClass.prototype = {
 	/** @type{GenericSubject} **/
@@ -81,6 +85,9 @@ CharacterClass.prototype = {
 	presences: null,
 	classSpells: null,
 	baseStats: null,
+	selectedSpec: -1,
+	/** @type {Array} */
+	specs: null,
 	//
 	//#########################################################################
 	//
@@ -109,7 +116,7 @@ CharacterClass.prototype = {
 		for( var i=this.availableGlyphSlots; i<3; i++ ) {
 			this.glyphs[0][i] = null;
 			this.glyphs[1][i] = null;
-			this.glyphs[2][i] = null;
+//			this.glyphs[2][i] = null;
 		}
 	},
 	//
@@ -128,7 +135,7 @@ CharacterClass.prototype = {
 				this.shape = this.shapesRef[this.shapeform];
 			}
 			else {
-				throw new IllegalArgumentException();
+				throw new Error("Invalid shapeform");
 			}
 		}
 		else {
@@ -231,6 +238,10 @@ CharacterClass.prototype = {
 			}
 		}
 		
+		if( this.selectedSpec >= 0 ) {
+			this.specs[this.selectedSpec].getActiveSpells(auras);
+		}
+		
 		for( i=0;i<this.classSpells.length;i++){
 			cr = this.classSpells[i];
 			if( cr.spell == null ) {
@@ -239,42 +250,42 @@ CharacterClass.prototype = {
 			if( cr.spell.type[8] & 1<<20 ) {
 				switch( this.id ) {
 				case 1:
-					if( cr.spell.id == 86101 && this.talents.selectedTree != 0 ||
-						cr.spell.id == 86110 && this.talents.selectedTree != 1 ||
-						cr.spell.id == 86535 && this.talents.selectedTree != 2
+					if( cr.spell.id == 86101 && this.selectedSpec != 0 ||
+						cr.spell.id == 86110 && this.selectedSpec != 1 ||
+						cr.spell.id == 86535 && this.selectedSpec != 2
 					){
 						continue;
 					}
 					break;
 				case 2:
-					if( cr.spell.id == 86103 && this.talents.selectedTree != 0 ||
-						cr.spell.id == 86102 && this.talents.selectedTree != 1 ||
-						cr.spell.id == 86539 && this.talents.selectedTree != 2 
+					if( cr.spell.id == 86103 && this.selectedSpec != 0 ||
+						cr.spell.id == 86102 && this.selectedSpec != 1 ||
+						cr.spell.id == 86539 && this.selectedSpec != 2 
 					){
 						continue;
 					}
 					break;
 				case 6:
-					if( cr.spell.id == 86537 && this.talents.selectedTree != 0 ||
-						cr.spell.id == 86536 && this.talents.selectedTree != 1 ||
-						cr.spell.id == 86113 && this.talents.selectedTree != 2
+					if( cr.spell.id == 86537 && this.selectedSpec != 0 ||
+						cr.spell.id == 86536 && this.selectedSpec != 1 ||
+						cr.spell.id == 86113 && this.selectedSpec != 2
 					){
 						continue;
 					}
 					break;
 				case 7:
-					if( cr.spell.id == 86100 && this.talents.selectedTree != 0 ||
-						cr.spell.id == 86099 && this.talents.selectedTree != 1 ||
-						cr.spell.id == 86108 && this.talents.selectedTree != 2
+					if( cr.spell.id == 86100 && this.selectedSpec != 0 ||
+						cr.spell.id == 86099 && this.selectedSpec != 1 ||
+						cr.spell.id == 86108 && this.selectedSpec != 2
 					){
 						continue;
 					}
 					break;
 				case 11:
-					if( cr.spell.id == 86093 && this.talents.selectedTree != 0 ||
-						cr.spell.id == 86096 && ( this.talents.selectedTree != 1 || (1<<this.shapeform&(1<<BEAR|1<<DIRE_BEAR)) == 0 ) ||
-						cr.spell.id == 86097 && ( this.talents.selectedTree != 1 || (1<<this.shapeform&1<<CAT) == 0 ) ||
-						cr.spell.id == 86104 && this.talents.selectedTree != 2
+					if( cr.spell.id == 86093 && this.selectedSpec != 0 ||
+						cr.spell.id == 86096 && ( this.selectedSpec != 1 || (1<<this.shapeform&(1<<BEAR|1<<DIRE_BEAR)) == 0 ) ||
+						cr.spell.id == 86097 && ( this.selectedSpec != 1 || (1<<this.shapeform&1<<CAT) == 0 ) ||
+						cr.spell.id == 86104 && this.selectedSpec != 2
 					){
 						continue;
 					}
@@ -300,7 +311,7 @@ CharacterClass.prototype = {
 	addGlyph: function( glyph ) {
 		var i, n = -1;
 		if( this.availableGlyphSlots == 0  ) {
-			throw new Error("Unable to add Glyph, there are no empty slots available!"); 
+			throw new NoGlyphSlotsException(); 
 		}
 		for( i=0; i<this.availableGlyphSlots; i++ ) {
 			if( this.glyphs[glyph.type][i] == null ) {
@@ -312,7 +323,7 @@ CharacterClass.prototype = {
 			}
 		}
 		if( n==-1 ) {
-			throw new Error("Unable to add Glyph, there are no empty slots available!");
+			throw new NoGlyphSlotsException();
 		}
 		
 		this.glyphs[glyph.type][n] = glyph;
@@ -323,7 +334,34 @@ CharacterClass.prototype = {
 	 * @param {number} index
 	 */
 	removeGlyph: function( type, index ) {
+		var glyph = this.glyphs[type][index];
 		this.glyphs[type][index] = null;
-		this.eventMgr.fire( 'glyph_removed', null );
-	}
+		this.eventMgr.fire( 'glyph_removed', { 'glyph': glyph } );
+	},
+	//
+	//
+	//	SPECIALISATION
+	//
+	//
+	setSpecialisation: function( index ) {
+		if( this.specs[index] ) {
+			this.selectedSpec = index;
+			this.eventMgr.fire("specialisation_change", {"index": index});
+		}
+		else {
+			throw new Error("Unable to set specialisation: no specialisation for index "+index+" found!");
+		}
+	},
+    /**
+     * Returns the currently selected specialisation.
+     * 
+     * @returns {CharacterSpecialisation}
+     */
+    getSpecialisation: function() {
+        if( this.selectedSpec === -1 ) {
+            return null;
+        }
+        
+        return this.specs[this.selectedSpec];
+    }
 };

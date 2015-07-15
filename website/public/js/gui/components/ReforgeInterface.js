@@ -13,18 +13,18 @@ function ReforgeInterface() {
 	this.eventMgr.registerEvent('remove_reforge_item_preview', []);
 	this.eventMgr.registerEvent('wowreforge_export', []);
 	//
-	this.node = DOM.create('div',{});
+	this.node = Dom.create('div',{});
 	//
 	// Operations
 	this.ops = new BatchOperations();
-	DOM.addClass(this.ops.node, 'ra_group');
-	DOM.append( this.node, this.ops.node);
+	Dom.addClass(this.ops.node, 'ra_group');
+	Dom.append( this.node, this.ops.node);
 	// 
 	// WoWReforge Import
-	var wowRefNode = DOM.create('form', {'action': 'javascript:;'});
+	var wowRefNode = Dom.create('form', {'action': 'javascript:;'});
 	
-	this.wowReforgeURL = DOM.createAt( wowRefNode, 'input', {'class': 'input rf_wowreforgeurl'});
-	var submitBtn = DOM.createAt( wowRefNode, 'input', {'type': 'submit', 'text': locale['RF_ImportWoWReforge'], 'class': 'button button_light'});
+	this.wowReforgeURL = Dom.createAt( wowRefNode, 'input', {'class': 'input rf_wowreforgeurl'});
+	var submitBtn = Dom.createAt( wowRefNode, 'input', {'type': 'submit', 'text': locale['RF_ImportWoWReforge'], 'class': 'button button_light'});
 	this.ops.addComplex('wowreforge_import', locale['RF_WoWReforgeImport'], wowRefNode, locale['RF_WoWReforgeImportHelp']);
 	
 	Listener.add(wowRefNode, 'submit', this.__wowReforgeImport, this, null);
@@ -39,8 +39,8 @@ function ReforgeInterface() {
 	}, this, null);
 	//
 	// Export
-	var wowRedExpNode = DOM.create('div',{});
-	var exportBtn = DOM.createAt( wowRedExpNode, 'input', {'type': 'submit', 'text': locale['RF_ExportWoWReforge'], 'class': 'button button_light'});
+	var wowRedExpNode = Dom.create('div',{});
+	var exportBtn = Dom.createAt( wowRedExpNode, 'input', {'type': 'submit', 'text': locale['RF_ExportWoWReforge'], 'class': 'button button_light'});
 	this.ops.addComplex('wowreforge_import', locale['RF_WoWReforgeExport'], wowRedExpNode, locale['RF_WoWReforgeExportHelp']);
 	Listener.add(exportBtn, 'click', this.__wowReforgeExport, this, null);
 	//
@@ -55,7 +55,7 @@ function ReforgeInterface() {
 		this.eventMgr.fire('remove_reforge_preview');
 	}, this, null);
 	//
-	this.content = DOM.createAt( this.node, 'div',{});
+	this.content = Dom.createAt( this.node, 'div',{});
 }
 
 ReforgeInterface.prototype = {
@@ -70,16 +70,16 @@ ReforgeInterface.prototype = {
 		var re = [];
 		var i, j, v, k, cls, a, row, div, span;
 
-		DOM.truncate( this.content );
+		Dom.truncate( this.content );
 		
 		if( ! itm ) {
 			return;
 		}
 		else {
-			div = DOM.create('div', {'class': 'rf_title_c'});
-			DOM.createAt(div, 'span', {'text': 'Reforge ', 'class': 'rf_title'});
-			span = DOM.createAt(div, 'a', {'text': itm.name, 'class': 'item_quality_'+itm.quality+' rf_item_name', 'href': 'javascript:'});
-			ChardevHTML.addTooltip(span, itm.getTooltip());
+			div = Dom.create('div', {'class': 'rf_title_c'});
+			Dom.createAt(div, 'span', {'text': 'Reforge ', 'class': 'rf_title'});
+			span = Dom.createAt(div, 'a', {'text': itm.name, 'class': 'item_quality_'+itm.quality+' rf_item_name', 'href': 'javascript:'});
+			ChardevHtml.addTooltip(span, itm.getTooltip());
 		}
 		
 		for( i = 0; i<REFORGABLE_STATS.length; i++ ) {
@@ -94,13 +94,13 @@ ReforgeInterface.prototype = {
 		}
 			
 		 if( ! itm.isReforgable()) {
-			DOM.set( this.content, div );
-			DOM.createAt(this.content, 'div', {'text': 'This items is not reforgable!', 'class': 'rf_error'});
+			Dom.set( this.content, div );
+			Dom.createAt(this.content, 'div', {'text': 'This items is not reforgable!', 'class': 'rf_error'});
 			return;
 		}
 		 else if( av.length == 0 ) {
-			DOM.set( this.content, div );
-			DOM.createAt(this.content, 'div', {'text': 'This items has no reforgable stats!', 'class': 'rf_error'});
+			Dom.set( this.content, div );
+			Dom.createAt(this.content, 'div', {'text': 'This items has no reforgable stats!', 'class': 'rf_error'});
 			return;
 		}
 		
@@ -109,7 +109,7 @@ ReforgeInterface.prototype = {
 		
 		row = sg.addJoinedRow();	
 
-		DOM.append( sg.cells[row][0], div);
+		Dom.append( sg.cells[row][0], div);
 		
 		row = sg.addRow();	
 			
@@ -130,37 +130,37 @@ ReforgeInterface.prototype = {
 			sg.cells[row][1].className = cls + ' rf_from_value';
 			
 			if( i ==  av.length - 1 ) {
-				DOM.addClass(sg.cells[row][0], 'rf_from_stat_bottom');
-				DOM.addClass(sg.cells[row][1], 'rf_from_value_bottom');
+				Dom.addClass(sg.cells[row][0], 'rf_from_stat_bottom');
+				Dom.addClass(sg.cells[row][1], 'rf_from_value_bottom');
 			}
 			
 			for( j = 0; j < re.length; j++ ) {
 				
-				div = DOM.create('div', {'class': cls + ' rf_cell'});
+				div = Dom.create('div', {'class': cls + ' rf_cell'});
 				
 				if( i == 0 ) {
-					DOM.addClass(div, 'rf_cell_top');
+					Dom.addClass(div, 'rf_cell_top');
 				}
 				if( i ==  av.length - 1 ) {
-					DOM.addClass(div, 'rf_cell_bottom');
+					Dom.addClass(div, 'rf_cell_bottom');
 				}
 				if( j == 0 ) {
-					DOM.addClass(div, 'rf_cell_left');
+					Dom.addClass(div, 'rf_cell_left');
 				}
 				if( j ==  re.length - 1 ) {
-					DOM.addClass(div, 'rf_cell_right');
+					Dom.addClass(div, 'rf_cell_right');
 				}
 				
 				if( itm.addedStat == re[j] && itm.reducedStat == av[i][0] ) {
 					sg.cells[row][1].className += ' red';
 					
-					a = DOM.createAt( div, 'a', {'class': 'rf_to_value rf_to_active', 'text': itm.addedStatValue, 'href': 'javascript:'});
+					a = Dom.createAt( div, 'a', {'class': 'rf_to_value rf_to_active', 'text': itm.addedStatValue, 'href': 'javascript:'});
 					
 					Listener.add( a, 'click', this.__restore, this, []);
 					Listener.add( a, 'mouseover', this.__mouseover, this, [-1,-1]);
 					Listener.add( a, 'mouseout', this.__mouseout, this, []);
 					
-					ChardevHTML.addTooltip(a, "<div class='rf_tt_c'>Click to restore <span class='green'>"+itm.addedStatValue+"</span> <span class='green'>"+locale['ItemStatNames'][av[i][0]]+"</span> from <span class='red'>"+locale['ItemStatNames'][re[j]]+"</span></div>");
+					ChardevHtml.addTooltip(a, "<div class='rf_tt_c'>Click to restore <span class='green'>"+itm.addedStatValue+"</span> <span class='green'>"+locale['ItemStatNames'][av[i][0]]+"</span> from <span class='red'>"+locale['ItemStatNames'][re[j]]+"</span></div>");
 				}
 				else {
 					
@@ -170,24 +170,24 @@ ReforgeInterface.prototype = {
 					}
 					v = Math.floor(v * REFORGE_COEFFICIENT);
 					
-					a = DOM.createAt( div, 'a', {'class': 'rf_to_value', 'text': v, 'href': 'javascript:'});
+					a = Dom.createAt( div, 'a', {'class': 'rf_to_value', 'text': v, 'href': 'javascript:'});
 					Listener.add( a, 'click', this.__reforge, this, [av[i][0],re[j]]);
 					Listener.add( a, 'mouseover', this.__mouseover, this, [av[i][0],re[j]]);
 					Listener.add( a, 'mouseout', this.__mouseout, this, []);
 					
-					ChardevHTML.addTooltip(a, "<div class='rf_tt_c'>Click to reforge <span class='green'>"+v+"</span> <span class='red'>"+locale['ItemStatNames'][av[i][0]]+"</span> into <span class='green'>"+locale['ItemStatNames'][re[j]]+"</span></div>");
+					ChardevHtml.addTooltip(a, "<div class='rf_tt_c'>Click to reforge <span class='green'>"+v+"</span> <span class='red'>"+locale['ItemStatNames'][av[i][0]]+"</span> into <span class='green'>"+locale['ItemStatNames'][re[j]]+"</span></div>");
 				}
-				DOM.set(sg.cells[row][2+j], div);
+				Dom.set(sg.cells[row][2+j], div);
 			}
 			
 		}
 		
 		i = sg.addJoinedRow();
 		sg.cells[i][0].className = 'rf_b';
-		a = DOM.createAt(sg.cells[i][0], 'a', {'class': 'button button_light link_button', 'href': 'javascript:', 'text': 'Restore'});
+		a = Dom.createAt(sg.cells[i][0], 'a', {'class': 'button button_light link_button', 'href': 'javascript:', 'text': 'Restore'});
 		Listener.add( a, 'click', this.__restore, this, []);
 		
-		DOM.append(this.content, sg.node);
+		Dom.append(this.content, sg.node);
 	},
 	__reforge: function( reduce, add ) {
 		this.eventMgr.fire('reforge', {'reduce': reduce, 'add': add});
@@ -208,7 +208,7 @@ ReforgeInterface.prototype = {
 		}
 	},
 	__parseWoWReforgeInput: function() {
-		var v = DOM.getValue(this.wowReforgeURL);
+		var v = Dom.getValue(this.wowReforgeURL);
 		if( !v ) {
 			return null;
 		}
@@ -232,13 +232,11 @@ ReforgeInterface.prototype = {
 				WOWREFORGE_TO_REFORGABLE_STATS[ parseInt(v[i*2], 10)  ],
 				WOWREFORGE_TO_REFORGABLE_STATS[ parseInt(v[i*2+1], 10)]
 			];
-		};
+		}
 		
 		return refArr;
 	},
 	__wowReforgeExport: function() {
 		this.eventMgr.fire('wowreforge_export',{});
-		//this._wowreforgeExportProfileInput.value = Engine._currentCharacter.toBattleNetProfile();
-		//this._wowreforgeExportMetaData.value = "{\"BasedOn\" : null,\"CanUpdate\" : false,\"Data\" : null,\"Origin\" : \"chardev.org\",\"SourceLink\" : null}";
 	}
 };

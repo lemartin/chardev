@@ -1,0 +1,96 @@
+<?php
+use chardev\Session;
+
+$bp = \chardev\TemplateHelper::getBasePath();
+
+$serialized = null;
+$spell = null;
+$notFound = null;
+
+$spells = "";
+if( isset($_GET["a"]) && $spells = $_GET["a"] ) {
+	$args = str_replace( '_', ';', $spells);
+	$page = max(1,isset($_GET["p"]) ? (int)$_GET["p"] : 0);
+	$flags = isset($_GET["f"]) ? $_GET["f"] : ""; 
+	$order = isset($_GET["o"]) ? $_GET["o"] : ""; 
+	$serialized = chardev\backend\data\SpellListData::getInstance()->getSpells(
+			$args, 
+			$flags,
+			$order,
+			$page
+	);
+	
+	Session::store("spell_search", array(
+		"a" => $spells,
+		"p" => $page,
+		"f" => $flags,
+		"o" => $order
+	));
+}
+else {
+	$spell = $this->getArg("spell");
+}
+
+$search_form = "
+		<form onsubmit='document.getElementById(\"dbi_submit\").value = \"name.wlike.\" + Tools.removeDots(document.getElementById(\"dbi_search\").value) + \"_\";' 
+			action='{$bp}Spells.html' 
+			method='GET'
+		>
+			<input class='input" .( $serialized ? "" : " dbi_search_input_large" ) . "' id='dbi_search' />
+			<input type='hidden' name='a' id='dbi_submit' />
+		</form>";
+?>
+<div class='dbi_w'>
+<?php if( $serialized || $spell ): ?>
+	<div class='dbi_header'>
+		<div class='dbi_title'>
+			Spell database
+		</div>
+		<div class='dbi_search_c'><?php echo $search_form?>
+		</div>
+		<div class='dbi_search_c'>
+			<span class='dbi_search_label'>Search</span>
+		</div>
+		<div style='clear: both;'></div>
+	</div>
+	<?php if( $spell ): ?>
+	
+		<script type="text/javascript">
+		<!--
+		var serialized = <?php echo json_encode($spell->getData()) ?>;
+		$(function(){
+			Chardev.addSpellTooltipTo( serialized, 'spell_parent', 'spell_icon');
+		});
+		//-->
+		</script>
+		
+		<table class='dbi_p'>
+			<tr>
+				<td valign='top' id='spell_icon'></td>
+				<td valign='top'>
+					<div id='spell_parent'><div class='loading dbi_loading'>Loading...</div></div>
+				</td>
+				<td valign='top' id='spell_scaling'></td>
+			</tr>
+		</table>
+	<?php else: ?>
+		<script type="text/javascript">
+			$(function() {
+				Chardev.staticSpellList(
+					<?php echo json_encode($serialized) ?>, 
+					<?php echo json_encode($page)?>, 
+					<?php echo json_encode($args)?>, 
+					'list_parent', 
+					<?php echo json_encode($bp) ?> + 'spell/$.html'
+				);
+				document.getElementById('dbi_search').focus();
+			});
+		</script>
+		<div id='list_parent'>
+	<?php endif;?>
+	</div>
+<?php else: ?>
+	<div class='dbi_search_label_large'>Search the Spell Database</div>
+	<div class='dbi_search_large'><?php echo $search_form?></div>
+<?php endif; ?>
+</div>

@@ -1,6 +1,6 @@
 <?php
 
-require_once '../../app/chardev/Autoloader.php';
+require_once __DIR__ . "/../../app/bootstrap.php";
 
 chardev\Session::startBackendSession();
 

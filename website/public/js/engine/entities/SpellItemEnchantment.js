@@ -30,6 +30,7 @@ function SpellItemEnchantment(serialized) {
 	this.requiredSkillLineLevel = serialized[8];
 	this.requiredCharacterLevel = serialized[9];
 	this.slotMask = serialized[10];
+    this.descriptionAst = serialized[11];
 }
 
 SpellItemEnchantment.prototype = {
@@ -46,7 +47,7 @@ SpellItemEnchantment.prototype = {
 	requiredCharacterLevel : 0,
 	spells : [],
 	slotMask : 0,
-
+    descriptionAst: 0,
 	/**
 	 * @param {Character} character
 	 * @returns {boolean}
@@ -104,7 +105,7 @@ SpellItemEnchantment.prototype = {
 				return false;
 			}
 		}
-		if ( _g > 0 && _c == 5 && count[_g] < _v) 
+		if ( _g > 0 && _c == 5 && count[_g] < _v)
 		{
 			return false;
 		}
@@ -161,42 +162,6 @@ SpellItemEnchantment.prototype = {
 	isActive : function(characterScope) {
 		return this.fitsLevelRequirements(characterScope) && this.fitsSkillLineRequirements(characterScope) && this.isGemActive(characterScope);
 	},
-	
-	/**
-	 * @param {Character} characterScope
-	 * @returns {string}
-	 */
-	getTooltip : function( characterScope )
-	{
-		var html = "<table cellpadding = 0 cellspacing = 0>";
-		var fitsLevelReqs = this.fitsLevelRequirements(characterScope);
-		var fitsSkillReqs = this.fitsSkillLineRequirements(characterScope);
-		var fitsGemConditions = this.isGemActive(characterScope);
-		
-		html += Tools.addTr1(
-			"<span "+( fitsSkillReqs && fitsLevelReqs ? ( fitsGemConditions ? "class='green'" : "class='grey'" ):"class='red'")+">"+
-			( this.types[0] == 7 && this.spells[0] ? locale["use"]+": " + this.spells[0].getDescription(characterScope).join("<br />") : this.description ) + 
-			"</span>"
-		);
-		
-		if( !fitsLevelReqs )
-		{
-			html += Tools.addTr1(
-				"<span class='red'>" +
-				TextIO.sprintf1(locale['reqLevel'],this.requiredCharacterLevel)+
-				"</span>"
-			);
-		}
-		if( !fitsSkillReqs )
-		{
-			html += Tools.addTr1(
-				"<span class='red'>" +
-				locale['req']+" "+this.requiredSkillLine.name+" ("+this.requiredSkillLineLevel+")"+
-				"</span>"
-			);
-		}
-		return html + "</table>";
-	},
 	/**
 	 * @param {Auras} auras
 	 */
@@ -239,5 +204,32 @@ SpellItemEnchantment.prototype = {
 			}
 		}
 		return s;
-	}
+	},
+    getDescription : function( character ){
+			
+        var desc = this.descriptionAst ? DescriptionInterpreter.interpret(this.descriptionAst, character) : this.description;
+
+        if( desc === null ) {
+            return "";
+        }
+
+        var opening = 0, closing = 0;
+        var repl = desc;
+
+        repl = repl.replace(/\|c([0-9a-z]{8})/gi, function(str, p1) {
+            opening ++;
+            return "<span style=\"color:#" + p1.substr(2,6) + "\">";
+        });
+
+        repl = repl.replace(/\|r/gi, function(str, p1) {
+            closing ++;
+            return "</span>";
+        });
+
+        for( ; closing < opening; closing ++ ) {
+            repl += "</span>";
+        }
+
+        return repl.split(/\r\n/);
+    }
 };

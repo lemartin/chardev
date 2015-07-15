@@ -9,6 +9,8 @@
  * Therefore it is necessary to map spell effects, and check whether an concurring effect
  * was already added before adding an new effect
  *
+ * TODO remove ranged
+ *
  * @constructor
  * @param {Character} character
  */
@@ -42,7 +44,7 @@ Auras.prototype = {
 	 */
 	__createArray : function()
 	{
-		var arr = new Array(321);
+		var arr = new Array(429);
 		//dmg
 		arr[13] = new Array(7);
 		//resistance
@@ -84,7 +86,7 @@ Auras.prototype = {
 		//mod heal %-of index -> 29
 		arr[175] = new Array(5);
 		//ratings
-		arr[189] = new Array(38);
+		arr[189] = new Array(47);
 		//mod spellhit by school
 		arr[199] = new Array(7);
 		//mod flat ranged ap %-of 
@@ -261,6 +263,13 @@ Auras.prototype = {
 		
 		this.appliedMap[sp.id] = true;
 		
+        //
+        // Check the spell level and skip it, if character level is too low
+        //
+        if( sp.spellLevels !== null && sp.spellLevels.spellLevel > this.character.level ) {
+            return;
+        }
+        
 		//
 		//	Class checks are done per Effect
 		//
@@ -309,7 +318,7 @@ Auras.prototype = {
 	 */
 	__addEffects : function( sp, effect, stacks, isBuff, selfBuff )
 	{
-		var j, eff, effs = sp.effects ;
+		var j = 0, eff, effs = sp.effects ;
 		var seId = 0, value;
 		//  var spco = sp.classOptions;
 		var indirect = false;
@@ -323,7 +332,7 @@ Auras.prototype = {
 		//	effects are applied.
 		//
 		if( isBuff && !selfBuff ) {
-			for( j=0;j<3;j++) {
+            for( j in effs ) {
 				if( effs[j] != null && effs[j].aura == 65 ) {
 					indirect = true;
 					break;
@@ -331,7 +340,7 @@ Auras.prototype = {
 			}
 		}
 		
-		for( j=0;j<3;j++)
+		for( j in effs )
 		{
 			eff = effs[j];
 			if( eff == null )

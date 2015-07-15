@@ -3,12 +3,12 @@ var g_settings = {
 	language : 'en',
 	profileId : 0,
 	sessionId : '',
-	userId : 0,
+	/**
+	 * @type {User}
+	 */
+	user : null,
 	isPlanner : false,
-	debug : false,
-	profileUserId: 0,
-	userData: null,
-	profileLoadError: ""
+	debug : false
 };
 
 var locale;
@@ -25,3 +25,15 @@ var JSON = { stringify : function( obj ){ return "";} };
  * @param fun
  */
 Element.prototype.attachEvent = function( str, fun) {return null;};
+
+var console = {
+		log: function( str ) { /* do nothing */ },
+		warn: function( str ) { /* do nothing */ },
+		info: function( str ) { /* do nothing */ },
+		error: function( str ) { /* do nothing */ }
+};
+
+/**
+ * @return {Array}
+ */
+var printStackTrace = function() { return []; };

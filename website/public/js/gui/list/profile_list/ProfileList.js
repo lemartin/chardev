@@ -2,10 +2,10 @@
  * @constructor
  */
 function ProfileList() {
-	var gui = new ProfileListGui(List.toCategories(ProfileList.FILTER_DATA));
+	this.profileListGui = new ProfileListGui(List.toCategories(ProfileList.FILTER_DATA));
 	List.call( 
 		this,
-		gui,
+		this.profileListGui,
 		List.toPlainFilterData(ProfileList.FILTER_DATA),
 		['ismine'],
 		ProfileList.ORDER_ID
@@ -25,3 +25,7 @@ ProfileList.FILTER_DATA["none"] = [
 
 ProfileList.ORDER_ID = 'id';
 ProfileList.prototype = new List(null,null,null,"");
+ProfileList.prototype.profileListGui = null;
+ProfileList.prototype.setPlanner = function(b) {
+	this.profileListGui.setPlanner(b);
+};

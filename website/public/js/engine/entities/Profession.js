@@ -6,13 +6,15 @@
  *            serialized
  */
 function Profession(character, serialized) {
-	this.id = serialized[0];
-	this.name = serialized[1];
-	this.description = serialized[2];
+	this.skillLine = new SkillLine(serialized[0]);
+	
+	this.id = this.skillLine.id;
+	this.name = this.skillLine.name;
+	this.description = this.skillLine.description;
+	
 	this.buffSkills = [];
-
-	for ( var i = 0; i < serialized[3].length; i++) {
-		var bs = new SkillLineAbility(serialized[3][i]);
+	for ( var i = 0; i < serialized[1].length; i++) {
+		var bs = new SkillLineAbility(serialized[1][i]);
 		if (bs) {
 			this.buffSkills.push(bs);
 			SpellCache.set(bs.spell);

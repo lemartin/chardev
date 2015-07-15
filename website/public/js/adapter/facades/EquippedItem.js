@@ -53,15 +53,15 @@ EquippedItem.prototype = {
 	addedStatValue: 0,
 	
 	getTooltip: function() {
-		return ItemTooltip.getHTML( this.__itm, this.__character);
+		return ItemTooltip.getHtml( this.__itm, this.__character);
 	},
 	getShortTooltip: function() {
 		return ItemTooltip.getShortHTML( this.__itm, this.__character);
 	},
 	isInvalid: function() {
 		return !this.__character.canWear(this.__itm) || 
-			!this.__character.fitsItemClassRequirements(this.__itm) || 
-			this.__itm.requiredCharacterLevel > this.__character.level;
+			!this.__character.fitsItemClassRequirements(this.__itm) ||
+            !this.__character.fitsLevelRequirements(this.__itm);
 	},
 	hasExtraSocket: function() {
 		return this.__character.hasBlacksmithingSocket(this.slot);

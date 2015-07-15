@@ -34,5 +34,10 @@ GenericObserver.prototype = {
 			}
 		}
 		return false;
+	},
+	notify: function( e ) {
+		
+		this.handler.notify([e]);
+		e.check();
 	}
 };

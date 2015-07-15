@@ -57,7 +57,7 @@ function ListGui( categories ) {
 	
 	this.form = document.createElement("form");
 	this.form.action = "javascript:";
-	this.form.onsubmit = "return false";
+	this.form.onsubmit = function(){ return false; };
 	this.filterCollapsable.content.appendChild( this.form );
 	
 	this.customFilterParent = document.createElement("div");
@@ -192,7 +192,7 @@ ListGui.prototype = {
 		
 		div.innerHTML = filter.name;
 		div.className = "li_filter_lg_label";
-		DOM.set(node, div);
+		Dom.set(node, div);
 		node.appendChild(filter.node);
 		node.className = "group_t2 li_filter_grp li_filter_select";
 		
@@ -207,7 +207,7 @@ ListGui.prototype = {
 
 		row[0].innerHTML = filter.name;
 		row[0].className = "li_filter_ig_label";
-		DOM.set(row[1],filter.node);
+		Dom.set(row[1],filter.node);
 		row[1].className = "li_filter_ig_input";
 		this.inputGrid.show();
 	},
@@ -235,7 +235,7 @@ ListGui.prototype = {
 			this.content.innerHTML = "<div class='il_nothing'>Nothing Found</div>";
 		}
 		else {
-			DOM.set(this.content, node);
+			Dom.set(this.content, node);
 		}
 		this.disableSearchBtn(false);
 		this.pageNext.disabled = "";

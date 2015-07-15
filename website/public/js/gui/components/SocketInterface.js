@@ -15,22 +15,21 @@ function SocketInterface() {
 	this.eventMgr.registerEvent('remove_all_gems', []);
 	this.eventMgr.registerEvent('remove_all_gems_by_id', ['gemId']);
 	
-	var a;
-	this.node = DOM.create('div',{});
+	this.node = Dom.create('div',{});
 	this.sockets = [new LayeredDiv(5),new LayeredDiv(5),new LayeredDiv(5)];
 	
 	this.ops = new BatchOperations();
-	DOM.addClass(this.ops.node, "ra_group");
+	Dom.addClass(this.ops.node, "ra_group");
 	this.node.appendChild(this.ops.node);
 	
 	this.ops.addSimple('remove_all', locale['SI_RemoveAllGems'], new Handler(function(){
 		this.onBatchOperation(SocketInterface.BATCH_OP_REM_ALL);
 	}, this));
 	
-	this.main = DOM.createAt( this.node, 'div', {'class': 'si_main'});
-	this.tooltip = DOM.createAt( this.main, 'div', {'class': 'si_tt_p'});
-	this.usedGemParent = DOM.createAt( this.main, 'div', {'class': 'ra_group si_used_parent'});
-	this.socketParent = DOM.createAt( this.main, 'div', {'class': 'si_socket_parent'});
+	this.main = Dom.createAt( this.node, 'div', {'class': 'si_main'});
+	this.tooltip = Dom.createAt( this.main, 'div', {'class': 'si_tt_p'});
+	this.usedGemParent = Dom.createAt( this.main, 'div', {'class': 'ra_group si_used_parent'});
+	this.socketParent = Dom.createAt( this.main, 'div', {'class': 'si_socket_parent'});
 	
 	for( var i=0; i<3; i++ ) {
 		this.sockets[i].layers[0].className = "si_gem_p";
@@ -120,17 +119,13 @@ SocketInterface.prototype = {
 	 */
 	update: function( itm, usedGems ) {
 		
-		
 		if( itm == null ) {
 			this.setShow(false);
+			this.setShowList(false);
 			return;
 		}
 		this.setShow(true);
 		
-		
-		if( this.itm == null || itm.id != this.itm.id ) {
-			this.selectSocket( -1 );
-		}
 		this.itm = itm;
 		
 		var i, ld, bsSocket, color, gem, a, n=0, div;
@@ -139,9 +134,9 @@ SocketInterface.prototype = {
 		
 		bsSocket = itm.hasExtraSocket();
 
-		DOM.truncate(this.socketParent);
+		Dom.truncate(this.socketParent);
 		
-		div = DOM.createAt( this.socketParent ,'div',{});
+		div = Dom.createAt( this.socketParent ,'div',{});
 		for( i=0; i<itm.socketColors.length; i++ ) {
 			
 			if( itm.socketColors[i] > 0 || bsSocket ) {
@@ -167,23 +162,23 @@ SocketInterface.prototype = {
 					var img = document.createElement("img");
 					img.src = "/images/icons/large/"+itm.getGem(i).icon+".png";
 					img.className = "si_gem_icon";
-					DOM.set(ld.layers[1],img);
+					Dom.set(ld.layers[1],img);
 					
 					ld.layers[3].className = "si_braces";
 					ld.layers[3].style.backgroundImage="url(/images/socket_interface/socket_"+color+"_braces_closed.png)";
 				}
-				DOM.append( div, ld.layers[0]);
+				Dom.append( div, ld.layers[0]);
 				n++;
 			}
 		}
 		div.className = 'si_sp_'+n+'_gems';
 		
-		DOM.truncate(this.usedGemParent);
-		DOM.append( DOM.createAt(this.usedGemParent, 'span', {'class':'si_used_title_fix', 'text':locale['SI_UsedGems']}), ChardevHTML.getInfo("Gems already present on your gear"));
+		Dom.truncate(this.usedGemParent);
+		Dom.append( Dom.createAt(this.usedGemParent, 'span', {'class':'si_used_title_fix', 'text':locale['SI_UsedGems']}), ChardevHtml.getInfo("Gems already present on your gear"));
 		for( var id in usedGems ) {
 			gem = usedGems[id];
 			
-			a = DOM.createAt( this.usedGemParent, 'a', {'class': 'si_used_gem', 'backgroundImage': '/images/icons/small/'+gem.icon+'.png'});
+			a = Dom.createAt( this.usedGemParent, 'a', {'class': 'si_used_gem', 'backgroundImage': '/images/icons/small/'+gem.icon+'.png'});
 			
 			Listener.add( a,"mouseover",this.onUsedMouseOver, this,[gem]);
 			Listener.add( a,"mouseout",this.onUsedMouseOut, this,[gem]);
@@ -193,11 +188,11 @@ SocketInterface.prototype = {
 		}
 		Tools.clearBoth(this.usedGemParent);
 		
-		this.selectSocket(this.selectedSocket);
+		//this.selectSocket(this.selectedSocket);
 	},
 	
 	onSocketMouseOver: function( socket ) {
-		DOM.addClass( this.sockets[socket].layers[2], "si_highlight");
+		Dom.addClass( this.sockets[socket].layers[2], "si_highlight");
 		
 		if( this.itm != null && this.itm.getGem(socket) ) {
 			Tooltip.showMovable( this.itm.getGem(socket).getTooltip() );
@@ -205,7 +200,7 @@ SocketInterface.prototype = {
 	},
 	
 	onSocketMouseOut: function( socket ) {
-		DOM.removeClass( this.sockets[socket].layers[2], "si_highlight");
+		Dom.removeClass( this.sockets[socket].layers[2], "si_highlight");
 		Tooltip.hide();
 	},
 	onUsedMouseOver: function( gem ) {
@@ -220,7 +215,6 @@ SocketInterface.prototype = {
 		this.eventMgr.fire('socket_used_gem', { 'socket': this.selectedSocket, 'gemId': gemId});
 	},
 	onSocketClick: function( socket ) {
-		this.selectSocket(socket);
 		this.eventMgr.fire( 'socket_left_click', { 'socket': socket });
 	},
 	onBatchOperation: function( operation ) {
@@ -254,7 +248,7 @@ SocketInterface.prototype = {
 			
 			this.usedGemParent.style.display = "block";
 			//highlight new socket
-			DOM.addClass( this.sockets[socket].layers[0], "si_gem_p_selected" );
+			Dom.addClass( this.sockets[socket].layers[0], "si_gem_p_selected" );
 			
 			if( gem != null ) {
 
@@ -282,9 +276,15 @@ SocketInterface.prototype = {
 		
 		if( this.selectedSocket != - 1 && this.selectedSocket != socket ) {
 			//unhighlight old socket
-			DOM.removeClass( this.sockets[this.selectedSocket].layers[0], "si_gem_p_selected" );
+			Dom.removeClass( this.sockets[this.selectedSocket].layers[0], "si_gem_p_selected" );
 		}
 		
 		this.selectedSocket = socket;
+	},
+	/**
+	 * @param {GenericObserver} observer
+	 */
+	addObserver: function( observer ) {
+		this.eventMgr.addObserver(observer);
 	}
 };

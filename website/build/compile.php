@@ -12,35 +12,35 @@ for( $i=0; $i<count($js_files); $i++ ) {
 	$joined .= " --js ../public/".$js_files[$i];
 }
 
-write_to_file ( 'window["CHARDEV_CORE_BUILD"]='.($build+1).';', '../public/js/build.js' );
+$tmp_file = ".tmp";
 
-$r = system( 
+if( file_exists($tmp_file)) {
+	if( ! unlink($tmp_file)) {
+		die("Unable to delete file $tmp_file!");
+	}
+}
+
+exec( 
 	"java -jar closure_compiler/compiler.jar "
 	.$joined
 	." --js ../public/js/build.js "
-	." --compilation_level ADVANCED_OPTIMIZATIONS --js_output_file ../public/js/all_optimised.js --externs ../public/js/cc_externs.js --externs jquery-1.7.js --warning_level VERBOSE" 
+	." --compilation_level ADVANCED_OPTIMIZATIONS --js_output_file ../public/js/all_optimised.js --externs ../public/js/cc_externs.js --externs jquery-1.7.js --warning_level VERBOSE"
+	."  1> $tmp_file 2>&1" 
 );
 
-write_to_file( $build + 1, $build_file );
+$r = "";
+if( file_exists($tmp_file)) {
+	$r = file_get_contents($tmp_file);
+	if( $r ) {
+		die($r);
+	}
+}
+else {
+	die("Unable to read output file $tmp_file");
+}
+
+file_put_contents( $build_file, $build + 1 );
+file_put_contents( '../public/js/build.js', 'window["CHARDEV_CORE_BUILD"]='.($build+1).';' );
 
 echo "build: ".($build + 1)."\n";
-
-function write_to_file ( $str, $file ) {
-	
-	if( file_exists ( $file )  &&  ! is_writable($file) ) {
-		echo "Unable to write to ".$file."!\n";
-		return;
-	}
-	
-	if ( ! $handle = fopen($file, "w")) {
-		echo "Unable to open $file";
-		return;
-	}
-	
-	if (!fwrite($handle, $str)) {
-		echo "Unable to write content to $file";
-	}
-	
-	fclose($handle);
-}
 ?>

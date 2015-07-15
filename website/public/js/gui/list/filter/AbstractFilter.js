@@ -15,8 +15,12 @@ AbstractFilter.OPERATOR_OPTIONS_NUMERIC_EUQAL = [['eq','=']];
 
 AbstractFilter.prototype = {
 	node: null, variable: "", name: "",
+	/**
+	 * @param valueType
+	 * @returns {SingleSelect}
+	 */
 	getOperatorSelect: function( valueType ) {
-		var tmp;
+		var tmp = null;
 		switch( valueType ) {
 		case InputFilterData.TYPE_STRING_SIMPLE:
 			tmp = new SingleSelect(AbstractFilter.OPERATOR_OPTIONS_STRING);

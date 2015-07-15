@@ -47,7 +47,7 @@ SetListGui.prototype.deserialize = function( data ) {
 	
 	for( i = 1; i < data.length; i++ ) {
 		
-		a = DOM.createAt( grid.cells[i][0], 'a', { 'href': 'javascript:;', 'text': data[i][1], 'color': g_color[data[i][6]], 'class': 'il_imp_col', 'title': 'Click to equip all items'});
+		a = Dom.createAt( grid.cells[i][0], 'a', { 'href': 'javascript:;', 'text': data[i][1], 'color': g_color[data[i][6]], 'class': 'il_imp_col', 'title': 'Click to equip all items'});
 		
 		var itms = [];
 		

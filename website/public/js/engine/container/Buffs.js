@@ -58,7 +58,7 @@ function Buffs() {
 
 
 Buffs.getAvailableBuffs = function( handler, characterScope ) {
-	Ajax.request('api/buffs.php', new Handler(function( response ) {		
+	Ajax.request('/api/buffs.php', new Handler(function( response ) {		
 		try {
 			var obj = Ajax.getResponseObject(response);
 			var r = {};
@@ -66,7 +66,11 @@ Buffs.getAvailableBuffs = function( handler, characterScope ) {
 			for( var k in obj ) {
 				r[k] = [];
 				for( var j=0; j<obj[k].length; j++ ) {
-					
+
+                    if( obj[k][j] === null ) {
+                        continue;
+                    }
+
 					if( k === "Food" ) {
 						var i = new Item(obj[k][j]);
 						ItemCache.set(i);
@@ -125,13 +129,17 @@ Buffs.prototype = {
 		this.eventMgr.fire('change', {'silent': false});
 	},
 	addInternal: function( spellId, isUnremovable, isDummy ) {
-		SpellCache.asyncGet( spellId, new Handler( this._add, this ), [spellId, isUnremovable, true, true, isDummy, Buff.NO_ELIXIR] );
+		SpellCache.asyncGet( spellId, new Handler( function( spell ) {
+			this._add( spell.id, isUnremovable, true, true, isDummy, Buff.NO_ELIXIR); 
+		},this ));
 	},
 	/**
 	 * @param {number} spellId
 	 */
 	add : function( spellId, self ) {
-		SpellCache.asyncGet( spellId, new Handler( this._add, this ), [spellId, false, false, self, false, Buff.NO_ELIXIR] );
+		SpellCache.asyncGet( spellId, new Handler( function( spell ) {
+			this._add( spell.id, false, false, self, false, Buff.NO_ELIXIR); 
+		},this ));
 	},
 	/**
 	 * @param {number} spellId

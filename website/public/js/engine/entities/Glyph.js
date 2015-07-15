@@ -11,7 +11,7 @@ function Glyph( serialized ) {
 
 Glyph.MAJOR = 0;
 Glyph.MINOR = 1;
-Glyph.PRIME = 2;
+//Glyph.PRIME = 2;
 
 Glyph.prototype = {
 	id: 0, type: 0, spell: null, itemId: 0

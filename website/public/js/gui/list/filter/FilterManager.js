@@ -69,7 +69,6 @@ FilterManager.prototype = {
 				
 			}
 			str = str.replace( match[0], match[1]);
-			continue;
 		}
 		
 	},

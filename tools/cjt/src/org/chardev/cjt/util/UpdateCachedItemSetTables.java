@@ -18,11 +18,9 @@ import java.sql.Statement;
 public class UpdateCachedItemSetTables {
 
 	public static void main(String[] args) {
-		Connection connectionLocaleDB = Database
-				.connectToDatabase(Database.CHARDEV_CATACLYSM);
-		Connection connectionStaticDB = Database
-				.connectToDatabase(Database.CHARDEV_CATACLYSM_STATIC);
-		new UpdateCachedItemSetTables(connectionStaticDB, connectionLocaleDB);
+		new UpdateCachedItemSetTables(
+				ConnectionFactory.getStatic(), 
+				ConnectionFactory.getLocale());
 	}
 
 	protected final Connection connectionStaticDB, connectionLocaleDB;
@@ -49,7 +47,7 @@ public class UpdateCachedItemSetTables {
 			while (result.next()) {
 				int minItemLevel = Integer.MAX_VALUE;
 				int maxItemLevel = 0; 
-				int minReqLevel = 85; 
+				int minReqLevel = 90; 
 				int maxReqLevel = 0; 
 				int items = 0; 
 				int minQuality = Integer.MAX_VALUE;

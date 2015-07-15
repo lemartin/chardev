@@ -1,28 +1,27 @@
 /**
  * @constructor
  * @param {Talent} talent
+ * @param {Character} character
  */
-function TalentFacade( talent ) {
-	this.__talent = talent;
-	this.name = talent.getName();
-	this.icon = talent.spells[0].icon;
-	this.max = talent.ranks;
-	
-	this.requiredTalents = [];
-	for( var k in talent.requiredTalents ) {
-		this.requiredTalents.push(talent.requiredTalents[k]);
-	}
+function TalentFacade( talent, character ) {
+	this._talent = talent;
+	this._character = character;
 }
 
 TalentFacade.prototype= {
-	__talent: null, max: 0, name: "", icon: '',
-	isFull: function() {
-		return this.__talent.spent == this.max;
-	},
-	areRequiredTalentsSet: function() {
-		return this.__talent.areRequiredTalentsSet();
-	},
-	getSpent: function() {
-		return this.__talent.spent;
-	}
+		_talent: null,
+		_character: null,
+		getIcon: function() {
+			return this._talent.spell.icon;
+		},
+		getName: function() {
+			return this._talent.spell.name;
+		},
+		getTooltip: function() {
+			return SpellTooltip.getHtml(this._talent.spell, this._character);
+		},
+		isSelected: function() {
+			return this._talent.selected;
+			
+		}
 };

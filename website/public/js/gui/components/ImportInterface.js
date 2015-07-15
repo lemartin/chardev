@@ -1,15 +1,16 @@
 /**
  * @constructor
- * @param {Handler} onImportHandler
  */
-function ImportInterface( onImportHandler ) {
-	var div, form, a;
-	this.onImportHandler = onImportHandler;
+function ImportInterface() {
+	var div, form;
 	
-	this.node = DOM.create("div", {"class": 'im_parent'});
+	this.eventMgr = new GenericSubject();
+	this.eventMgr.registerEvent("import", ["region","realm","name"]);
 	
-	form = DOM.create('form', {'action': 'javascript:'});
-	Listener.add(form,"submit",this.__onImport,this,[]);
+	this.node = Dom.create("div", {"class": 'im_parent'});
+	
+	form = Dom.create('form', {'action': 'javascript:'});
+	Listener.add(form,"submit",this._onImport,this,[]);
 	
 	this.importName = document.createElement("input"); this.importName.className = "input im_sa_in";
 	this.importServer = document.createElement("input"); this.importServer.className = "input im_sa_in";
@@ -23,103 +24,114 @@ function ImportInterface( onImportHandler ) {
 		]
 	);
 	
-	if( g_settings.userData && g_settings.userData["region"] ) {
-		this.importRegion.select(g_settings.userData["region"]);
-	}
-	
-	DOM.createAt( form, 'div', {'class': 'content_header im_header','text':'Import a character from Battle.net'});
+	Dom.createAt( form, 'div', {'class': 'content_header im_header','text':'Import a character from Battle.net'});
 	
 	this.importRegion.node.className = "single_select single_select_focussable";
 	
-	this.importSubmit = DOM.create('input', {'type': 'submit', 'value': 'Import'});
+	this.importSubmit = Dom.create('input', {'type': 'submit', 'value': 'Import'});
 	
 	Tools.jsCssClassHandler( this.importSubmit, { 'default': "button button_light", 'focus': "button_light_hover", 'hover': "button_light_hover"});
 	
-	div = DOM.createAt(form, 'div', {'class': 'im_sa_r'});
-	DOM.createAt(div, 'div', {'class': 'im_sa_left', 'text': 'Name'});
-	DOM.append(DOM.createAt(div, 'div', {'class': 'im_sa_right'}), this.importName);
-	DOM.clear(div);
+	div = Dom.createAt(form, 'div', {'class': 'im_sa_r'});
+	Dom.createAt(div, 'div', {'class': 'im_sa_left', 'text': 'Name'});
+	Dom.append(Dom.createAt(div, 'div', {'class': 'im_sa_right'}), this.importName);
+	Dom.clear(div);
 	
-	div = DOM.createAt(form, 'div', {'class': 'im_sa_r'});
-	DOM.createAt(div, 'div', {'class': 'im_sa_left', 'text': 'Realm'});
-	DOM.append(DOM.createAt(div, 'div', {'class': 'im_sa_right'}), this.importServer);
-	DOM.clear(div);
+	div = Dom.createAt(form, 'div', {'class': 'im_sa_r'});
+	Dom.createAt(div, 'div', {'class': 'im_sa_left', 'text': 'Realm'});
+	Dom.append(Dom.createAt(div, 'div', {'class': 'im_sa_right'}), this.importServer);
+	Dom.clear(div);
 	
-	div = DOM.createAt(form, 'div', {'class': 'im_sa_r'});
-	DOM.createAt(div, 'div', {'class': 'im_sa_left', 'text': 'Region'});
-	DOM.append(DOM.createAt(div, 'div', {'class': 'im_sa_right'}), this.importRegion.node);
-	DOM.clear(div);
+	div = Dom.createAt(form, 'div', {'class': 'im_sa_r'});
+	Dom.createAt(div, 'div', {'class': 'im_sa_left', 'text': 'Region'});
+	Dom.append(Dom.createAt(div, 'div', {'class': 'im_sa_right'}), this.importRegion.node);
+	Dom.clear(div);
 	
 
-	DOM.append(DOM.createAt(form, 'div', {'class': 'im_sa_b'}), this.importSubmit);
+	Dom.append(Dom.createAt(form, 'div', {'class': 'im_sa_b'}), this.importSubmit);
 	
-	DOM.append(DOM.createAt( this.node, "div", {'class': 'im_inputs'}), form);
+	Dom.append(Dom.createAt( this.node, "div", {'class': 'im_inputs'}), form);
 	
 	
-	this.storedParent = DOM.createAt(this.node, "div", {'class': 'im_profiles'});	
+	this.storedParent = Dom.createAt(this.node, "div", {'class': 'im_profiles'});	
 	
-	DOM.clear(this.node);
+	this.setStoredImports(null);
 	
-	this.updateStoredImports();
+	Dom.clear(this.node);
 }
 
 ImportInterface.prototype = {
-	node: null, onImportHandler: null, storedParent: null,
-	importName: null, importSubmit: null, importRegion: null,
-	__onImport: function() {
+	eventMgr: null,
+	node: null,  
+	storedParent: null,
+	importName: null, 
+	importSubmit: null, 
+	importRegion: null,
+	_onImport: function() {
 		var name = this.importName.value;
-		var server = this.importServer.value;
+		var realm = this.importServer.value;
 		
 		if( name == "" || name.length < 2 ) {
 			Tooltip.showError("The character name is empty or too short!");
 			return;
 		}
-		if( server == "" ) {
-			Tooltip.showError("The server name is empty or too short!");
+		if( realm == "" ) {
+			Tooltip.showError("The realm name is empty or too short!");
 			return;
 		}
-		this.onImportHandler.notify([name, server, this.importRegion.getValue()]);
+
+		this.eventMgr.fire("import", {
+				"name": name,
+				"realm": realm ,
+				"region": this.importRegion.getValue()
+		});
 	},
-	updateStoredImports: function(){
-		DOM.truncate(this.storedParent);
-		DOM.append( 
+	setRegion: function( region ) {
+		this.importRegion.select( region );
+	},
+	setStoredImports: function( profiles ){
+		Dom.truncate(this.storedParent);
+		Dom.append( 
 			this.storedParent, 
-			ChardevHTML.createWithInfo( 
+			ChardevHtml.createWithInfo( 
 				'div', {'class': 'im_profiles_header','text':'Stored Imports'}, 
 				'See your account settings to manage Stored Imports.'
 			)
 		);
 			
 		
-		if( g_settings.userData && g_settings.userData['battlenet_profiles'] ) {
+		if( profiles != null ) {
 
-			for( var k in g_settings.userData['battlenet_profiles'] ) {
-				var profile = g_settings.userData['battlenet_profiles'][k];
+			for( var k in profiles ) {
+				var profile = profiles[k];
 				
-				var a = DOM.createAt(this.storedParent, 'a', {'class': 'im_profile', 'href': 'javascript:'});
-				Listener.add(a, 'click', this.onImportHandler.notify, this.onImportHandler, [[profile['Name'],profile['Realm'],profile['Region']]]);
+				var a = Dom.createAt(this.storedParent, 'a', {'class': 'im_profile', 'href': 'javascript:'});
+				Listener.add(a, 'click', this.eventMgr.fire, this.eventMgr, ["import", {
+					"name": profile['Name'], 
+					"realm": profile['Realm'], 
+					"region": profile['Region']
+				}]);
 
-				DOM.createAt(a,'span', {'class': 'bnpm_name', 'text': profile['Name']});
+				Dom.createAt(a,'span', {'class': 'bnpm_name', 'text': profile['Name']});
 				
-				DOM.createAt(a,'span', {'text': ", " + profile['Level'] + " " + locale['CharacterRace'][profile['CharacterRaceID']] + " "});
+				Dom.createAt(a,'span', {'text': ", " + profile['Level'] + " " + locale['CharacterRace'][profile['CharacterRaceID']] + " "});
 				
-				var span = DOM.createAt(a,'span', {
+				Dom.createAt(a,'span', {
 					'class': 'character_class_'+profile['CharacterClassID']+' bnpm_chrclass',
 					'text': locale['CharacterClass'][profile['CharacterClassID']]
 				});
 				
-				if( profile['CharacterClassID'] == PRIEST ) {
-					DOM.addClass(span, 'character_class_5_white_bg_fix');
-				}
-				else if( profile['CharacterClassID'] == ROGUE ) {
-					DOM.addClass(span, 'character_class_4_white_bg_fix');
-				}
-				
-				DOM.createAt(a, 'span', {
+				Dom.createAt(a, 'span', {
 					'class': 'bnpm_origin', 
 					'text': ", " + profile['Region'].toUpperCase()+"-"+profile['Realm']
 				});
 			}
 		}
+	},
+	/**
+	 * @param {GenericObserver} observer
+	 */
+	addObserver: function( observer) {
+		this.eventMgr.addObserver(observer);
 	}
 };

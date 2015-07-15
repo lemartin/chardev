@@ -3,21 +3,23 @@
  */
 
 var CHR_RACE_CLASS_MASK = {
-	1: 1|2|4|8|16|32|128|256,
-	2: 1|4|8|32|64|128|256,
-	3: 1|2|4|8|16|32|64|128|256,
-	4: 1|4|8|16|32|128|1024,
-	5: 1|4|8|16|32|128|256,
-	6: 1|2|4|16|32|64|1024,
-	7: 1|8|16|32|128|256,
-	8: 1|4|8|16|32|64|128|256|1024,
-	9: 1|4|8|16|32|64|128|256,
-	10: 1|2|4|8|16|32|128|256,
-	11: 1|2|4|16|32|64|128,
-	22: 1|4|8|16|32|128|256|1024
+	1: 1|2|4|8|16|32|128|256|512,
+	2: 1|4|8|32|64|128|256|512,
+	3: 1|2|4|8|16|32|64|128|256|512,
+	4: 1|4|8|16|32|128|512|1024,
+	5: 1|4|8|16|32|128|256|512,
+	6: 1|2|4|16|32|64|512|1024,
+	7: 1|8|16|32|128|256|512,
+	8: 1|4|8|16|32|64|128|256|512|1024,
+	9: 1|4|8|16|32|64|128|256|512,
+	10: 1|2|4|8|16|32|128|256|512,
+	11: 1|2|4|16|32|64|128|512,
+	22: 1|4|8|16|32|128|256|512|1024,
+    25: 1|4|8|16|64|128|512,
+    26: 1|4|8|16|64|128|512
 };
 
-var CHR_RACE_ORDER = [[1,3,4,7,11,22],[2,5,6,8,10,9]];
+var CHR_RACE_ORDER = {0:[1,3,4,7,11,22,25],1:[2,5,6,8,10,9,26]};
 
 /**
  * @constructor
@@ -28,7 +30,7 @@ function RaceClassSelector( characterSheet ) {
 	this.characterSheet = characterSheet;
 	
 	var layoutGrid = new StaticGrid(1,2);
-	var layoutGrid2 = new StaticGrid( 7, 2 );
+	var layoutGrid2 = new StaticGrid( 8, 2 );
 	var d1,d2;
 	this.node = document.createElement("div");
 	this.node.className = 'rcs_parent';
@@ -125,7 +127,7 @@ RaceClassSelector.prototype = {
 			if( chrClassId != -1 ) {
 				this.classIcon.src = "/images/site/race_class/resized_"+chrClassId+".png";
 				this.chrClass.layers[2].className = 'rcs_class_border';
-				this.chrClass.layers[2].style.backgroundImage = 'url(/images/site/race_class/class_border_' + chrClassId + '.png)';
+				this.chrClass.layers[2].style.backgroundImage = 'url(/images/site/class_border_' + chrClassId + '.png)';
 			}
 			else {
 				this.classIcon.src = "/images/site/race_class/medium/slot_empty.png";
@@ -155,6 +157,10 @@ RaceClassSelector.prototype = {
 		}
 		else {
 			this.raceIcon.src = "/images/site/race_class/medium/slot_empty.png";
+
+			this.classIcon.src = "/images/site/race_class/medium/slot_empty.png";
+			this.chrClass.layers[2].className = 'rcs_border';
+			this.chrClass.layers[2].style.backgroundImage = '';
 		}
 	},
 	

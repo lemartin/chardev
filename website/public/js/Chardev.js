@@ -1,94 +1,8 @@
 var Chardev = {
-		validateLogin : function() {
-			try {
-				var userName = document.getElementById('login_user_name').value;
-				var password = document.getElementById('login_password').value;
-				
-				if(userName.length<4){
-					Tooltip.showError("User name is too short");
-					return false;
-				}
-				if(password.length<4){
-					Tooltip.showError("Password is too short");
-					return false;
-				}
-				
-				document.getElementById('login_password_md5').value = MD5(password);
-				return true;
-			}
-			catch( e ) {
-				Tools.rethrow(e);
-				return false;
-			}
-		},
-
-		login : function() {
-			try {
-				if( Chardev.validateLogin() ) {
-					Tooltip.showLoading();
-					Ajax.post( "api/user.php", {
-							'UserName'	: document.getElementById('login_user_name').value,
-							'Password'	: document.getElementById('login_password_md5').value,
-							'Cookie'	: document.getElementById('login_cookie').checked
-					}, new Handler( Chardev.__login_callback, Chardev ), null);
-				}
-			}
-			catch(e) {
-				Tooltip.showError (e);
-			} 
-		},
-		
-		__login_callback : function( response ) {
-			try {
-					var obj = Ajax.getResponseObject(response);
-					g_settings.sessionId = obj["session_id"];
-					g_settings.userId = obj["user_id"];
-					g_settings.userData = obj["user_data"];
-					document.getElementById('ix_login_form').style.display = 'none';
-					document.getElementById('ix_logout_form').style.display = 'block';
-					document.getElementById('ix_self_link').innerHTML = obj["user_name"];
-					document.getElementById('ix_self_link').href = "?user=" + obj["user_id"];
-					if( g_settings.isPlanner ) {
-						Engine.loggedIn();
-					}
-					Tooltip.enable();
-				}
-				catch( e ) {
-					Tooltip.showError(e);
-				}
-		},
-		
-		logout : function() {
-			try {
-				Tooltip.showLoading();
-				Ajax.request(
-					"php/interface/user/logout.php",
-					new Handler( Chardev.__logout_callback, Chardev ),
-					null
-				);
-			}
-			catch(e) {
-				Tooltip.showError(e);
-			} 
-		},
-		
-		__logout_callback : function( request ) {
-			g_settings.sessionId = "";
-			g_settings.userId = 0;
-			g_settings.userName = "";
-			g_settings.userData = null;
-			document.getElementById('ix_login_form').style.display = 'block';
-			document.getElementById('ix_logout_form').style.display = 'none';
-			if( g_settings.isPlanner ) {
-				Engine.loggedOut();
-			}
-			Tooltip.enable();
-		},
-		
 		checkTopic : function (_id){
-			var title = DOM.getValue('topic_title');
-			var content = DOM.getValue('topic_content');
-			var type = DOM.getValue('thread_type');
+			var title = Dom.getValue('topic_title');
+			var content = Dom.getValue('topic_content');
+			var type = Dom.getValue('thread_type');
 			
 			if(title.length<2){
 				Tooltip.showError("The title of your post is too short!");
@@ -103,7 +17,7 @@ var Chardev = {
 			Tooltip.showLoading();
 			
 			Ajax.post(
-				'api/forum.php', {
+				'/api/forum.php', {
 					'action': 'new_thread',
 					'hook': _id,
 					'title': title,
@@ -129,7 +43,7 @@ var Chardev = {
 			if( confirm("Are you sure you want to delete this thread?") ) {
 				Tooltip.showLoading();
 				Ajax.post(
-					'api/forum.php', {
+					'/api/forum.php', {
 						'action': 'delete_thread',
 						'thread': threadId
 					},
@@ -138,6 +52,7 @@ var Chardev = {
 				);
 			}
 		},
+		
 		__deleteThread_callback : function ( request ) {		
 			try {
 				var obj = Ajax.getResponseObject(request);
@@ -150,7 +65,7 @@ var Chardev = {
 		lockThread : function ( threadId ){
 			Tooltip.showLoading();
 			Ajax.post(
-				'api/forum.php', {
+				'/api/forum.php', {
 					'action': 'lock_thread',
 					'thread': threadId
 				},
@@ -161,7 +76,7 @@ var Chardev = {
 		unlockThread : function ( threadId ){
 			Tooltip.showLoading();
 			Ajax.post(
-				'api/forum.php', {
+				'/api/forum.php', {
 					'action': 'unlock_thread',
 					'thread': threadId
 				},
@@ -191,7 +106,7 @@ var Chardev = {
 			Tooltip.showLoading();
 			
 			Ajax.post(
-				'api/forum.php', {
+				'/api/forum.php', {
 					'action': 'reply',
 					'thread': _tid,
 					'content': content
@@ -223,7 +138,7 @@ var Chardev = {
 			Tooltip.showLoading();
 			
 			Ajax.post(
-				'api/forum.php', {
+				'/api/forum.php', {
 					'action': 'edit',
 					'post': _id,
 					'content': content
@@ -252,11 +167,14 @@ var Chardev = {
 				pa.profileList.filterMgr.hideFilter('ismine', true);
 				pa.profileList.set("ismine.eq.1;", null, null, 1);
 				pa.profileList.update();
-				DOM.set('ui_profiles_parent',  pa.getNode());
+				Dom.set('ui_profiles_parent',  pa.getNode());
 			}
 		},
 		createAvatarPicker: function( parentId, currentAvatar ) {
 			new AvatarPicker(parentId, currentAvatar);
+		},
+		staticSpellList: function( serialized, page, argString, parent, staticLink ) {
+			//TODO Impl spell list 
 		},
 		staticItemList: function( serialized, page, argString, parent, staticLink ) {
 			if( serialized ) {
@@ -278,7 +196,7 @@ var Chardev = {
 				
 				var ilHandler = new Handler(function( e ){
 					if( e.is('show_tooltip') ) {
-						Engine.showItemTooltip.call(Engine,e.get('entity').id);
+						Chardev.showItemTooltip(e.get('entity').id);
 					}
 					else if( e.is('move_tooltip') ) {
 						Tooltip.move();
@@ -287,10 +205,10 @@ var Chardev = {
 						Tooltip.hide();
 					}
 					else if( e.is('update') ) {
-						var form = DOM.create('form', {'method': 'GET', 'action': ''});
-						DOM.createAt(form,'input', {'name': 'a', 'value': il.getArgumentString().replace(/\;/g,"_")});
-						DOM.createAt(form,'input', {'name': 'p', 'value': il.page});
-						DOM.createAt(form,'input', {'name': 'o', 'value': il.order+"."+(il.orderDirection==List.ORDER_ASC?'asc':'desc')+"_" });
+						var form = Dom.create('form', {'method': 'GET', 'action': ''});
+						Dom.createAt(form,'input', {'name': 'a', 'value': il.getArgumentString().replace(/\;/g,"_")});
+						Dom.createAt(form,'input', {'name': 'p', 'value': il.page});
+						Dom.createAt(form,'input', {'name': 'o', 'value': il.order+"."+(il.orderDirection==List.ORDER_ASC?'asc':'desc')+"_" });
 						form.submit();
 					}
 				}, this);
@@ -307,30 +225,40 @@ var Chardev = {
 		},
 		addItemTooltipTo: function( serialized, ttParent, iconParent ) {
 			if(serialized) {
-				var tt = new TooltipImpl();
-				var iconNode = document.getElementById(iconParent);
-				var img;
-				var item;
-				item = new Item(serialized);
-				
-				tt.show(ItemTooltip.getHTML(item, null));
-				
-				DOM.set(ttParent,tt.div);
-				
-				tt.div.style.position = "relative";
-				
-				img = document.createElement('img');
-				img.className = 'dbi_icon';
-				img.src = '/images/icons/large/' + item.icon + '.png';
-				iconNode.appendChild(img);
+				var itm = new Item(serialized);
+	
+				Chardev._addTooltipTo( ItemTooltip.getHtml(itm, null), itm.icon, ttParent, iconParent);
 			}
+		},
+		addSpellTooltipTo: function( serialized, ttParent, iconParent ) {
+			if(serialized) {
+				var spell = new Spell(serialized);
+//				var c = new Character(); 
+//				c.setLevel(90);
+				Chardev._addTooltipTo( SpellTooltip.getHtml(spell, null), spell.icon, ttParent, iconParent);
+			}
+		},
+		_addTooltipTo: function( html, icon, ttParent, iconParent)  {
+			var tt = new TooltipImpl(); 
+
+			Dom.truncate(ttParent);
+
+			tt.setParent(Dom.get(ttParent));
+			tt.show(html);
+			tt.div.style.position = "relative";
+			
+			var img = document.createElement('img');
+			img.className = 'dbi_icon';
+			img.src = '/images/icons/large/' + icon + '.png';
+			Dom.set(iconParent, img);
+            Dom.createAt(ttParent, "span", {});
 		},
 		changePassword: function() {
 			var password = $('[name=change_new_password]').val();
 			var userId = $('[name=change_user_id]').val();
 			Tooltip.showLoading();
 			
-			Ajax2.post( Tools.getBasePath() + 'api/user.php', { "UserId": userId, "Password": password}, function( obj ) {
+			Ajax2.post( '/api/user.php', { "UserId": userId, "Password": password}, function( obj ) {
 				try {
 					obj.get();
 					Tooltip.enable();
@@ -342,19 +270,167 @@ var Chardev = {
 			}, null);
 		},
 		showTalents: function( serialized, nodeId, distribution ) {
-			var talents = new Talents(serialized,false);
-			var talentsGui = new TalentsGui();
+			var talents = new Talents(serialized);
+			var talentsGui = new TalentsInterface();
 			var character = new Character();
 			
 			new TalentsAdapter( talents, talentsGui, character );
 			
 			if( distribution ) {
-				talents.setDistribution(distribution, true);
+				talents.setDistribution(distribution);
 			}
 			
 			$('#' + nodeId).empty().append(talentsGui.node);
 		}
 };
+//
+//
+//	STATIC TOOLTIPS
+//
+//
+(function(){
+	/**
+	 * @type {Object}
+	 */
+	var requestedTooltip = null;
+	var eventMgr = new GenericSubject();
+	
+	eventMgr.registerEvent("login", ["user"]);
+	eventMgr.registerEvent("logout", []);
+	/**
+	 * @param {Item} itm
+	 */
+	function itemHandler( itm ) {
+			if( itm != null ) {
+				if( requestedTooltip != null && requestedTooltip.item == itm.id ) {
+					Tooltip.showMovable( ItemTooltip.getHtml( itm , null) );
+					requestedTooltip = null;
+				}
+			}
+	}
+	/**
+	 * @param {Spell} spell
+	 */
+	function spellHandler( spell ) {
+		if( spell != null ) {
+			if( requestedTooltip != null) if( requestedTooltip.spell == spell.id ) {
+				Tooltip.showMovable( SpellTooltip.getHtml( spell , null));
+				requestedTooltip = null;
+			}
+		}
+	}
+	/**
+	 * @param {ResponseObject} obj
+	 */
+	function loginHandler(obj) {
+		try {
+			var user = new User(obj.get());
+			
+			Dom.get('ix_login_form').style.display = 'none';
+			Dom.get('ix_logout_form').style.display = 'block';
+			Dom.get('ix_self_link').innerHTML = user.name;
+			Dom.get('ix_self_link').href = "?user=" + user.id;
+			
+			eventMgr.fire("login", { "user": user});
+			
+			Tooltip.enable();
+		}
+		catch( e ) {
+			Tooltip.showError(e);
+		}
+	}
+	/**
+	 * @param {ResponseObject} obj
+	 */
+	function logoutHandler(obj) {
+		try {
+			obj.get();
+			Dom.get('ix_login_form').style.display = 'block';
+			Dom.get('ix_logout_form').style.display = 'none';
+			
+			eventMgr.fire("logout", {});
+			
+			Tooltip.enable();
+		}
+		catch( e ) {
+			Tooltip.showError(e);
+		}
+	}
+	
+	Chardev.hideTooltip = function()  {
+		requestedTooltip = null;
+		Tooltip.hide();
+	};
+	
+	Chardev.moveTooltip = function() {
+		Tooltip.move();
+	};
+	/**
+	 * @param {number} itemId
+	 */
+	Chardev.showItemTooltip = function( itemId ) {
+		Tooltip.show("Loading item...");
+		requestedTooltip = { item: itemId };
+		ItemCache.asyncGet( itemId, new Handler(itemHandler, Chardev), [itemId]);
+	};
+	/**
+	 * @param {number} spellId
+	 */
+	Chardev.showSpellTooltip = function( spellId ) {
+		Tooltip.show("Loading spell...");
+		requestedTooltip = { spell: spellId };
+		SpellCache.asyncGet( spellId, new Handler(spellHandler, Chardev), [spellId]);
+	};
+	/**
+	 * @param {GenericObserver} observer
+	 */
+	Chardev.addObserver = function(observer) {
+		eventMgr.addObserver(observer);
+	};
+	/**
+	 * @param {string} event
+	 * @param {GenericSubject} propagator
+	 */
+	Chardev.addPropagator = function( event, propagator) {
+		eventMgr.addPropagator( event, propagator);
+	};
+	
+	Chardev.login = function() {
+		var userName = Dom.getValue("login_user_name");
+		var password = Dom.getValue("login_password");
+		
+		if(userName.length<4){
+			Tooltip.showError("User name is too short");
+			return;
+		}
+		if(password.length<4){
+			Tooltip.showError("Password is too short");
+			return;
+		}
+		
+		Dom.get('login_password_md5').value = MD5(password);
+		
+		Tooltip.showLoading();
+		Ajax2.post( "/api/user.php", {
+				'UserName'	: document.getElementById('login_user_name').value,
+				'Password'	: document.getElementById('login_password_md5').value,
+				'Cookie'	: document.getElementById('login_cookie').checked
+		}, loginHandler, Chardev );
+	};
+	
+	Chardev.logout = function() {
+		Tooltip.showLoading();
+		Ajax2.post( "/api/user.php", {
+				'Logout': true
+		}, logoutHandler, Chardev );
+	};
+	
+	Chardev.validateLogin = function() {
+		//
+		//TODO Validate login info 
+		return true;
+	};
+})();
 
 if( ! window['Chardev'] ) {
 	window['Chardev'] = {
@@ -370,8 +446,14 @@ if( ! window['Chardev'] ) {
 			'showUserInformation': Chardev.showUserInformation,
 			'createAvatarPicker': Chardev.createAvatarPicker,
 			'staticItemList': Chardev.staticItemList,
+			'staticSpellList' : Chardev.staticSpellList,
 			'addItemTooltipTo': Chardev.addItemTooltipTo,
+			'addSpellTooltipTo': Chardev.addSpellTooltipTo,
 			'changePassword': Chardev.changePassword,
-			'showTalents': Chardev.showTalents
+			'showTalents': Chardev.showTalents,
+			'showItemTooltip': Chardev.showItemTooltip,
+			'showSpellTooltip': Chardev.showSpellTooltip,
+			'hideTooltip': Chardev.hideTooltip,
+			'moveTooltip': Chardev.moveTooltip
 	};
 }

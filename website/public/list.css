@@ -4,7 +4,7 @@
 
 .li_fc_content { padding: 10px;}
 
-.li_sort_link { color: #808078; }
+.li_sort_link { color: #808078; white-space: nowrap; }
 .li_sort_link_active{ font-weight: bold; color: #ffcc00; }
 
 .li_filter_input_grid { margin-bottom: 2px;}
@@ -38,10 +38,9 @@
 .li_content{ color: #808080; background-color: #3C3838; border: 1px solid #343030; border-right: none;}
 
 .li_loading {
-	padding: 5px 0px;
-	font-size: 16px;
-	padding-left: 41px;
-	line-height: 31px;
+    font-size: 16px;
+    padding: 5px 0 5px 41px;
+    line-height: 31px;
 	vertical-align: middle;
 	background: url(images/site/li_loading.gif) no-repeat 5px 5px;
 	color: #808080;
@@ -52,8 +51,7 @@
 .li_content_t{}
 
 .li_page_p {
-	padding: 3px;
-	padding-bottom: 10px;
+    padding: 3px 3px 10px;
 }
 
 .li_prev_page {
@@ -81,7 +79,7 @@
 	height: 32px; width: 32px; margin: 0 auto;
 }
 
-.li_imp_col {}
+.li_imp_col { padding: 0 2px; }
 .li_unimp_col { color: #808080; }
 
 .pl_content_t{ color: #808080; }
@@ -106,9 +104,7 @@
 	background-color: #484444;
 }
 
-.pl_inline_header {
-	border-top: 1px solid #343030;
-}
+.pl_inline_header { border-top: 1px solid #343030; height: 20px; line-height: 20px; }
 
 .pl_delete_link {float: right;}
 
@@ -126,7 +122,7 @@
 }
 
 .il_icon {
-	height: 24px; width: 24px; margin: 3px; border: 1px solid black; background-repeat: no-repeat; background-position: center center;
+	height: 24px; width: 24px; margin: 3px; border: 1px solid black; background: no-repeat center center;
 }
 
 .il_header_cell {
@@ -147,9 +143,9 @@
 	border-top: 1px solid #343030;
 }
 
-.il_link { padding: 0px 2px; cursor: pointer; margin-left: 5px;}
+.il_link { cursor: pointer;}
 
-.il_link_p { }
+.il_link_p { padding-left: 5px; }
 
 .il_heroic { 
 	font-size: 11px;

@@ -16,6 +16,6 @@ ActiveBuff.prototype = {
 		return this.__buff.stacks;
 	},
 	getTooltip: function() {
-		return SpellTooltip.getHTML( this.__buff.spell, this.__characterScope, 0, null);
+		return SpellTooltip.getHtml( this.__buff.spell, this.__characterScope);
 	}
 };

@@ -1,41 +1,53 @@
-var SpellCache = {
-	elements: {},
-	set: function( spell ) { SpellCache.elements[spell.id] = spell; },
+var SpellCache = {};
+(function() {
+	var elements = {};
 	/**
-	 * @param {number} id
-	 * @returns {Spell}
-	 */
-	get: function( id ) { return SpellCache.elements[id];},
-	contains: function(id) { return SpellCache.elements[id] || false; },
-	/**
-	 * @param {number} id
+	 * @param {Array} data
 	 * @param {Handler} handler
-	 * @param {Array} args
 	 */
-	asyncGet: function(id,handler,args){
-		if(SpellCache.get(id))
+	function asyncGetHandler( data, handler ) {
+		if ( data !== null ) 
 		{
-			handler.notify(args);
-		}
-		else{
-			Ajax.get(
-				'api/spell.php'+TextIO.queryString({ 'id': id, 'lang': g_settings.language }),
-				SpellCache.getHandler,
-				[handler,args]
-			);
-		}
-	},
-	/**
-	 * @param {Array} spell
-	 * @param {Handler} handler
-	 * @param {Array} args
-	 */
-	asyncGet_callback: function( spell, handler, args ) {
-		if ( spell != null ) 
-		{
-			SpellCache.set(new Spell(spell));
-			handler.notify(args);
+			var spell = new Spell(data);
+			SpellCache.set(spell);
+			handler.notify([spell]);
 		}
 	}
-};
-SpellCache.getHandler= new Handler( SpellCache.asyncGet_callback, SpellCache );
+	/**
+	 * @param {number} id 
+     * @return {Spell}
+	 */
+	SpellCache.get = function( id ) {
+		return typeof elements[id] === "undefined" ? null : elements[id];
+	};
+	/**
+	 * @param {Spell} spell
+	 */
+	SpellCache.set = function( spell ) {
+		elements[spell.id] = spell.clone();
+	};
+	/**
+	 * @param {number} id 
+     * @return {boolean}
+	 */
+	SpellCache.contains = function(id) { 
+		return typeof elements[id] === "undefined" ? false : true; 
+	};
+	/**
+	 * @param {number} id
+	 * @param {Handler} handler
+	 */
+	SpellCache.asyncGet = function( id, handler ){
+		var spell = SpellCache.get(id);
+		if(spell) {
+			handler.notify([spell]);
+		}
+		else {
+			Ajax.get(	
+				'/api/spell.php'+TextIO.queryString({ 'id': id }),
+				new Handler(asyncGetHandler, this),
+				[handler]
+			);
+		}
+	};
+})();

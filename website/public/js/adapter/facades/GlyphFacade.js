@@ -20,7 +20,7 @@ GlyphFacade.prototype = {
 		return this.__glyph.type;
 	},
 	getTooltip: function() {
-		return SpellTooltip.getHTML( this.__glyph.spell, this.__character, 0, null);
+		return SpellTooltip.getHtml( this.__glyph.spell, this.__character);
 	},
 	getIcon: function() {
 		return this.__glyph.spell.icon;
