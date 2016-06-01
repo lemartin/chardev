@@ -15,6 +15,10 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
+CREATE DATABASE `chardev_mop_static`;
+
+USE `chardev_mop_static`;
+
 --
 -- Table structure for table `chardev_base_stats_class_level`
 --

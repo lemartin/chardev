@@ -12,7 +12,7 @@ class Forum {
 	private static $instance;
 	
 	private function __construct() {
-		$this->db = new ThreadDatabase("mysql:dbname=chardev_user;host=127.0.0.1", "root", "");
+		$this->db = new ThreadDatabase("mysql:dbname=chardev_user;host=database", "root", "");
 		$this->permissions = new ForumPermissions();
 		
 		$this->threadCache = array();

@@ -187,7 +187,7 @@ try {
 	//	THREAD HOOK
 	//
 	else if( preg_match('/^\/forum\/([^\/]+)\.html(?:\?.*|$)/',$uri,$matches)) {	
-		$db = new chardev\forum\ThreadDatabase( "mysql:dbname=chardev_user;host=127.0.0.1", "root", "");
+		$db = new chardev\forum\ThreadDatabase( "mysql:dbname=chardev_user;host=database", "root", "");
 		try {
 			$th->setTemplate("Hook", array(
 					"forum" => $matches[1], 
@@ -203,7 +203,7 @@ try {
 	//	NEW THREAD
 	//
 	else if( preg_match('/^\/forum\/([^\/]+)\/NewThread\.html(?:\?.*|$)/',$uri,$matches)) {
-		$db = new chardev\forum\ThreadDatabase( "mysql:dbname=chardev_user;host=127.0.0.1", "root", "");
+		$db = new chardev\forum\ThreadDatabase( "mysql:dbname=chardev_user;host=database", "root", "");
 		try {
 			$th->setTemplate("NewThread", array(
 					"forum" => $matches[1],
@@ -219,7 +219,7 @@ try {
 	//	THREAD
 	//
 	else if( preg_match('/^\/forum\/([^\/]+)\/([^\/]+)(\/Reply|\/Edit)?\.html(?:\?.*|$)/',$uri,$matches)) {
-		$db = new chardev\forum\ThreadDatabase( "mysql:dbname=chardev_user;host=127.0.0.1", "root", "");
+		$db = new chardev\forum\ThreadDatabase( "mysql:dbname=chardev_user;host=database", "root", "");
 		try {
 			$th->setTemplate("Thread", array(
 					"forum" => $matches[1], 

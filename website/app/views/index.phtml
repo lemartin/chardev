@@ -12,7 +12,7 @@ use chardev\forum\facades\ThreadFacade;
 	
 	$this->addStyleSheet("forum.css");
 
-	$db = new \chardev\forum\ThreadDatabase( "mysql:dbname=chardev_user;host=127.0.0.1", "root", "");
+	$db = new \chardev\forum\ThreadDatabase( "mysql:dbname=chardev_user;host=database", "root", "");
 	$threads = $db->getThreads(4, 5, 0, \chardev\forum\ThreadDatabase::ORDER_CREATED );
 	$hook = $db->getHook(4);
 ?>

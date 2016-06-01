@@ -20,7 +20,7 @@ if (!$user) {
 
 try {
     $permissions = new chardev\forum\ForumPermissions($user);
-    $db = new chardev\forum\ThreadDatabase("mysql:dbname=chardev_user;host=127.0.0.1", "root", "");
+    $db = new chardev\forum\ThreadDatabase("mysql:dbname=chardev_user;host=database", "root", "");
 
     switch ($_POST['action']) {
         case 'edit':
