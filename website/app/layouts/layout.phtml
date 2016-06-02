@@ -94,7 +94,7 @@ $loggedInUser = Session::getLoggedInUser();
             <div class="ix_center ix_main_menu">
                 <div class="ix_mm_entry"><a
                         class="ix_mm_link<?php echo $view == 'Index' ? " ix_mm_link_active" : ""; ?>"
-                        href="http://chardev.org/Index.html"><span class="ix_mm_ll">home</span></a></div>
+                        href="<?php echo $basePath ?>Index.html"><span class="ix_mm_ll">home</span></a></div>
                 <div class="ix_mm_entry"><a
                         class="ix_mm_link<?php echo $view == 'Planner' ? " ix_mm_link_active" : ""; ?>"
                         href="<?php echo $basePath ?>Planner.html"><span class="ix_mm_ll">planner</span></a></div>
