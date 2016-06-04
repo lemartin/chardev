@@ -1,0 +1,15 @@
+website:
+  build: website
+  ports:
+   - "8080:80"
+  volumes:
+   - ../website:/opt/chardev/10.0/website
+  links:
+   - database:database
+
+database:
+  build: database
+  ports:
+   - "3306:3306"
+  environment:
+   - MYSQL_ALLOW_EMPTY_PASSWORD=1

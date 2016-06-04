@@ -1,6 +1,16 @@
 #!/usr/bin/env bash
 
-mkdir -p sql.d
-cp ./../../database/schemas/*.sql sql.d/
+touch import.sql
+
+
+for f in ../../database/schema/*.sql
+do
+    cat "$f" >> import.sql
+done
+
+for f in ../../database/data/*.sql
+do
+    cat "$f" >> import.sql
+done
 
 docker build --tag=chardev/database:10.0 .

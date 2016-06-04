@@ -27,13 +27,13 @@ class UserDatabase {
 	}
 	
 	private function __construct() {
-		$this->db = new \PDO("mysql:dbname=chardev;host=database", "root", "");
+		$this->db = new \PDO("mysql:dbname=chardev_user;host=database", "root", "");
 	}
 	
 	public function getUserData( $userId ) {
 		$data = DatabaseHelper::fetchOne(
 				$this->db,
-				'SELECT * FROM chardev.`user` u LEFT JOIN chardev_user.`user_data` ud ON u.`userID` = ud.`UserID` WHERE u.`userID`= ?',
+				'SELECT * FROM chardev_user.`user` u LEFT JOIN chardev_user.`user_data` ud ON u.`userID` = ud.`UserID` WHERE u.`userID`= ?',
 				array($userId)
 		);
 		
@@ -43,7 +43,7 @@ class UserDatabase {
 		
 		$donatedRecord = DatabaseHelper::fetchOne(
 				$this->db, 
-				"SELECT SUM(amount) as sum FROM chardev.`donations` WHERE `userID`=?", 
+				"SELECT SUM(amount) as sum FROM chardev_user.`donations` WHERE `userID`=?",
 				array($userId)
 		);
 		
@@ -53,7 +53,7 @@ class UserDatabase {
 	} 
 	
 	public function getUserIdForName( $userName ) {
-		$record = DatabaseHelper::fetchOne( $this->db, 'SELECT `userID` FROM chardev.`user` WHERE `name` LIKE ?', array($userName));
+		$record = DatabaseHelper::fetchOne( $this->db, 'SELECT `userID` FROM chardev_user.`user` WHERE `name` LIKE ?', array($userName));
 		if( ! $record ) {
 			throw new \chardev\backend\DoesNotExistException("User {$userName} not found!");
 		}
@@ -61,7 +61,7 @@ class UserDatabase {
 	}
 	
 	public function getUserIdForEmail( $email ) {
-		$record = DatabaseHelper::fetchOne( $this->db, 'SELECT `userID` FROM chardev.`user` WHERE `email` LIKE ?', array($email));
+		$record = DatabaseHelper::fetchOne( $this->db, 'SELECT `userID` FROM chardev_user.`user` WHERE `email` LIKE ?', array($email));
 		if( ! $record ) {
 			throw new \chardev\backend\DoesNotExistException("User with e-mail {$email} not found!");
 		}
@@ -69,7 +69,7 @@ class UserDatabase {
 	}
 	
 	public function changePassword( $userId, $password ) {
-		DatabaseHelper::execute($this->db, "UPDATE chardev.`user` SET `pw` = ? WHERE `userID` = ?", array($password,$userId));
+		DatabaseHelper::execute($this->db, "UPDATE chardev_user.`user` SET `pw` = ? WHERE `userID` = ?", array($password,$userId));
 	}
 	
 	public function getBattleNetProfiles( $userId ) {
@@ -278,7 +278,7 @@ class UserDatabase {
 	}
 	
 	public function getTotalDonations() {
-		$record = DatabaseHelper::fetchOne($this->db, "SELECT sum(`amount`) as `Total` FROM `donations`");
+		$record = DatabaseHelper::fetchOne($this->db, "SELECT sum(`amount`) as `Total` FROM chardev_user.`donations`");
 		return $record["Total"];
 	}
 	
@@ -294,14 +294,14 @@ class UserDatabase {
 		
 		$record = DatabaseHelper::fetchOne(
 				$this->db, 
-				"SELECT * FROM `user` WHERE `name` LIKE ? AND `pw` LIKE ?",
+				"SELECT * FROM chardev_user.`user` WHERE `name` LIKE ? AND `pw` LIKE ?",
 				array($userName,$password)
 		);
 		
 		if( ! $record ) {
 			$recordPending = DatabaseHelper::fetchOne(
 					$this->db,
-					"SELECT * FROM `pending` WHERE `name` LIKE ? AND `pw` LIKE ?",
+					"SELECT * FROM chardev_user.`pending` WHERE `name` LIKE ? AND `pw` LIKE ?",
 					array($userName,$password)
 			);
 			
@@ -509,7 +509,7 @@ class UserDatabase {
 	public function deleteUser( \chardev\backend\entities\User $user ) {
 		DatabaseHelper::execute($this->db, "DELETE FROM chardev_user.`userbattlenetprofilerelation` WHERE `UserID`= ?",array($user->getId()));
 		DatabaseHelper::execute($this->db, "DELETE FROM chardev_user.`user_data` WHERE `UserID`= ?",array($user->getId()));
-		DatabaseHelper::execute($this->db, "UPDATE chardev.`user` SET name = NULL, pw = NULL, email = NULL WHERE `userID`= ?",array($user->getId()));
+		DatabaseHelper::execute($this->db, "UPDATE chardev_user.`user` SET name = NULL, pw = NULL, email = NULL WHERE `userID`= ?",array($user->getId()));
 	}
 	
 	public function addUser( $name, $email, $password, $language, $region ) {
@@ -530,9 +530,9 @@ class UserDatabase {
 			throw new \Exception("E-mail is too short!");
 		}
 		
-		DatabaseHelper::query(  $this->db, "LOCK TABLES chardev.`user` WRITE, chardev.`pending` WRITE");
+		DatabaseHelper::query(  $this->db, "LOCK TABLES chardev_user.`user` WRITE, chardev_user.`pending` WRITE");
 		
-		$record = DatabaseHelper::fetchOne($this->db, "SELECT * FROM chardev.`user` WHERE `name` LIKE ? OR `email` LIKE ?", array($name, $email));
+		$record = DatabaseHelper::fetchOne($this->db, "SELECT * FROM chardev_user.`user` WHERE `name` LIKE ? OR `email` LIKE ?", array($name, $email));
 		
 		if( $record ) {
 			if( $record['email'] == $email ) {
@@ -545,7 +545,7 @@ class UserDatabase {
 			}
 		}
 		
-		$record = DatabaseHelper::fetchOne($this->db, "SELECT * FROM `pending` WHERE `name` LIKE ? OR `email` LIKE ?", array($name, $email));
+		$record = DatabaseHelper::fetchOne($this->db, "SELECT * FROM chardev_user.`pending` WHERE `name` LIKE ? OR `email` LIKE ?", array($name, $email));
 		if( $record ) {
 			if( $record['email'] == $email ) {
 				DatabaseHelper::unlock($this->db);
@@ -558,7 +558,7 @@ class UserDatabase {
 		}
 		
 		if( rand(0,0) == 0) {
-			DatabaseHelper::execute($this->db, "DELETE FROM `pending` WHERE `timestamp` < ?", array(time() - self::ACTIVATION_TIMEOUT));
+			DatabaseHelper::execute($this->db, "DELETE FROM chardev_user.`pending` WHERE `timestamp` < ?", array(time() - self::ACTIVATION_TIMEOUT));
 		}
 		
 		$time = time();
@@ -574,7 +574,7 @@ class UserDatabase {
 			default: $language = 0;
 		}
 		
-		DatabaseHelper::execute($this->db, "INSERT INTO chardev.`pending` VALUES (?,?,?,?,?,?,?)", array(
+		DatabaseHelper::execute($this->db, "INSERT INTO chardev_user.`pending` VALUES (?,?,?,?,?,?,?)", array(
 				$name,
 				$password,
 				$email,
@@ -589,17 +589,17 @@ class UserDatabase {
 	}
 	
 	protected function sendActivationMail( $name, $email, $token ) {
-		$url = "http://chardev.org/Register.html?Token=" . rawurlencode($token); 
+		$url = "http://chardev_user.org/Register.html?Token=" . rawurlencode($token);
 		include __DIR__ . '/../../../resources/activationMail.inc';
 		@mail($email,"Confirm your registration at chardev",$content,$headers);
 	}
 	
 	public function resendActivationMail( $name ) {
-		$record = DatabaseHelper::fetchOne($this->db, "SELECT * FROM chardev.`pending` WHERE `name` LIKE ?", array($name));
+		$record = DatabaseHelper::fetchOne($this->db, "SELECT * FROM chardev_user.`pending` WHERE `name` LIKE ?", array($name));
 		
 		if( ! $record ) {
 			
-			$activated = DatabaseHelper::fetchOne($this->db, "SELECT * FROM chardev.`user` WHERE `name` LIKE ?", array($name));
+			$activated = DatabaseHelper::fetchOne($this->db, "SELECT * FROM chardev_user.`user` WHERE `name` LIKE ?", array($name));
 			
 			if( $activated ) {
 				throw new \Exception("The account is already active!");
@@ -613,15 +613,15 @@ class UserDatabase {
 	}
 	
 	public function activateUser( $token ) {
-		DatabaseHelper::execute($this->db, "LOCK TABLES chardev.`pending` WRITE, chardev.`user` WRITE");
-		$record = DatabaseHelper::fetchOne($this->db, "SELECT * FROM chardev.`pending` WHERE `guid` = ?", array($token));
+		DatabaseHelper::execute($this->db, "LOCK TABLES chardev_user.`pending` WRITE, chardev_user.`user` WRITE");
+		$record = DatabaseHelper::fetchOne($this->db, "SELECT * FROM chardev_user.`pending` WHERE `guid` = ?", array($token));
 		
 		if( !$record ) {
 			DatabaseHelper::unlock($this->db);
 			throw new \Exception("The token is invalid!");
 		}
 		
-		DatabaseHelper::execute($this->db, "INSERT INTO chardev.`user` VALUES (NULL,?,?,?,?,0,NULL,0)", array(
+		DatabaseHelper::execute($this->db, "INSERT INTO chardev_user.`user` VALUES (NULL,?,?,?,?,0,NULL,0)", array(
 				$record['name'],
 				$record['pw'],
 				$record['email'],
@@ -636,7 +636,7 @@ class UserDatabase {
 			$user->setLanguage($record['Language']);
 			$user->setRegion($record['Region']);
 			
-			DatabaseHelper::execute($this->db, "DELETE FROM chardev.`pending` WHERE `guid`=?",array($record["guid"]));
+			DatabaseHelper::execute($this->db, "DELETE FROM chardev_user.`pending` WHERE `guid`=?",array($record["guid"]));
 			
 			return $user->getId();
 		}

@@ -32,7 +32,7 @@ class Database {
 	}
 	
 	public static function getTotalAmountDonated () {
-		$record = DatabaseHelper::fetchOne(self::getConnection(),"SELECT sum(`amount`) as `Total` FROM chardev.`donations`");
+		$record = DatabaseHelper::fetchOne(self::getConnection(),"SELECT sum(`amount`) as `Total` FROM chardev_user.`donations`");
 		
 		return $record["Total"];
 	}

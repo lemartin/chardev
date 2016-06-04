@@ -1,3 +1,3 @@
 FROM mysql:5.7
 
-ADD sql.d/*.sql /docker-entrypoint-initdb.d/
+ADD import.sql /docker-entrypoint-initdb.d/
