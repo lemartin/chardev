@@ -1,0 +1,7 @@
+{
+  "name": "gtresiliencedr",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "f2", "type": "float"}
+  ]
+}

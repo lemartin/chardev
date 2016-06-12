@@ -1,0 +1,33 @@
+{
+  "name": "faction",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {"type": "float"},
+    {"type": "float"},
+    {},
+    {},
+    {"name": "Name", "type": "string"},
+    {"name": "Description", "type": "string"},
+    {},
+    {},
+    {}
+  ]
+}

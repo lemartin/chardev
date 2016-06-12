@@ -1,0 +1,14 @@
+{
+  "name": "skillline",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "Category", "type": "integer"},
+    {"name": "Name", "type": "string"},
+    {"name": "Description", "type": "string"},
+    {},
+    {"type": "string"},
+    {},
+    {},
+    {}
+  ]
+}

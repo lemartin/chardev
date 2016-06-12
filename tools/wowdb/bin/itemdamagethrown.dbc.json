@@ -1,0 +1,14 @@
+{
+  "name": "itemdamagethrown",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"type": "float"},
+    {"type": "float"},
+    {"type": "float"},
+    {"type": "float"},
+    {"type": "float"},
+    {"type": "float"},
+    {"type": "float"},
+    {"name": "ItemLevel", "type": "integer"}
+  ]
+}

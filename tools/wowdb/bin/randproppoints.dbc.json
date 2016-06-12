@@ -1,0 +1,21 @@
+{
+  "name": "randproppoints",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "PointsQuality4Group0", "type": "integer"},
+    {"name": "PointsQuality4Group1", "type": "integer"},
+    {"name": "PointsQuality4Group2", "type": "integer"},
+    {"name": "PointsQuality4Group3", "type": "integer"},
+    {"name": "PointsQuality4Group4", "type": "integer"},
+    {"name": "PointsQuality3Group0", "type": "integer"},
+    {"name": "PointsQuality3Group1", "type": "integer"},
+    {"name": "PointsQuality3Group2", "type": "integer"},
+    {"name": "PointsQuality3Group3", "type": "integer"},
+    {"name": "PointsQuality3Group4", "type": "integer"},
+    {"name": "PointsQuality2Group0", "type": "integer"},
+    {"name": "PointsQuality2Group1", "type": "integer"},
+    {"name": "PointsQuality2Group2", "type": "integer"},
+    {"name": "PointsQuality2Group3", "type": "integer"},
+    {"name": "PointsQuality2Group4", "type": "integer"}
+  ]
+}

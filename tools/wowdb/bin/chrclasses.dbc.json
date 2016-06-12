@@ -1,0 +1,24 @@
+{
+  "name": "chrclasses",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {},
+    {},
+    {"type": "string"},
+    {},
+    {},
+    {"type": "string"},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {}
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "name": "spell",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "Name", "type": "string"},
+    {"name": "Rank", "type": "string"},
+    {"name": "Description", "type": "string"},
+    {"name": "BuffDescription", "type": "string"},
+    {"name": "SpellRuneCostID", "type": "integer"},
+    {"name": "SpellMissileID", "type": "integer"},
+    {"name": "SpellDescriptionVariablesID", "type": "integer"},
+    {"name": "SpellScalingID", "type": "integer"},
+    {"name": "SpellAuraOptionsID", "type": "integer"},
+    {"name": "SpellAuraRestrictionsID", "type": "integer"},
+    {"name": "SpellCastingRequirementsID", "type": "integer"},
+    {"name": "SpellCategoriesID", "type": "integer"},
+    {"name": "SpellClassOptionsID", "type": "integer"},
+    {"name": "SpellCooldownsID", "type": "integer"},
+    {"name": "SpellEquippedItemsID", "type": "integer"},
+    {"name": "SpellInterruptsID", "type": "integer"},
+    {"name": "SpellLevelsID", "type": "integer"},
+    {"name": "SpellReagentsID", "type": "integer"},
+    {"name": "SpellShapeshiftID", "type": "integer"},
+    {"name": "SpellTargetRestrictionsID", "type": "integer"},
+    {"name": "ResearchProjectID", "type": "integer"},
+    {},
+    {"name": "SpellMiscID", "type": "integer"}
+  ]
+}

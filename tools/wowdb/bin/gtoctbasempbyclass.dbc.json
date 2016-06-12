@@ -1,0 +1,7 @@
+{
+  "name": "gtoctbasempbyclass",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "BaseMp", "type": "float"}
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "name": "itemset",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "Name", "type": "string"},
+    {"name": "ItemID1", "type": "integer"},
+    {"name": "ItemID2", "type": "integer"},
+    {"name": "ItemID3", "type": "integer"},
+    {"name": "ItemID4", "type": "integer"},
+    {"name": "ItemID5", "type": "integer"},
+    {"name": "ItemID6", "type": "integer"},
+    {"name": "ItemID7", "type": "integer"},
+    {"name": "ItemID8", "type": "integer"},
+    {"name": "ItemID9", "type": "integer"},
+    {"name": "ItemID10", "type": "integer"},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {}
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "spellcategory",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {},
+    {},
+    {},
+    {},
+    {"name": "Cooldown", "type": "integer", "comment": "in milliseconds"}
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "name": "skilllineability",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "SkillLineID", "type": "integer"},
+    {"name": "SpellID", "type": "integer"},
+    {"name": "RaceMask", "type": "integer"},
+    {"name": "ClassMask", "type": "integer"},
+    {"name": "RequiredSkill", "type": "integer"},
+    {"name": "ReplaceSpellID", "type": "integer"},
+    {},
+    {"name": "Grey", "type": "integer"},
+    {"name": "Yellow", "type": "integer"},
+    {},
+    {},
+    {}
+  ]
+}

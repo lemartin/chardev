@@ -1,0 +1,11 @@
+{
+  "name": "gemproperties",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "SpellItemEnchantmentID", "type": "integer"},
+    {},
+    {},
+    {},
+    {"name": "MinItemLevel", "type": "integer"}
+  ]
+}

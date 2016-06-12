@@ -1,0 +1,14 @@
+{
+  "name": "spellauraoptions",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {},
+    {},
+    {"name": "Stacks", "type": "integer"},
+    {"name": "ProcRate", "type": "integer"},
+    {"name": "ProcCharges", "type": "integer"},
+    {},
+    {},
+    {}
+  ]
+}

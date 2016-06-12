@@ -1,0 +1,14 @@
+{
+  "name": "itemarmorshield",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "ItemLevel", "type": "integer"},
+    {"type": "float"},
+    {"type": "float"},
+    {"type": "float"},
+    {"type": "float"},
+    {"type": "float"},
+    {"type": "float"},
+    {"type": "float"}
+  ]
+}

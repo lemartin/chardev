@@ -1,0 +1,10 @@
+{
+  "name": "glyphproperties",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "SpellID", "type": "integer"},
+    {"name": "Type", "type": "integer"},
+    {},
+    {}
+  ]
+}

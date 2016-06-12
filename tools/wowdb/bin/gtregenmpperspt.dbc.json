@@ -1,0 +1,7 @@
+{
+  "name": "gtregenmpperspt",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "Value", "type": "float"}
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "name": "chrspecialization",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "Icon", "type": "string"},
+    {"name": "ChrClassID", "type": "integer"},
+    {"name": "SpellID", "type": "integer"},
+    {},
+    {"name": "Position", "type": "integer"},
+    {},
+    {"name": "Role", "type": "integer"},
+    {"name": "SpellIconID", "type": "integer"},
+    {},
+    {},
+    {"name": "Name", "type": "string"},
+    {"type": "string"},
+    {"name": "Description", "type": "string"},
+    {},
+    {}
+  ]
+}

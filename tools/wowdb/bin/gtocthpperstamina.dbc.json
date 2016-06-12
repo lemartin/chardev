@@ -1,0 +1,7 @@
+{
+  "name": "gtocthpperstamina",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "HpPerStamina", "type": "float"}
+  ]
+}

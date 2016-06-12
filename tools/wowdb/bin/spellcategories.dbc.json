@@ -1,0 +1,15 @@
+{
+  "name": "spellcategories",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "SpellID", "type": "integer"},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {}
+  ]
+}

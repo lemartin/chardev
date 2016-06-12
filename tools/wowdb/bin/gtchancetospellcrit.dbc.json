@@ -1,0 +1,7 @@
+{
+  "name": "gtchancetospellcrit",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "Chance", "type": "float"}
+  ]
+}

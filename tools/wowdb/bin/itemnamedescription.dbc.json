@@ -1,0 +1,8 @@
+{
+  "name": "itemnamedescription",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "Description","type": "string"},
+    {"name": "Color", "type": "integer"}
+  ]
+}

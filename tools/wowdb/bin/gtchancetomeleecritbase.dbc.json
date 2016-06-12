@@ -1,0 +1,7 @@
+{
+  "name": "gtchancetomeleecritbase",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "Chance", "type": "float"}
+  ]
+}

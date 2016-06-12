@@ -1,0 +1,13 @@
+{
+  "name": "skillraceclassinfo",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "SkillLineID", "type": "integer"},
+    {"name": "RaceMask", "type": "integer"},
+    {"name": "ClassMask", "type": "integer"},
+    {},
+    {},
+    {},
+    {}
+  ]
+}

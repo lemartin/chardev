@@ -1,0 +1,11 @@
+{
+  "name": "spellcooldowns",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "SpellID", "type": "integer"},
+    {},
+    {"name": "Spell", "type": "integer"},
+    {"name": "Category", "type": "integer"},
+    {"name": "Global", "type": "integer"}
+  ]
+}

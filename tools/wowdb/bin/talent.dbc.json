@@ -1,0 +1,16 @@
+{
+  "name": "talent",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "PetID", "type": "integer"},
+    {"name": "Row", "type": "integer"},
+    {"name": "Column", "type": "integer"},
+    {"name": "SpellID", "type": "integer"},
+    {},
+    {"name": "PetMask1", "type": "integer"},
+    {"name": "PetMask2", "type": "integer"},
+    {"name": "CharacterClassID", "type": "integer"},
+    {"name": "ReplacedSpellID", "type": "integer"},
+    {}
+  ]
+}
