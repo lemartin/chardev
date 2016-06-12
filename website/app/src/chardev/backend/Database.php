@@ -15,7 +15,7 @@ class Database {
 		//TODO multi-lang support
 		//$suffix = \chardev\Language::getInstance()->toDatabaseSuffix();
 		$suffix = "";
-		self::$connection = new \PDO("mysql:dbname=chardev_mop{$suffix};host=database", "root", "");
+		self::$connection = new \PDO("mysql:dbname=chardev_mop{$suffix};host=chardev-database", "root", "");
 		self::$connection->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
 		self::$connection->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 	}

@@ -5,7 +5,7 @@ define("ICONS_PER_PAGE", 8*16);
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1; if( $page < 1 ) $page = 1; 
 $name = isset($_GET['name']) ? (string)$_GET['name'] : ""; $name = "%".$name."%";
 
-$db = new \PDO("mysql:dbname=chardev_user;host=database", "root", "");
+$db = new \PDO("mysql:dbname=chardev_user;host=chardev-database", "root", "");
 
 
 $ipp = ICONS_PER_PAGE;

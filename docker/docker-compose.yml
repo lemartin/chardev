@@ -5,7 +5,8 @@ website:
   volumes:
    - ../website:/opt/chardev/10.0/website
   links:
-   - database:database
+   - database:chardev-database
+   - cache:chardev-cache
 
 database:
   build: database
@@ -13,3 +14,6 @@ database:
    - "3306:3306"
   environment:
    - MYSQL_ALLOW_EMPTY_PASSWORD=1
+
+cache:
+  image: memcached:1.4

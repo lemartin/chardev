@@ -15,7 +15,7 @@ class Constants
 	const MONK = 10;
 	const DRUID = 11;
 	
-	const USE_CACHE = false;
+	const USE_CACHE = true;
 	const STRICT = false;
 	
 	const ITEMS_PER_PAGE = 20;

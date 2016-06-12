@@ -1,3 +1,3 @@
-FROM mysql:5.7
+FROM redis:3.2
 
 ADD import.sql /docker-entrypoint-initdb.d/

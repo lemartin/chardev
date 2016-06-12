@@ -115,7 +115,7 @@ abstract class Data
 	}
 	
 	private function getKey( $id ) {
-		return preg_replace('/\\\\/', '', get_class($this) . Language::getInstance()->toSuffixString() . $id);
+		return get_class($this) . "::" . Language::getInstance()->toSuffixString() . "::" . $id;
 	}
 }
 

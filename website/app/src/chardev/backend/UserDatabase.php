@@ -27,7 +27,7 @@ class UserDatabase {
 	}
 	
 	private function __construct() {
-		$this->db = new \PDO("mysql:dbname=chardev_user;host=database", "root", "");
+		$this->db = new \PDO("mysql:dbname=chardev_user;host=chardev-database", "root", "");
 	}
 	
 	public function getUserData( $userId ) {
