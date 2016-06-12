@@ -1,0 +1,14 @@
+{
+  "name": "spellmisc",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "ItemClass", "type": "integer"},
+    {"name": "ItemSubClass", "type": "integer"},
+    {},
+    {},
+    {"name": "InventorySlot", "type": "integer"},
+    {},
+    {},
+    {}
+  ]
+}
