@@ -1,0 +1,9 @@
+{
+  "name": "rulesetitemupgrade",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {},
+    {"name": "ItemUpgradeID", "type": "integer"},
+    {"name": "ItemID", "type": "integer"}
+  ]
+}

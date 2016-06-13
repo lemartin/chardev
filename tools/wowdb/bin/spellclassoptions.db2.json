@@ -1,0 +1,12 @@
+{
+  "name": "spellclassoptions",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {"name": "SpellClassID", "type": "integer"}
+  ]
+}

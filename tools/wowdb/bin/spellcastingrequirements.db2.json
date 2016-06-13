@@ -1,0 +1,12 @@
+{
+  "name": "spellcastingrequirements",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {}
+  ]
+}

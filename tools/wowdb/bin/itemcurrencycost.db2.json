@@ -1,0 +1,7 @@
+{
+  "name": "itemcurrencycost",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "CurrencyID", "type": "integer"}
+  ]
+}

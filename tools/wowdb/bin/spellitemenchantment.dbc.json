@@ -1,0 +1,31 @@
+{
+  "name": "spellitemenchantment",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {},
+    {"name": "Type1", "type": "integer"},
+    {"name": "Type2", "type": "integer"},
+    {"name": "Type3", "type": "integer"},
+    {"name": "Value1", "type": "integer"},
+    {"name": "Value2", "type": "integer"},
+    {"name": "Value3", "type": "integer"},
+    {"name": "SpellID1", "type": "integer"},
+    {"name": "SpellID2", "type": "integer"},
+    {"name": "SpellID3", "type": "integer"},
+    {"name": "Description", "type": "string"},
+    {},
+    {"name": "EnchantSlot", "type": "integer"},
+    {},
+    {"name": "SpellItemEnchantmentConditionID", "type": "integer"},
+    {"name": "RequiredSkillLineID", "type": "integer"},
+    {"name": "RequiredSkillLineLevel", "type": "integer"},
+    {"name": "RequiredCharacterLevel", "type": "integer"},
+    {},
+    {},
+    {},
+    {},
+    {"type": "float"},
+    {},
+    {}
+  ]
+}

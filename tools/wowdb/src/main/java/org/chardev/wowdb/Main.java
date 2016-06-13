@@ -60,7 +60,7 @@ public class Main {
 
                 final Path path = Paths.get(args[1]);
                 final DataFile dataFile = DataFile.open(path);
-                final Definition definition = Definition.fromConfig(ConfigFactory.parseFile(new File(path.getFileName().toString() + ".json")));
+                final Definition definition = Definition.fromConfig(ConfigFactory.parseFile(new File(path.getFileName().toString().toLowerCase() + ".json")));
 
                 final RecordParser parser = new RecordParser();
                 for (RecordParser.Field[] fields : parser.parse(dataFile, definition)) {
@@ -77,7 +77,7 @@ public class Main {
             case "parse": {
                 final Path path = Paths.get(args[1]);
                 final DataFile dataFile = DataFile.open(path);
-                final Definition definition = Definition.fromConfig(ConfigFactory.parseFile(new File(path.getFileName().toString() + ".json")));
+                final Definition definition = Definition.fromConfig(ConfigFactory.parseFile(new File(path.getFileName().toString().toLowerCase() + ".json")));
 
                 final RecordParser parser = new RecordParser();
                 for (RecordParser.Field[] fields : parser.parse(dataFile, definition)) {

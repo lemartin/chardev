@@ -1,0 +1,9 @@
+{
+  "name": "spellflyoutitem",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {},
+    {},
+    {}
+  ]
+}

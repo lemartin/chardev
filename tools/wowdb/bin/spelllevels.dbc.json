@@ -1,0 +1,11 @@
+{
+  "name": "spelllevels",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {},
+    {},
+    {"name": "BaseLevel", "type": "integer"},
+    {"name": "MaximumLevel", "type": "integer"},
+    {"name": "SpellLevel", "type": "integer"}
+  ]
+}

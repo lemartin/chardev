@@ -1,0 +1,13 @@
+{
+  "name": "spellinterrupts",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {}
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "spellrange",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "MinimumHostile", "type": "float"},
+    {"name": "MinimumFriendly", "type": "float"},
+    {"name": "MaximumHostile", "type": "float"},
+    {"name": "MaximumFriendly", "type": "float"},
+    {},
+    {"name": "InternalName", "type": "string"},
+    {"name": "InternalDescription", "type": "string"}
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "name": "itemspecoverride",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "ItemID", "type": "integer"},
+    {"name": "ItemSpecGroupId", "type": "integer"}
+  ]
+}

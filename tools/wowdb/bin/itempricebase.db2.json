@@ -1,0 +1,9 @@
+{
+  "name": "itempricebase",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "ItemLevel", "type": "integer"},
+    {"name": "Sell", "type": "float"},
+    {"name": "Buy", "type": "float"}
+  ]
+}

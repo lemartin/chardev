@@ -1,0 +1,7 @@
+{
+  "name": "spellicon",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "Icon", "type": "string"}
+  ]
+}

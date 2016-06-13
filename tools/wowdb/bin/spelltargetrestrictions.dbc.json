@@ -1,0 +1,14 @@
+{
+  "name": "spelltargetrestrictions",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "SpellID", "type": "integer"},
+    {},
+    {"name": "Level", "type": "float"},
+    {},
+    {"name": "Targets", "type": "integer"},
+    {},
+    {},
+    {}
+  ]
+}

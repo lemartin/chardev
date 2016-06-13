@@ -1,0 +1,10 @@
+{
+  "name": "spellradius",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "Radius", "type": "float"},
+    {},
+    {"name": "MinRadius", "type": "float"},
+    {"type": "float"}
+  ]
+}

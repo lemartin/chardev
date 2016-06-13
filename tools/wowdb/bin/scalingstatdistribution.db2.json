@@ -1,0 +1,9 @@
+{
+  "name": "scalingstatdistribution",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "MinLevel", "type": "integer"},
+    {"name": "MaxLevel", "type": "integer"},
+    {"comment": "Probably a reference to to distribution"}
+  ]
+}

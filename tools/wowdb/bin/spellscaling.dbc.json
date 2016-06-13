@@ -1,0 +1,14 @@
+{
+  "name": "spellscaling",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "CastTimeStart", "type": "integer"},
+    {"name": "CastTimeEnd", "type": "integer"},
+    {"name": "Intervals", "type": "integer"},
+    {"name": "Distribution", "type": "integer"},
+    {"type": "float"},
+    {},
+    {},
+    {}
+  ]
+}

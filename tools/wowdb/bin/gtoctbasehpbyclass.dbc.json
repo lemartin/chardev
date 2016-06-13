@@ -1,0 +1,7 @@
+{
+  "name": "gtoctbasehpbyclass",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "BaseHp", "type": "float"}
+  ]
+}

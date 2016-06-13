@@ -1,0 +1,19 @@
+{
+  "name": "spellpower",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "SpellID", "type": "integer"},
+    {},
+    {"name": "Type", "type": "integer"},
+    {"name": "Absolute", "type": "integer"},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {"name": "Relative", "type": "float"},
+    {"type": "float"},
+    {},
+    {}
+  ]
+}

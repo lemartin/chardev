@@ -1,0 +1,9 @@
+{
+  "name": "itemclass",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {},
+    {"type": "float"},
+    {"name": "Name", "type": "string"}
+  ]
+}

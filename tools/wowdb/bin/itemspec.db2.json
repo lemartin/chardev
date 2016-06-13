@@ -1,0 +1,12 @@
+{
+  "name": "itemspec",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {"name": "GroupId", "type": "integer"}
+  ]
+}

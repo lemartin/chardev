@@ -1,0 +1,18 @@
+{
+  "name": "itemrandomsuffix",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "Name", "type": "string"},
+    {"name": "InternalDescription", "type": "string"},
+    {"name": "SpellItemEnchantmentID1", "type": "integer"},
+    {"name": "SpellItemEnchantmentID2", "type": "integer"},
+    {"name": "SpellItemEnchantmentID3", "type": "integer"},
+    {"name": "SpellItemEnchantmentID4", "type": "integer"},
+    {"name": "SpellItemEnchantmentID5", "type": "integer"},
+    {"name": "Coefficient1", "type": "integer"},
+    {"name": "Coefficient2", "type": "integer"},
+    {"name": "Coefficient3", "type": "integer"},
+    {"name": "Coefficient4", "type": "integer"},
+    {"name": "Coefficient5", "type": "integer"}
+  ]
+}

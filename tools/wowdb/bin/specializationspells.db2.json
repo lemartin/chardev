@@ -1,0 +1,11 @@
+{
+  "name": "specializationspells",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "ChrSpecializationID", "type": "integer"},
+    {},
+    {"name": "SpellID1", "type": "integer"},
+    {"name": "SpellID2", "type": "integer"},
+    {"name": "SpellID3", "type": "integer"}
+  ]
+}

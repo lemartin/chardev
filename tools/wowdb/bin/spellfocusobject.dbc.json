@@ -1,0 +1,7 @@
+{
+  "name": "spellfocusobject",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "Name", "type": "string"}
+  ]
+}

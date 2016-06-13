@@ -1,0 +1,11 @@
+{
+  "name": "spellequippeditems",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {},
+    {},
+    {"name": "ItemClassID", "type": "integer"},
+    {"name": "InventorySlotMask", "type": "integer"},
+    {"name": "ItemSubClassMask", "type": "integer"}
+  ]
+}

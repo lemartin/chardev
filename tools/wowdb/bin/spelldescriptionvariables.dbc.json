@@ -1,0 +1,7 @@
+{
+  "name": "spelldescriptionvariables",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "Definitions", "type": "string"}
+  ]
+}

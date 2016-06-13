@@ -1,0 +1,11 @@
+{
+  "name": "itemupgrade",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "GroupId", "type": "integer"},
+    {"name": "ItemLevelIncrease", "type": "integer"},
+    {"name": "RequiredItemUpgradeID", "type": "integer"},
+    {"name": "CurrencyID", "type": "integer"},
+    {"name": "CurrencyValue", "type": "integer"}
+  ]
+}

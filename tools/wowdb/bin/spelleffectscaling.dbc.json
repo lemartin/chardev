@@ -1,0 +1,11 @@
+{
+  "name": "spelleffectscaling",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "Coefficient", "type": "float"},
+    {"name": "Dice", "type": "float"},
+    {"type": "float"},
+    {"name": "SpellEffectID", "type": "integer"}
+  ],
+  "indexes": ["SpellEffectID"]
+}

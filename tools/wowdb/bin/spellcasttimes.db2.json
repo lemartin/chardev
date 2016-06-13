@@ -1,0 +1,9 @@
+{
+  "name": "spellcasttimes",
+  "fields": [
+    {"name": "ID", "type": "integer"},
+    {"name": "Time", "type": "integer"},
+    {},
+    {}
+  ]
+}
